@@ -95,7 +95,7 @@ function ReportDetailButton({
       variant="outline"
       className="w-full flex justify-between text-lg h-[48px]"
     >
-      <div>{latestReportedReason}</div>
+      <div className="text-[#484B4D]">{latestReportedReason}</div>
       <ChevronRight />
     </Button>
   );
