@@ -1,9 +1,10 @@
 "use server";
 
 import { Profile } from "@/app/(main)/profiles/columns";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { authOptions } from "./authOptions";
 import { UserProfileValidationResponse } from "./types";
 
 export async function getProfiles(page: number) {
