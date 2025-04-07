@@ -17,7 +17,7 @@ export default function QuestionCard({ data }: { data: QuestionResponseType }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <Card className="bg-secondary px-[16px] py-[14px]">
+        <Card className="bg-secondary px-[16px] py-[14px] border-none">
           <CardContent className="p-0 min-h-[300px]">{data.answer}</CardContent>
         </Card>
       </CardContent>
