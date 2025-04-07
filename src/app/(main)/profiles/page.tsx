@@ -10,7 +10,7 @@ export default async function Page({
   searchParams: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
-  const data = await getProfiles(parseInt(params.page) - 1 || 0);
+  const data = await getProfiles(params.page ? parseInt(params.page) - 1 : 0);
   return (
     <div className="space-y-[44px] mb-[86px]">
       <DataTable columns={columns} data={data.content} />
