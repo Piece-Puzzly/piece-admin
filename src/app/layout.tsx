@@ -1,11 +1,18 @@
+import { AuthProvider } from "@/components/AuthProvider";
 import type { Metadata } from "next";
-import { Noto_Sans_KR } from "next/font/google";
+import localFont from "next/font/local";
 import Header from "./_components/Header";
 import "./globals.css";
 
-const notoSans = Noto_Sans_KR({
-  subsets: ["latin"],
+const pretendard = localFont({
+  src: "../font/PretendardVariable.woff2",
+  display: "swap",
+  weight: "45 920",
+  variable: "--font-pretendard",
 });
+// const notoSans = Noto_Sans_KR({
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,12 +25,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html
+      lang="ko"
+      suppressHydrationWarning
+      className={`${pretendard.variable}`}
+    >
       <body
-        className={`${notoSans.className} antialiased h-screen flex flex-col`}
+        className={`${pretendard.className} antialiased h-screen flex flex-col`}
       >
-        <Header />
-        <div className="flex-1">{children}</div>
+        <AuthProvider>
+          <Header />
+          <div className="flex-1">{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );

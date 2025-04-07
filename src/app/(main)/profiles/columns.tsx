@@ -1,15 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -18,9 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
+import { updateProfileStatus } from "@/lib/server";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronRight } from "lucide-react";
+import ProfileDialog from "./_components/ProfileDialog";
+import SubmitToggle from "./_components/SubmitToggle";
 export type Profile = {
   userId?: number;
   nickname?: string;
@@ -41,30 +33,10 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "nickname",
     header: "매칭 프로필",
     cell: ({ row }) => {
-      // const id = row.original.userId;
+      const id = row.original.userId as number;
       const nickname = row.getValue("nickname") as string;
-      return (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full flex justify-between h-full text-lg h-[48px]"
-            >
-              <div>{nickname}</div>
-              <ChevronRight />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Are you absolutely sure?</DialogTitle>
-              <DialogDescription>
-                This action cannot be undone. This will permanently delete your
-                account and remove your data from our servers.
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      );
+
+      return <ProfileDialog id={id} nickname={nickname} />;
     },
   },
   {
@@ -110,7 +82,7 @@ export const columns: ColumnDef<Profile>[] = [
       const profileStatus = row.getValue(
         "profileStatus"
       ) as Profile["profileStatus"];
-      console.log(profileStatus);
+
       const menu = [
         { name: "보류", color: "#FF3059" },
         { name: "미완료", color: "#6F00FB" },
@@ -141,6 +113,7 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "rejectStatus",
     header: "부적격",
     cell: ({ row }) => {
+      const id: number = row.original.userId!;
       const rejectStatus: { [key: string]: boolean } = row.getValue(
         "rejectStatus"
       ) as Profile["rejectStatus"];
@@ -148,10 +121,22 @@ export const columns: ColumnDef<Profile>[] = [
         { name: "사진", key: "image" },
         { name: "소개글", key: "description" },
       ];
+
       return (
         <div className="grid grid-cols-2 gap-x-2 h-[46px]">
           {rejectionType.map(({ name }, i) => (
             <Toggle
+              onClick={async () => {
+                const a = {
+                  [rejectionType[i].key]: !rejectStatus[rejectionType[i].key],
+                  [rejectionType[i].key === "image" ? "description" : "image"]:
+                    rejectStatus[
+                      rejectionType[i].key === "image" ? "description" : "image"
+                    ],
+                };
+
+                await updateProfileStatus(id, a.image, a.description);
+              }}
               key={name}
               pressed={rejectStatus[rejectionType[i].key]}
               className="h-full  text-lg"
@@ -168,16 +153,7 @@ export const columns: ColumnDef<Profile>[] = [
     header: "제출",
     cell: ({ row }) => {
       const submit = row.getValue("submit") as Profile["submit"];
-      console.log(submit);
-      return (
-        <Toggle
-          pressed={submit}
-          variant={"outline"}
-          className="h-[46px] w-full text-lg"
-        >
-          제출
-        </Toggle>
-      );
+      return <SubmitToggle submit={submit as boolean} />;
     },
   },
 ];

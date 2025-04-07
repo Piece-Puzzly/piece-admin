@@ -21,7 +21,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function ReportDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -32,13 +32,13 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <Table>
-      <TableHeader>
+    <Table className="border-b">
+      <TableHeader className="[&_tr]:h-[38px] [&_tr]:border-0">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="text-[18px] bg-[#F4F6FA]">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -55,19 +55,26 @@ export function DataTable<TData, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
+              className="h-fit"
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  className="py-[10px] text-center text-[16px]"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>
           ))
         ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
+          <TableRow className="h-fit">
+            <TableCell
+              colSpan={columns.length}
+              className="py-[10px] text-center text-[16px]"
+            >
               No results.
             </TableCell>
           </TableRow>
