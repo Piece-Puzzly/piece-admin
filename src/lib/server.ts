@@ -14,7 +14,7 @@ export async function getProfiles(page: number) {
     return;
   }
   const response = await fetch(
-    loginServerInfo[session.loginServer].baseUrl +
+    loginServerInfo[session.loginServer || 0].baseUrl +
       `/users?page=${page}&size=${10}`,
     {
       method: "GET",
@@ -66,7 +66,8 @@ export const updateProfileStatus = async (
       return;
     }
     const response = await fetch(
-      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}/profile`,
+      loginServerInfo[session.loginServer || 0].baseUrl +
+        `/users/${userId}/profile`,
       {
         method: "POST",
         headers: {
@@ -94,7 +95,7 @@ export const getUserById = async (userId: number) => {
       return;
     }
     const response = await fetch(
-      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}`,
+      loginServerInfo[session.loginServer || 0].baseUrl + `/users/${userId}`,
       {
         method: "GET",
         headers: {
@@ -117,7 +118,7 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
       return;
     }
     const response = await fetch(
-      loginServerInfo[session.loginServer].baseUrl +
+      loginServerInfo[session.loginServer || 0].baseUrl +
         `/blocks?page=${page}&size=${size}`,
       {
         method: "GET",
@@ -141,7 +142,7 @@ export const getReportedDatas = async (page: number = 1, size: number = 10) => {
       return;
     }
     const response = await fetch(
-      loginServerInfo[session.loginServer].baseUrl +
+      loginServerInfo[session.loginServer || 0].baseUrl +
         `/reports?page=${page}&size=${size}`,
       {
         method: "GET",
@@ -169,7 +170,7 @@ export const getReportDetail = async (
       return;
     }
     const response = await fetch(
-      loginServerInfo[session.loginServer].baseUrl +
+      loginServerInfo[session.loginServer || 0].baseUrl +
         `/reports/users/${userId}?page=${page}&size=${size}`,
       {
         method: "GET",
