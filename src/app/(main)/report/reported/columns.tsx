@@ -62,7 +62,6 @@ export const columns: ColumnDef<ReportedUser>[] = [
         "latestReportedReason"
       ) as string;
       const id = row.original.userId as number;
-      const nickName = row.getValue("nickName") as string;
 
       return (
         <ReportDetailButton

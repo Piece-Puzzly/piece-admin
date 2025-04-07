@@ -1,6 +1,6 @@
 import PaginationDisplay from "@/components/PaginationDisplay";
-import { getReportDetail, getReportedDatas } from "@/lib/server";
-import { ReportDetail, ReportedResponseData } from "@/lib/types";
+import { getReportedDatas } from "@/lib/server";
+import { ReportedResponseData } from "@/lib/types";
 
 import { DataTable } from "@/components/data-table";
 import ReportReasonDialog from "./_components/ReportReasonDialog";
@@ -18,11 +18,9 @@ export default async function Page({
     10
   );
 
- 
-
   return (
     <div className="space-y-[44px] mb-[86px]">
-      <ReportReasonDialog/>
+      <ReportReasonDialog />
       <DataTable columns={columns} data={data.content} />
       <PaginationDisplay num={data.totalElements} />
     </div>
