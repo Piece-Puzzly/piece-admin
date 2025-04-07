@@ -134,7 +134,7 @@ export const columns: ColumnDef<Profile>[] = [
                       rejectionType[i].key === "image" ? "description" : "image"
                     ],
                 };
-
+                
                 await updateProfileStatus(id, a.image, a.description);
               }}
               key={name}

@@ -5,16 +5,21 @@ import { Profile } from "@/app/(main)/profiles/columns";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "./authOptions";
+import { loginServerInfo } from "./loginData";
 import { UserProfileValidationResponse } from "./types";
 
 export async function getProfiles(page: number) {
   const session = await getServerSession(authOptions);
+  if (!session) {
+    return;
+  }
   const response = await fetch(
-    `https://admin.puzzly.site/admin/v1/users?page=${page}&size=${10}`,
+    loginServerInfo[session.loginServer].baseUrl +
+      `/users?page=${page}&size=${10}`,
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     }
   );
@@ -57,8 +62,11 @@ export const updateProfileStatus = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return;
+    }
     const response = await fetch(
-      `https://admin.puzzly.site/admin/v1/users/${userId}/profile`,
+      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}/profile`,
       {
         method: "POST",
         headers: {
@@ -82,8 +90,11 @@ export const updateProfileStatus = async (
 export const getUserById = async (userId: number) => {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return;
+    }
     const response = await fetch(
-      `https://admin.puzzly.site/admin/v1/users/${userId}`,
+      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}`,
       {
         method: "GET",
         headers: {
@@ -102,8 +113,12 @@ export const getUserById = async (userId: number) => {
 export const getBlockDatas = async (page: number = 1, size: number = 10) => {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return;
+    }
     const response = await fetch(
-      `https://admin.puzzly.site/admin/v1/blocks?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/blocks?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {
@@ -122,8 +137,12 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
 export const getReportedDatas = async (page: number = 1, size: number = 10) => {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return;
+    }
     const response = await fetch(
-      `https://admin.puzzly.site/admin/v1/reports?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/reports?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {
@@ -146,8 +165,12 @@ export const getReportDetail = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return;
+    }
     const response = await fetch(
-      `https://admin.puzzly.site/admin/v1/reports/users/${userId}?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/reports/users/${userId}?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {

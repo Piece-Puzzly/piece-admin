@@ -2,14 +2,20 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { loginServerInfo } from "@/lib/loginData";
+
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+
 export default function LoginForm() {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
+  const [loginServer, setLoginServer] = useState<number>(0);
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await signIn("credentials", {
+    const res = await signIn(`${loginServerInfo[loginServer].name}-login`, {
       loginId: data.id,
       password: data.password,
       redirect: false,
@@ -26,29 +32,47 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col justify-center gap-[40px] items-center py-[40px]"
+      className="flex flex-col justify-center items-center py-[40px] gap-[40px]"
     >
-      <div className="space-y-4">
-        <div className="space-y-[8px]">
-          <div className="font-medium">아이디</div>
-          <Input
-            type="text"
-            className="w-[432px]"
-            placeholder="아이디를 입력하세요."
-            {...register("id")}
-          />
+      <Tabs className="w-[432px]" value={`${loginServer}`}>
+        <TabsList className="inline-flex w-full grid-cols-2">
+          {loginServerInfo.map(({ display }, i) => (
+            <TabsTrigger
+              disabled={i === 1}
+              onClick={() => {
+                setLoginServer(i);
+              }}
+              key={i}
+              value={`${i}`}
+            >
+              {display}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+      <div className="flex flex-col gap-[40px] ">
+        <div className="space-y-4">
+          <div className="space-y-[8px]">
+            <div className="font-medium">아이디</div>
+            <Input
+              type="text"
+              className="w-[432px]"
+              placeholder="아이디를 입력하세요."
+              {...register("id")}
+            />
+          </div>
+          <div className="space-y-[8px]">
+            <div className="font-medium">비밀번호</div>
+            <Input
+              type="password"
+              {...register("password")}
+              className="w-[432px]"
+              placeholder="비밀번호를 입력하세요."
+            />
+          </div>
         </div>
-        <div className="space-y-[8px]">
-          <div className="font-medium">비밀번호</div>
-          <Input
-            type="password"
-            {...register("password")}
-            className="w-[432px]"
-            placeholder="비밀번호를 입력하세요."
-          />
-        </div>
+        <Button className="w-[432px] h-[52px] text-base">로그인</Button>
       </div>
-      <Button className="w-[432px] h-[52px] text-base">로그인</Button>
     </form>
   );
 }
