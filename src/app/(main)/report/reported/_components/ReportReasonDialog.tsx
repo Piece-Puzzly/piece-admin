@@ -1,7 +1,6 @@
 "use client";
 
 import PaginationDisplay from "@/components/PaginationDisplay";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,86 +9,87 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getReportDetail } from "@/lib/server";
-import { ReportDetail, ReportedDetailResponseData } from "@/lib/types";
+import { getReportDetail, getUserById } from "@/lib/server";
+import {
+  ReportDetail,
+  ReportedDetailResponseData,
+  UserProfileDetailResponse,
+} from "@/lib/types";
+import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { ReportDataTable } from "./report-data-table";
-export default function ReportReasonDialog({
-  id,
-  nickName,
-  latestReportedReason,
-}: {
-  id: number;
-  nickName: string;
-  latestReportedReason: string;
-}) {
+
+export default function ReportReasonDialog() {
   const [data, setData] = useState<ReportedDetailResponseData | undefined>(
     undefined
   );
+  const [nickName, setNickName] = useState<string | undefined>(undefined);
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const createQueryString = useCallback(
-    (query: { key: string; value?: string }[]) => {
-      const params = new URLSearchParams(searchParams.toString());
-      for (const { key, value } of query) {
-        if (value === undefined) {
-          params.delete(key);
-        } else {
-          params.set(key, value);
-        }
-      }
-      return params.toString();
-    },
-    [searchParams]
-  );
+
   const router = useRouter();
+
+  useEffect(() => {
+    const id = searchParams.get("id");
+    if (id) {
+      (async () => {
+        const { data }: { data: ReportedDetailResponseData } =
+          await getReportDetail(parseInt(id as string) as number, 0, 10);
+        const { data: userData }: { data: UserProfileDetailResponse } =
+          await getUserById(parseInt(id));
+        setData(data);
+        setNickName(userData.nickname);
+      })();
+    }
+  }, [searchParams]);
+
   return (
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
           const { data }: { data: ReportedDetailResponseData } =
-            await getReportDetail(id as number, 0, 10);
-
+            await getReportDetail(
+              parseInt(searchParams.get("id") as string) as number,
+              0,
+              10
+            );
           setData(data);
         } else {
           router.push(
             pathname +
               "?" +
-              createQueryString([{ key: "id", value: undefined }])
+              createQueryString(searchParams, [
+                { key: "id", value: undefined },
+                { key: "reportpage", value: undefined },
+              ])
           );
         }
       }}
-      open={parseInt(searchParams.get("id") as string) === id}
+      open={searchParams.get("id") !== null}
     >
       <DialogTrigger asChild>
-        <Button
-          onClick={() =>
-            router.push(
-              pathname +
-                "?" +
-                createQueryString([{ key: "id", value: `${id}` }])
-            )
-          }
-          variant="outline"
-          className="w-full flex justify-between text-lg h-[48px]"
-        >
-          <div>{latestReportedReason}</div>
-          <ChevronRight />
-        </Button>
+        <button className="absolute hidden" />
       </DialogTrigger>
-      <DialogContent className="gap-0 w-[860px] lg:max-w-[860px] px-[40px] pt-[76px] pb-[40px]">
+      <DialogContent className="gap-0 w-[860px] lg:max-w-[860px] px-[40px] pt-[76px] pb-[49px]">
         <DialogHeader className="hidden">
           <DialogTitle></DialogTitle>
           <DialogDescription />
         </DialogHeader>
-        <div className="text-[24px] font-semibold pb-[16px]">{nickName}</div>
+        {nickName ? (
+          <div className="text-[24px] font-semibold pb-[16px]">{nickName}</div>
+        ) : (
+          <div>loading</div>
+        )}
         {data ? (
           <>
             <ReportDataTable columns={columns} data={data.content} />
-            <PaginationDisplay queryKey = {"reportpage"} num={data.totalElements} />
+            <PaginationDisplay
+              queryKey={"reportpage"}
+              num={data.totalElements}
+              className="mt-[20px] mb-0"
+            />
           </>
         ) : (
           <div>loading</div>

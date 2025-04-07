@@ -17,9 +17,11 @@ import { useCallback } from "react";
 export default function PaginationDisplay({
   num,
   queryKey = "page",
+  className,
 }: {
   num: number;
-  queryKey: string;
+  queryKey?: string;
+  className?: string;
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -39,7 +41,7 @@ export default function PaginationDisplay({
       : parseInt(searchParams.get(queryKey) as string);
 
   return (
-    <Pagination className="mb-8 mt-8">
+    <Pagination className={cn("mb-8 mt-[44px]", className)}>
       <PaginationContent className="gap-[6px]">
         <PaginationItem>
           <PaginationFirst

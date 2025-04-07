@@ -1,7 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import ReportReasonDialog from "./_components/ReportReasonDialog";
+import { ChevronRight } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -60,13 +63,41 @@ export const columns: ColumnDef<ReportedUser>[] = [
       ) as string;
       const id = row.original.userId as number;
       const nickName = row.getValue("nickName") as string;
+
       return (
-        <ReportReasonDialog
+        <ReportDetailButton
           id={id}
-          nickName={nickName}
           latestReportedReason={latestReportedReason}
         />
       );
     },
   },
 ];
+
+function ReportDetailButton({
+  id,
+  latestReportedReason,
+}: {
+  id: number;
+  latestReportedReason: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  return (
+    <Button
+      onClick={() =>
+        router.push(
+          pathname +
+            "?" +
+            createQueryString(searchParams, [{ key: "id", value: `${id}` }])
+        )
+      }
+      variant="outline"
+      className="w-full flex justify-between text-lg h-[48px]"
+    >
+      <div>{latestReportedReason}</div>
+      <ChevronRight />
+    </Button>
+  );
+}

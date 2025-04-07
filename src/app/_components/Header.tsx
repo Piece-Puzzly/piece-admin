@@ -6,7 +6,7 @@ export default async function Header() {
   const session = await getServerSession();
   return (
     <div className="shrink-0 h-20 flex w-full items-center justify-center border-b">
-      <div className="w-full max-w-screen-xl flex justify-between px-4 items-center">
+      <div className="w-full max-w-screen-xl flex justify-between pl-[40px] pr-4 items-center">
         <span className="flex flex-row gap-2 items-center">
           <Image
             src={"/logo1.png"}

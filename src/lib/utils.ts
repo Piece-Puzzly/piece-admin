@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { ReadonlyURLSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -61,3 +62,18 @@ export function getPagesNumber(
     return [currPage - 2, currPage - 1, currPage, currPage + 1, currPage + 2];
   }
 }
+
+export const createQueryString = (
+  searchParams: ReadonlyURLSearchParams,
+  query: { key: string; value?: string }[]
+) => {
+  const params = new URLSearchParams(searchParams.toString());
+  for (const { key, value } of query) {
+    if (value === undefined) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+  }
+  return params.toString();
+};

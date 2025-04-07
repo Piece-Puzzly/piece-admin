@@ -23,7 +23,7 @@ export default function MenuTabs() {
         {menuList.map((e) => (
           <LineTabsTrigger
             onClick={() => {
-              router.push(`/${e}`);
+              router.push(`/${e}` + (e === "report" ? "/blocked" : ""));
             }}
             key={e}
             value={e}
