@@ -6,7 +6,7 @@ import { columns } from "./columns";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string };
+  searchParams: Promise<{ [key: string]: string }>;
 }) {
   const params = await searchParams;
 

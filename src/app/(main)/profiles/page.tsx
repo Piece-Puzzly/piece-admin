@@ -7,7 +7,7 @@ import { getProfiles } from "@/lib/server";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
   const data = await getProfiles(parseInt(params.page) - 1 || 0);

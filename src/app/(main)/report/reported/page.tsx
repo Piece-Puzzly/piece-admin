@@ -9,7 +9,7 @@ import { columns } from "./columns";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { page?: string; id?: string; reportpage?: string };
+  searchParams: Promise<{ page?: string; id?: string; reportpage?: string }>;
 }) {
   const params = await searchParams;
 
