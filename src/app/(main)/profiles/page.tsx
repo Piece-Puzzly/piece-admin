@@ -7,10 +7,9 @@ import { getProfiles } from "@/lib/server";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string };
+  searchParams: { page?: string };
 }) {
   const params = await searchParams;
-
   const data = await getProfiles(parseInt(params.page) - 1 || 0);
   return (
     <div className="space-y-[44px] mb-[86px]">
