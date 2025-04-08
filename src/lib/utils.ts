@@ -75,6 +75,5 @@ export const createQueryString = (
       params.set(key, value);
     }
   }
-  
-  return params.toString(); 
+  return params.toString();
 };
