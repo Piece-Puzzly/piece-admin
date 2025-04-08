@@ -38,7 +38,7 @@ export default function LoginForm() {
         <TabsList className="inline-flex w-full grid-cols-2">
           {loginServerInfo.map(({ display }, i) => (
             <TabsTrigger
-              disabled={i === 1}
+              // disabled={i === 1}
               onClick={() => {
                 setLoginServer(i);
               }}
