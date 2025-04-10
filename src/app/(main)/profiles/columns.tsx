@@ -121,11 +121,13 @@ export const columns: ColumnDef<Profile>[] = [
         { name: "사진", key: "image" },
         { name: "소개글", key: "description" },
       ];
+      const profileStatus = row.getValue("profileStatus");
 
       return (
         <div className="grid grid-cols-2 gap-x-2 h-[46px]">
           {rejectionType.map(({ name }, i) => (
             <Toggle
+              disabled={profileStatus === "통과"}
               onClick={async () => {
                 const a = {
                   [rejectionType[i].key]: !rejectStatus[rejectionType[i].key],
@@ -134,7 +136,7 @@ export const columns: ColumnDef<Profile>[] = [
                       rejectionType[i].key === "image" ? "description" : "image"
                     ],
                 };
-                
+
                 await updateProfileStatus(id, a.image, a.description);
               }}
               key={name}
