@@ -8,8 +8,10 @@ const rejectionType: { name: string; key: "image" | "description" }[] = [
 ];
 export default function RejectedStatusToggle({
   rejectStatus,
+  profileStatus,
 }: {
   rejectStatus: Profile["rejectStatus"];
+  profileStatus: Profile["profileStatus"];
 }) {
   useEffect(() => {}, [rejectStatus.image, rejectStatus.description]);
   return (
@@ -18,11 +20,11 @@ export default function RejectedStatusToggle({
         ({ name, key }: { name: string; key: "image" | "description" }) => (
           <Toggle
             key={name}
-            // disabled={profileStatus}
             defaultPressed={rejectStatus[key]}
             onPressedChange={(e) => {
               rejectStatus[key] = e;
             }}
+            disabled={profileStatus === "통과"}
             className="h-full text-lg"
           >
             {name}

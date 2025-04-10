@@ -106,10 +106,17 @@ export const columns: ColumnDef<Profile>[] = [
       const rejectStatus: { [key: string]: boolean } = row.getValue(
         "rejectStatus"
       ) as Profile["rejectStatus"];
-
+      const profileStatus = row.getValue(
+        "profileStatus"
+      ) as Profile["profileStatus"];
       // const profileStatus: boolean = row.getValue("profileStatus");
 
-      return <RejectedStatusToggle rejectStatus={rejectStatus} />;
+      return (
+        <RejectedStatusToggle
+          profileStatus={profileStatus}
+          rejectStatus={rejectStatus}
+        />
+      );
     },
   },
   {
@@ -133,7 +140,7 @@ export const columns: ColumnDef<Profile>[] = [
           }}
           disabled={submit}
           variant={"outline"}
-          className="h-[46px] w-full text-lg border-foreground disabled:bg-[#CBD1D9]"
+          className="h-[46px] w-full text-lg border-foreground disabled:bg-[#CBD1D9] disabled:border-0"
         >
           제출
         </Button>
