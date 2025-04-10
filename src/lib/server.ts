@@ -1,12 +1,10 @@
 "use server";
 
-import { Profile } from "@/app/(main)/profiles/columns";
-
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "./authOptions";
 import { loginServerInfo } from "./loginData";
-import { UserProfileValidationResponse } from "./types";
+import { Profile, UserProfileValidationResponse } from "./types";
 
 export async function getProfiles(page: number) {
   const session = await getServerSession(authOptions);

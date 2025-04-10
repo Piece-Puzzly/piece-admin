@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,21 +10,10 @@ import {
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
+import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import ProfileDialog from "./_components/ProfileDialog";
-import SubmitToggle from "./_components/SubmitToggle";
-export type Profile = {
-  userId?: number;
-  nickname?: string;
-  name?: string;
-  birthdate?: string;
-  phoneNumber?: string;
-  joinDate?: string;
-  profileStatus?: string;
-  rejectStatus: { image?: boolean; description?: boolean };
-  submit?: boolean;
-};
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -113,7 +103,6 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "rejectStatus",
     header: "부적격",
     cell: ({ row }) => {
-      const id: number = row.original.userId!;
       const rejectStatus: { [key: string]: boolean } = row.getValue(
         "rejectStatus"
       ) as Profile["rejectStatus"];
@@ -121,26 +110,17 @@ export const columns: ColumnDef<Profile>[] = [
         { name: "사진", key: "image" },
         { name: "소개글", key: "description" },
       ];
-      const profileStatus = row.getValue("profileStatus");
-
+      // const profileStatus: boolean = row.getValue("profileStatus");
       return (
         <div className="grid grid-cols-2 gap-x-2 h-[46px]">
-          {rejectionType.map(({ name }, i) => (
+          {rejectionType.map(({ name, key }) => (
             <Toggle
-              disabled={profileStatus === "통과"}
-              onClick={async () => {
-                const a = {
-                  [rejectionType[i].key]: !rejectStatus[rejectionType[i].key],
-                  [rejectionType[i].key === "image" ? "description" : "image"]:
-                    rejectStatus[
-                      rejectionType[i].key === "image" ? "description" : "image"
-                    ],
-                };
-
-                await updateProfileStatus(id, a.image, a.description);
-              }}
               key={name}
-              pressed={rejectStatus[rejectionType[i].key]}
+              // disabled={profileStatus}
+              defaultPressed={rejectStatus[key]}
+              onPressedChange={(e) => {
+                rejectStatus[key] = e;
+              }}
               className="h-full  text-lg"
             >
               {name}
@@ -155,7 +135,27 @@ export const columns: ColumnDef<Profile>[] = [
     header: "제출",
     cell: ({ row }) => {
       const submit = row.getValue("submit") as Profile["submit"];
-      return <SubmitToggle submit={submit as boolean} />;
+      const rejectStatus = row.getValue(
+        "rejectStatus"
+      ) as Profile["rejectStatus"];
+      const id = row.original.userId as number;
+
+      return (
+        <Button
+          onClick={async () => {
+            await updateProfileStatus(
+              id,
+              rejectStatus.image!,
+              rejectStatus.description!
+            );
+          }}
+          disabled={submit}
+          variant={"outline"}
+          className="h-[46px] w-full text-lg border-foreground disabled:bg-[#CBD1D9]"
+        >
+          제출
+        </Button>
+      );
     },
   },
 ];
