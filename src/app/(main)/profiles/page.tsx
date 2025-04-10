@@ -15,7 +15,7 @@ export default async function Page({
 
   return (
     <div className="space-y-[44px] mb-[86px]">
-      <DataTable columns={columns} data={data.content} />;
+      <DataTable columns={columns} data={data.content} key={Math.random()} />
       <PaginationDisplay num={data.totalElements} />
     </div>
   );

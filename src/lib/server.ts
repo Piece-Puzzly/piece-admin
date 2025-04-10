@@ -8,6 +8,7 @@ import { Profile, UserProfileValidationResponse } from "./types";
 
 export async function getProfiles(page: number) {
   const session = await getServerSession(authOptions);
+
   if (!session) {
     return;
   }

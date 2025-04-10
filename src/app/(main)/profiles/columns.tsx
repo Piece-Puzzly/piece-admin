@@ -8,12 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
 import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import ProfileDialog from "./_components/ProfileDialog";
+import RejectedStatusToggle from "./_components/RejectedStatusToggle";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -106,28 +106,10 @@ export const columns: ColumnDef<Profile>[] = [
       const rejectStatus: { [key: string]: boolean } = row.getValue(
         "rejectStatus"
       ) as Profile["rejectStatus"];
-      const rejectionType = [
-        { name: "사진", key: "image" },
-        { name: "소개글", key: "description" },
-      ];
+
       // const profileStatus: boolean = row.getValue("profileStatus");
-      return (
-        <div className="grid grid-cols-2 gap-x-2 h-[46px]">
-          {rejectionType.map(({ name, key }) => (
-            <Toggle
-              key={name}
-              // disabled={profileStatus}
-              defaultPressed={rejectStatus[key]}
-              onPressedChange={(e) => {
-                rejectStatus[key] = e;
-              }}
-              className="h-full  text-lg"
-            >
-              {name}
-            </Toggle>
-          ))}
-        </div>
-      );
+
+      return <RejectedStatusToggle rejectStatus={rejectStatus} />;
     },
   },
   {
