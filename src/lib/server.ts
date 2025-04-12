@@ -2,6 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { authOptions } from "./authOptions";
 import { loginServerInfo } from "./loginData";
 import { Profile, UserProfileValidationResponse } from "./types";
@@ -25,6 +26,9 @@ export async function getProfiles(page: number) {
   );
 
   const { data } = await response.json();
+  if (data === undefined) {
+    redirect("/login");
+  }
   const content = data.content;
 
   const result = (content as UserProfileValidationResponse[]).map(
@@ -86,7 +90,11 @@ export const updateProfileStatus = async (
     );
 
     revalidatePath("/profiles");
-    return await response.json();
+    const response_json = await response.json();
+    if (response_json.data === undefined) {
+      redirect("/login");
+    }
+    return response_json;
   } catch (error: unknown) {
     alert(error);
   }
@@ -110,7 +118,11 @@ export const getUserById = async (userId: number) => {
       }
     );
 
-    return await response.json();
+    const response_json = await response.json();
+    if (response_json.data === undefined) {
+      redirect("/login");
+    }
+    return response_json;
   } catch (e) {
     console.log(e);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
@@ -134,8 +146,11 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
         },
       }
     );
-
-    return await response.json();
+    const response_json = await response.json();
+    if (response_json.data === undefined) {
+      redirect("/login");
+    }
+    return response_json;
   } catch (e) {
     console.log(e);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
@@ -159,8 +174,11 @@ export const getReportedDatas = async (page: number = 1, size: number = 10) => {
         },
       }
     );
-    const data = await response.json();
-    return data;
+    const response_json = await response.json();
+    if (response_json.data === undefined) {
+      redirect("/login");
+    }
+    return response_json;
   } catch (error: unknown) {
     console.log(error);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
@@ -189,7 +207,11 @@ export const getReportDetail = async (
       }
     );
 
-    return await response.json();
+    const response_json = await response.json();
+    if (response_json.data === undefined) {
+      redirect("/login");
+    }
+    return response_json;
   } catch (error: unknown) {
     console.log(error);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
