@@ -11,7 +11,7 @@ export default async function Page({
   const params = await searchParams;
 
   const { data } = await getBlockDatas(parseInt(params.page) - 1 || 0);
-
+  
   return (
     <div className="space-y-[44px] mb-[86px]">
       <DataTable columns={columns} data={data.content} />

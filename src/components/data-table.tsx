@@ -29,7 +29,7 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+  
   return (
     <Table className="border-b">
       <TableHeader>

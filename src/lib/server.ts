@@ -146,7 +146,11 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
         },
       }
     );
+
     const response_json = await response.json();
+    if (response_json.code === "NOTFOUND_USER") {
+      return { data: { content: [] } };
+    }
     if (response_json.data === undefined) {
       redirect("/login");
     }
