@@ -7,10 +7,11 @@ import {
 } from "@/components/ui/linetabs";
 import { usePathname, useRouter } from "next/navigation";
 
-const menuList = ["profiles", "report"];
+const menuList = ["profiles", "report", "match"];
 const menuInfo: Record<string, { name: string }> = {
   profiles: { name: "회원 프로필 심사" },
   report: { name: "신고 유저 검토 및 제재" },
+  match: { name: "수동 매칭" },
 };
 
 export default function MenuTabs() {

@@ -124,3 +124,9 @@ export interface ReportedDetailValidationResponses {
   message: string;
   data: ReportedDetailResponseData;
 }
+
+export interface MatchingProfile {
+  profileA: string;
+  profileB: string;
+  date: string;
+}
