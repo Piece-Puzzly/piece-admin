@@ -22,6 +22,7 @@ export async function getProfiles(page: number) {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
+      cache: "no-store",
     }
   );
 
@@ -115,6 +116,7 @@ export const getUserById = async (userId: number) => {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
         },
+        cache: "no-store",
       }
     );
 
@@ -144,6 +146,7 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
         },
+        cache: "no-store",
       }
     );
 
@@ -176,6 +179,7 @@ export const getReportedDatas = async (page: number = 1, size: number = 10) => {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
         },
+        cache: "no-store",
       }
     );
     const response_json = await response.json();
@@ -208,6 +212,7 @@ export const getReportDetail = async (
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
         },
+        cache: "no-store",
       }
     );
 
