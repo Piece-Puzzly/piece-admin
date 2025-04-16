@@ -124,7 +124,7 @@ export const getUserById = async (userId: number) => {
     }
     return response_json;
   } catch (e) {
-    console.log(e);
+    alert(e);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
   }
 };
@@ -156,7 +156,7 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
     }
     return response_json;
   } catch (e) {
-    console.log(e);
+    alert(e);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
   }
 };
@@ -184,7 +184,7 @@ export const getReportedDatas = async (page: number = 1, size: number = 10) => {
     }
     return response_json;
   } catch (error: unknown) {
-    console.log(error);
+    alert(error);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
   }
 };
@@ -217,7 +217,7 @@ export const getReportDetail = async (
     }
     return response_json;
   } catch (error: unknown) {
-    console.log(error);
+    alert(error);
     throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
   }
 };
