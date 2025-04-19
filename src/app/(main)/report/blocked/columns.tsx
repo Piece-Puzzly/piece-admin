@@ -2,6 +2,7 @@
 
 import { BlockedUser } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
+import ProfileDialog from "../../profiles/_components/ProfileDialog";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -12,9 +13,9 @@ export const columns: ColumnDef<BlockedUser>[] = [
     header: "닉네임",
     cell: ({ row }) => {
       // const id = row.original.blockedUserId as number;
-      const nickname = row.getValue("BlockedUserNickname");
-
-      return nickname || "-";
+      const nickname = row.getValue("BlockedUserNickname") as string;
+      const id = row.getValue("blockedUserId") as number;
+      return <ProfileDialog id={id} nickname={nickname} />;
     },
   },
   {
@@ -41,8 +42,8 @@ export const columns: ColumnDef<BlockedUser>[] = [
     header: "차단한 유저 닉네임",
     cell: ({ row }) => {
       const nickname = row.getValue("blockingUserNickname") as string;
-
-      return nickname || "-";
+      const id = row.getValue("blockingUserId") as number;
+      return <ProfileDialog id={id} nickname={nickname} />;
     },
   },
   {
