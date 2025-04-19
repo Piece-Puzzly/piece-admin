@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authOptions } from "./authOptions";
 import { loginServerInfo } from "./loginData";
-import { Profile, UserProfileValidationResponse } from "./types";
+import {
+  BlockedValidationResponses,
+  Profile,
+  UserProfileValidationResponse,
+} from "./types";
 
 export async function getProfiles(page: number) {
   const session = await getServerSession(authOptions);
@@ -144,14 +148,12 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
         cache: "no-store",
       }
     );
-    const response_json = await response.json();
-    
-    if (response_json.code === "NOTFOUND_USER") {
-      return { data: { content: [] } };
-    }
+    const response_json: BlockedValidationResponses = await response.json();
+
     if (response_json.data === undefined) {
       redirect("/login");
     }
+
     return response_json;
   } catch (e) {
     if (typeof window !== "undefined") {

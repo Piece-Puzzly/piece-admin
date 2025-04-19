@@ -1,21 +1,10 @@
 "use client";
 
+import { BlockedUser } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export interface BlockedUser {
-  blockedUserId: number; // 차단된 사용자 ID
-  blockedUserNickname: string; // 차단된 사용자 닉네임
-  blockedUserName: string; // 차단된 사용자 이름
-  blockedUserBirthdate: string; // 차단된 사용자의 생년월일 (yyyy-MM-dd 형식)
-
-  blockingUserId: number; // 차단한 사용자 ID
-  blockingUserNickname: string; // 차단한 사용자 닉네임
-  blockingUserName: string; // 차단한 사용자 이름
-
-  blockedDate: string; // 차단된 날짜 (yyyy-MM-dd 형식)
-}
 
 export const columns: ColumnDef<BlockedUser>[] = [
   {

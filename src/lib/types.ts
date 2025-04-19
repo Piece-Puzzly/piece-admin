@@ -51,15 +51,15 @@ export interface QuestionResponseType {
 
 export interface BlockedUser {
   blockedUserId: number; // 차단된 사용자 ID
-  blockedUserNickname: string; // 차단된 사용자 닉네임
-  blockedUserName: string; // 차단된 사용자 이름
+  BlockedUserNickname: string; // 차단된 사용자 닉네임
+  BlockedUserName: string; // 차단된 사용자 이름
   blockedUserBirthdate: string; // 차단된 사용자의 생년월일 (yyyy-MM-dd 형식)
 
   blockingUserId: number; // 차단한 사용자 ID
   blockingUserNickname: string; // 차단한 사용자 닉네임
   blockingUserName: string; // 차단한 사용자 이름
 
-  blockedDate: string; // 차단된 날짜 (yyyy-MM-dd 형식)
+  BlockedDate: string; // 차단된 날짜 (yyyy-MM-dd 형식)
 }
 
 export interface BlockedResponseData {
