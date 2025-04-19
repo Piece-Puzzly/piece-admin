@@ -8,20 +8,20 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<BlockedUser>[] = [
   {
-    accessorKey: "blockedUserNickname",
+    accessorKey: "BlockedUserNickname",
     header: "닉네임",
     cell: ({ row }) => {
       // const id = row.original.blockedUserId as number;
-      const nickname = row.getValue("blockedUserNickname");
+      const nickname = row.getValue("BlockedUserNickname");
 
       return nickname || "-";
     },
   },
   {
-    accessorKey: "blockedUserName",
+    accessorKey: "BlockedUserName",
     header: "이름",
     cell: ({ row }) => {
-      const name = row.getValue("blockedUserName") as string;
+      const name = row.getValue("BlockedUserName") as string;
       return name || "-";
     },
   },
@@ -56,10 +56,10 @@ export const columns: ColumnDef<BlockedUser>[] = [
   },
 
   {
-    accessorKey: "blockedDate",
+    accessorKey: "BlockedDate",
     header: "차단 날짜",
     cell: ({ row }) => {
-      const blockedDate = row.getValue("blockedDate") as string | undefined;
+      const blockedDate = row.getValue("BlockedDate") as string | undefined;
 
       return blockedDate ? blockedDate.replace(/-/g, ".") : "-";
     },
