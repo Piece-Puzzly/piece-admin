@@ -15,8 +15,8 @@ export async function getProfiles(page: number) {
   }
 
   const response = await fetch(
-    loginServerInfo[session.loginServer !== undefined ? session.loginServer : 0]
-      .baseUrl + `/users?page=${page}&size=${10}`,
+    loginServerInfo[session.loginServer].baseUrl +
+      `/users?page=${page}&size=${10}`,
     {
       method: "GET",
       headers: {
@@ -74,9 +74,7 @@ export const updateProfileStatus = async (
     }
 
     const response = await fetch(
-      loginServerInfo[
-        session.loginServer !== undefined ? session.loginServer : 0
-      ].baseUrl + `/users/${userId}/profile`,
+      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}/profile`,
       {
         method: "POST",
         headers: {
@@ -108,9 +106,7 @@ export const getUserById = async (userId: number) => {
       return;
     }
     const response = await fetch(
-      loginServerInfo[
-        session.loginServer !== undefined ? session.loginServer : 0
-      ].baseUrl + `/users/${userId}`,
+      loginServerInfo[session.loginServer].baseUrl + `/users/${userId}`,
       {
         method: "GET",
         headers: {
@@ -131,16 +127,15 @@ export const getUserById = async (userId: number) => {
   }
 };
 
-export const getBlockDatas = async (page: number = 1, size: number = 10) => {
+export const getBlockDatas = async (page: number = 0, size: number = 10) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return;
     }
     const response = await fetch(
-      loginServerInfo[
-        session.loginServer !== undefined ? session.loginServer : 0
-      ].baseUrl + `/blocks?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/blocks?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {
@@ -149,8 +144,8 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
         cache: "no-store",
       }
     );
-
     const response_json = await response.json();
+    
     if (response_json.code === "NOTFOUND_USER") {
       return { data: { content: [] } };
     }
@@ -159,21 +154,23 @@ export const getBlockDatas = async (page: number = 1, size: number = 10) => {
     }
     return response_json;
   } catch (e) {
-    alert(e);
-    throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
+    if (typeof window !== "undefined") {
+      alert(e);
+    }
+
+    // throw new Error("유저 데이터 불러오기 중 알 수 없는 오류 발생");
   }
 };
 
-export const getReportedDatas = async (page: number = 1, size: number = 10) => {
+export const getReportedDatas = async (page: number = 0, size: number = 10) => {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return;
     }
     const response = await fetch(
-      loginServerInfo[
-        session.loginServer !== undefined ? session.loginServer : 0
-      ].baseUrl + `/reports?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/reports?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {
@@ -195,7 +192,7 @@ export const getReportedDatas = async (page: number = 1, size: number = 10) => {
 
 export const getReportDetail = async (
   userId: number,
-  page: number = 1,
+  page: number = 0,
   size: number = 10
 ) => {
   try {
@@ -204,9 +201,8 @@ export const getReportDetail = async (
       return;
     }
     const response = await fetch(
-      loginServerInfo[
-        session.loginServer !== undefined ? session.loginServer : 0
-      ].baseUrl + `/reports/users/${userId}?page=${page}&size=${size}`,
+      loginServerInfo[session.loginServer].baseUrl +
+        `/reports/users/${userId}?page=${page}&size=${size}`,
       {
         method: "GET",
         headers: {
