@@ -23,6 +23,7 @@ export default async function Page({
         time: 22,
         isMatched: true,
       },
+      
       {
         idA: 63,
         nicknameA: "닉네임 3",
