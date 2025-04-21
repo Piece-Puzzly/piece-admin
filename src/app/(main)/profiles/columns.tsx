@@ -46,7 +46,7 @@ export const columns: ColumnDef<Profile>[] = [
     cell: ({ row }) => {
       const birthDate = row.getValue("birthdate") as string;
 
-      return birthDate ? birthDate.replace(/-/g, ".") : "-";
+      return birthDate ? birthDate.replace(/-/g, ".").slice(2) : "-";
     },
   },
   {
@@ -64,7 +64,7 @@ export const columns: ColumnDef<Profile>[] = [
     cell: ({ row }) => {
       const joinDate = row.getValue("joinDate") as Profile["joinDate"];
 
-      return joinDate ? joinDate.replace(/-/g, ".") : "-";
+      return joinDate ? joinDate.replace(/-/g, ".").slice(2) : "-";
     },
   },
   {

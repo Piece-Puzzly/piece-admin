@@ -27,7 +27,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
         | string
         | undefined;
 
-      return joinDate ? joinDate.replace(/-/g, ".") : "-";
+      return joinDate ? joinDate.replace(/-/g, ".").slice(2) : "-";
     },
   },
   {

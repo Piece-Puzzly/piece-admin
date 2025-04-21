@@ -36,7 +36,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
     cell: ({ row }) => {
       const birthdate = row.getValue("birthdate") as string | undefined;
 
-      return birthdate ? birthdate.replace(/-/g, ".") : "-";
+      return birthdate ? birthdate.replace(/-/g, ".").slice(2) : "-";
     },
   },
   {
