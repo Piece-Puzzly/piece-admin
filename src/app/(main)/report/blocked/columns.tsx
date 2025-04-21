@@ -39,7 +39,6 @@ export const columns: ColumnDef<BlockedUser>[] = [
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
-
   {
     accessorKey: "BlockedDate",
     header: "차단 날짜",
