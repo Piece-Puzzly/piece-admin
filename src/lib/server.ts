@@ -149,7 +149,7 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
       }
     );
     const response_json: BlockedValidationResponses = await response.json();
-
+    
     if (response_json.data === undefined) {
       redirect("/login");
     }

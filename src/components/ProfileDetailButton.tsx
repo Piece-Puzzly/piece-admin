@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import QuestionCard from "./QuestionCard";
-export default function ProfileDialog({
+import QuestionCard from "../app/(main)/profiles/_components/QuestionCard";
+export default function ProfileDetailButton({
   id,
   nickname,
 }: {

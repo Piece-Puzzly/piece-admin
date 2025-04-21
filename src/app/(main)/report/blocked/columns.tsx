@@ -1,8 +1,8 @@
 "use client";
 
+import ProfileDetailButton from "@/components/ProfileDetailButton";
 import { BlockedUser } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import ProfileDialog from "../../profiles/_components/ProfileDialog";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -15,17 +15,10 @@ export const columns: ColumnDef<BlockedUser>[] = [
       // const id = row.original.blockedUserId as number;
       const nickname = row.getValue("BlockedUserNickname") as string;
       const id = row.getValue("blockedUserId") as number;
-      return <ProfileDialog id={id} nickname={nickname} />;
+      return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
-  {
-    accessorKey: "BlockedUserName",
-    header: "이름",
-    cell: ({ row }) => {
-      const name = row.getValue("BlockedUserName") as string;
-      return name || "-";
-    },
-  },
+
   {
     accessorKey: "blockedUserBirthdate",
     header: "생년월일",
@@ -43,16 +36,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     cell: ({ row }) => {
       const nickname = row.getValue("blockingUserNickname") as string;
       const id = row.getValue("blockingUserId") as number;
-      return <ProfileDialog id={id} nickname={nickname} />;
-    },
-  },
-  {
-    accessorKey: "blockingUserName",
-    header: "차단한 유저 이름",
-    cell: ({ row }) => {
-      const blockingUserName = row.getValue("blockingUserName") as string;
-
-      return blockingUserName || "-";
+      return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
 

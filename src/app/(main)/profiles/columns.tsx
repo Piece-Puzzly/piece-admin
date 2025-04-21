@@ -12,7 +12,8 @@ import { updateProfileStatus } from "@/lib/server";
 import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import ProfileDialog from "./_components/ProfileDialog";
+
+import ProfileDetailButton from "@/components/ProfileDetailButton";
 import RejectedStatusToggle from "./_components/RejectedStatusToggle";
 
 // This type is used to define the shape of our data.
@@ -20,24 +21,25 @@ import RejectedStatusToggle from "./_components/RejectedStatusToggle";
 
 export const columns: ColumnDef<Profile>[] = [
   {
+    accessorKey: "userId",
+    header: "User ID",
+    cell: ({ row }) => {
+      const id = row.getValue("userId") as number;
+
+      return id;
+    },
+  },
+  {
     accessorKey: "nickname",
     header: "매칭 프로필",
     cell: ({ row }) => {
       const id = row.original.userId as number;
       const nickname = row.getValue("nickname") as string;
 
-      return <ProfileDialog id={id} nickname={nickname} />;
+      return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
-  {
-    accessorKey: "name",
-    header: "이름",
-    cell: ({ row }) => {
-      // const id = row.original.userId;
-      const name = row.getValue("name") as string;
-      return name || "-";
-    },
-  },
+
   {
     accessorKey: "birthdate",
     header: "생년월일",

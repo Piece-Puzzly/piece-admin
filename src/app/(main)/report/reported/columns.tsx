@@ -6,7 +6,7 @@ import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import ProfileDialog from "../../profiles/_components/ProfileDialog";
+import ProfileDetailButton from "../../../../components/ProfileDetailButton";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -19,7 +19,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
       // const id = row.original.blockedUserId as number;
       const nickname = row.getValue("nickName") as string;
       const id = row.getValue("userId") as number;
-      return <ProfileDialog id={id} nickname={nickname} />;
+      return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
   {
