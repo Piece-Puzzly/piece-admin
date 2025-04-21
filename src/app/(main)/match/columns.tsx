@@ -1,5 +1,7 @@
 "use client";
 
+import CheckButton from "@/components/CheckButton";
+import ProfileDetailButton from "@/components/ProfileDetailButton";
 import { MatchingProfile } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -8,21 +10,36 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<MatchingProfile>[] = [
   {
-    accessorKey: "profileA",
     header: "매칭 프로필A",
     cell: ({ row }) => {
-      const profile = row.getValue("profileA") as MatchingProfile["profileA"];
+      const id = row.original.idA as MatchingProfile["idA"];
+      const nickname = row.original.nicknameA as MatchingProfile["nicknameA"];
 
-      return <div>{profile}</div>;
+      return (
+        <div className="items-center gap-[10px] flex ">
+          <div className="w-[60px] text-right">{id}</div>
+
+          <div className="flex-1">
+            <ProfileDetailButton id={id} nickname={nickname} />
+          </div>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "profileB",
     header: "매칭 프로필B",
     cell: ({ row }) => {
-      const profile = row.getValue("profileB") as MatchingProfile["profileB"];
+      const id = row.original.idB as MatchingProfile["idB"];
+      const nickname = row.original.nicknameB as MatchingProfile["nicknameB"];
 
-      return <div>{profile}</div>;
+      return (
+        <div className="items-center gap-[10px] flex ">
+          <div className="w-[60px] text-right">{id}</div>
+          <div className="flex-1">
+            <ProfileDetailButton id={id} nickname={nickname} />
+          </div>
+        </div>
+      );
     },
   },
   {
@@ -32,6 +49,26 @@ export const columns: ColumnDef<MatchingProfile>[] = [
       const date = row.getValue("date") as MatchingProfile["date"];
 
       return <div>{date}</div>;
+    },
+  },
+  {
+    accessorKey: "time",
+    header: "매칭 시간",
+    cell: ({ row }) => {
+      const time = row.getValue("time") as MatchingProfile["time"];
+
+      return <div>{time}시</div>;
+    },
+  },
+  {
+    accessorKey: "isMatched",
+    header: "",
+    cell: ({ row }) => {
+      const isMatched = row.getValue(
+        "isMatched"
+      ) as MatchingProfile["isMatched"];
+
+      return <CheckButton isChecked={isMatched} />;
     },
   },
 ];

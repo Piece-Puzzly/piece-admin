@@ -1,8 +1,5 @@
-import { DataTable } from "@/components/data-table";
-import PaginationDisplay from "@/components/PaginationDisplay";
-import { getBlockDatas } from "@/lib/server";
-import { BlockedValidationResponses } from "@/lib/types";
 import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export default async function Page({
   searchParams,
@@ -10,15 +7,49 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string }>;
 }) {
   const params = await searchParams;
+  console.log(params);
+  // const { data } = (await getBlockDatas(
+  //   parseInt(params.page) - 1 || 0
+  // )) as BlockedValidationResponses;
 
-  const { data } = (await getBlockDatas(
-    parseInt(params.page) - 1 || 0
-  )) as BlockedValidationResponses;
-  console.log(data);
   return (
     <div className="space-y-[44px] mb-[86px]">
-      <DataTable columns={columns} data={data.content} />
-      <PaginationDisplay num={data.totalElements} />
+      <DataTable
+        columns={columns}
+        data={[
+          {
+            BlockedDate: "2025-04-19",
+            BlockedUserName: null,
+            BlockedUserNickname: "힘",
+            blockedUserBirthdate: "2004-12-13",
+            blockedUserId: 136,
+            blockingUserId: 132,
+            blockingUserName: null,
+            blockingUserNickname: "INTJ",
+          },
+          {
+            BlockedDate: "2025-04-18",
+            BlockedUserName: null,
+            BlockedUserNickname: "ㄷㄷㄷㄷㄷ",
+            blockedUserBirthdate: "1990-12-03",
+            blockedUserId: 139,
+            blockingUserId: 132,
+            blockingUserName: null,
+            blockingUserNickname: "INTJ",
+          },
+          {
+            BlockedDate: "2025-04-16",
+            BlockedUserName: null,
+            BlockedUserNickname: "hee",
+            blockedUserBirthdate: "1997-12-08",
+            blockedUserId: 122,
+            blockingUserId: 132,
+            blockingUserName: null,
+            blockingUserNickname: "INTJ",
+          },
+        ]}
+      />
+      {/* <PaginationDisplay num={data.totalElements} /> */}
     </div>
   );
 }

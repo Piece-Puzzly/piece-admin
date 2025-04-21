@@ -14,7 +14,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     cell: ({ row }) => {
       // const id = row.original.blockedUserId as number;
       const nickname = row.getValue("BlockedUserNickname") as string;
-      const id = row.getValue("blockedUserId") as number;
+      const id = row.original.blockedUserId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
@@ -35,7 +35,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     header: "차단한 유저 닉네임",
     cell: ({ row }) => {
       const nickname = row.getValue("blockingUserNickname") as string;
-      const id = row.getValue("blockingUserId") as number;
+      const id = row.original.blockingUserId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },

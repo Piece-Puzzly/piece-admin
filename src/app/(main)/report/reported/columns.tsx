@@ -14,7 +14,7 @@ import ProfileDetailButton from "../../../../components/ProfileDetailButton";
 export const columns: ColumnDef<ReportedUser>[] = [
   {
     accessorKey: "nickName",
-    header: "닉네임",
+    header: "신고 당한 닉네임🚫",
     cell: ({ row }) => {
       // const id = row.original.blockedUserId as number;
       const nickname = row.getValue("nickName") as string;
