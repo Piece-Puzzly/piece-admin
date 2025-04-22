@@ -125,10 +125,12 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "submit",
     header: "제출",
     cell: ({ row }) => {
-      const submit = row.getValue("submit") as Profile["submit"];
       const rejectStatus = row.getValue(
         "rejectStatus"
       ) as Profile["rejectStatus"];
+      const profileStatus = row.getValue(
+        "profileStatus"
+      ) as Profile["profileStatus"];
       const id = row.original.userId as number;
 
       return (
@@ -140,7 +142,7 @@ export const columns: ColumnDef<Profile>[] = [
               rejectStatus.description!
             );
           }}
-          disabled={submit}
+          disabled={profileStatus === "통과"}
           variant={"outline"}
           className="h-[46px] w-full text-lg border-foreground disabled:bg-[#CBD1D9] disabled:border-0"
         >

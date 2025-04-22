@@ -19,7 +19,7 @@ export type Profile = {
   joinDate?: string;
   profileStatus?: string;
   rejectStatus: { image?: boolean; description?: boolean };
-  submit?: boolean;
+  
 };
 
 export interface UserProfileValidationResponses {
