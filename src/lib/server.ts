@@ -152,7 +152,7 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
     // if (response_json.data === undefined) {
     //   redirect("/login");
     // }
-    console.log(response_json);
+
     return response_json;
   } catch (e) {
     if (typeof window !== "undefined") {
