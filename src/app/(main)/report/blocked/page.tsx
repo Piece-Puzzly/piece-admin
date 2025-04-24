@@ -11,10 +11,14 @@ export default async function Page({
 }) {
   const params = await searchParams;
   // console.log(params);
-  const { data } = (await getBlockDatas(
+  const res = (await getBlockDatas(
     parseInt(params.page) - 1 || 0
   )) as BlockedValidationResponses;
 
+  if (res.data == undefined) {
+    return JSON.stringify(res);
+  }
+  const data = res.data;
   return (
     <div className="space-y-[44px] mb-[86px]">
       <DataTable columns={columns} data={data.content} />
