@@ -1,6 +1,6 @@
 import PaginationDisplay from "@/components/PaginationDisplay";
 import { getReportedDatas } from "@/lib/server";
-import { ReportedResponseData } from "@/lib/types";
+import { ReportedValidationResponses } from "@/lib/types";
 
 import { DataTable } from "@/components/data-table";
 import ReportReasonDialog from "./_components/ReportReasonDialog";
@@ -13,16 +13,21 @@ export default async function Page({
 }) {
   const params = await searchParams;
 
-  const { data }: { data: ReportedResponseData } = await getReportedDatas(
+  const res = (await getReportedDatas(
     params.page ? parseInt(params.page) - 1 : 0,
     10
-  );
+  )) as ReportedValidationResponses;
 
-  return (
-    <div className="space-y-[44px] mb-[86px]">
-      <ReportReasonDialog />
-      <DataTable columns={columns} data={data.content} />
-      <PaginationDisplay num={data.totalElements} />
-    </div>
-  );
+  if (res.data == undefined) {
+    return JSON.stringify(res);
+  } else {
+    const data = res.data;
+    return (
+      <div className="space-y-[44px] mb-[86px]">
+        <ReportReasonDialog />
+        <DataTable columns={columns} data={data.content} />
+        <PaginationDisplay num={data.totalElements} />
+      </div>
+    );
+  }
 }
