@@ -65,7 +65,7 @@ export default function LoginForm() {
             />
           </div>
           <div className="space-y-[8px]">
-            <Label htmlFor="id">비밀번호</Label>
+            <Label htmlFor="pw">비밀번호</Label>
             <Input
               id="pw"
               type="password"
