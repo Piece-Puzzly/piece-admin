@@ -8,7 +8,7 @@ export default function page() {
         <Image
           src={"/logo.png"}
           height={80}
-          width={80}
+          width={214}
           className="w-auto h-[80px]"
           alt="Piece"
         />
