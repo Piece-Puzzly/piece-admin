@@ -52,10 +52,10 @@ export default function MatchingForm({
   return (
     <Form {...form}>
       <form
-        className="flex items-center gap-[24px]"
+        className="flex items-center gap-[60px]"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <>
+        <div className="flex gap-[24px] flex-1">
           <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-[448px]">
             {["idA", "idB"].map((e) => (
               <FormField
@@ -74,7 +74,7 @@ export default function MatchingForm({
               />
             ))}
           </div>
-          <div className="flex-1 items-center grid grid-cols-2 gap-[8px]">
+          <div className="items-center flex gap-[8px]">
             <FormField
               control={form.control}
               name="date"
@@ -86,7 +86,7 @@ export default function MatchingForm({
                         <Button
                           variant={"secondary"}
                           className={cn(
-                            "w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px] flex justify-between "
+                            "w-[180px] !h-[52px] text-base text-secondary-foreground font-medium px-[16px] flex justify-between "
                           )}
                         >
                           {field.value ? (
@@ -128,8 +128,7 @@ export default function MatchingForm({
               )}
             />
           </div>
-        </>
-
+        </div>
         <Button className="h-[52px] w-[200px] text-base">매칭</Button>
       </form>
     </Form>
@@ -144,7 +143,7 @@ function ProfileSelect({
 } & React.ComponentProps<typeof SelectPrimitive.Root>) {
   return (
     <Select {...props}>
-      <SelectTrigger className="w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
+      <SelectTrigger className="w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="닉네임을 선택해 주세요" />
       </SelectTrigger>
       <SelectContent className="bg-[#F4F6FA]">
@@ -165,7 +164,7 @@ function TimeSelect({
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return (
     <Select {...props}>
-      <SelectTrigger className="w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
+      <SelectTrigger className="w-[180px] !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="매칭 시간" />
       </SelectTrigger>
       <SelectContent className="bg-[#F4F6FA]">

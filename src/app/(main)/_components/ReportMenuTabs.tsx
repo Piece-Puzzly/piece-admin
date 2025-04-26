@@ -15,10 +15,11 @@ export default function MenuTabs() {
   const tokens = pathname.split("/").slice(1);
   return (
     tokens[0] === "report" && (
-      <Tabs className="" value={tokens[1]}>
+      <Tabs className="h-[48px]" value={tokens[1]}>
         <TabsList>
           {menuList.map((e) => (
             <TabsTrigger
+              className="px-[20px]"
               onClick={() => {
                 router.push(`/report/${e}`);
               }}

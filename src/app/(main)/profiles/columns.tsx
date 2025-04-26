@@ -76,14 +76,14 @@ export const columns: ColumnDef<Profile>[] = [
       ) as Profile["profileStatus"];
 
       const menu = [
-        { name: "보류", color: "#FF3059" },
+        { name: "반려", color: "#FF3059" },
         { name: "미완료", color: "#6F00FB" },
         { name: "수정 제출", color: "#22CB52" },
         { name: "통과", color: "#CBD1D9" },
       ];
       return (
         <Select value={profileStatus}>
-          <SelectTrigger className="w-full !h-[46px] text-lg">
+          <SelectTrigger className="w-full ">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +111,6 @@ export const columns: ColumnDef<Profile>[] = [
       const profileStatus = row.getValue(
         "profileStatus"
       ) as Profile["profileStatus"];
-      // const profileStatus: boolean = row.getValue("profileStatus");
 
       return (
         <RejectedStatusToggle
@@ -144,7 +143,7 @@ export const columns: ColumnDef<Profile>[] = [
           }}
           disabled={profileStatus === "통과"}
           variant={"outline"}
-          className="h-[46px] w-full text-lg border-foreground disabled:bg-[#CBD1D9] disabled:border-0"
+          className="h-[44px] w-full text-base border-foreground disabled:bg-[#CBD1D9] disabled:border-0"
         >
           제출
         </Button>

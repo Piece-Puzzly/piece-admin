@@ -25,7 +25,7 @@ export default function RejectedStatusToggle({
               rejectStatus[key] = e;
             }}
             disabled={profileStatus === "통과"}
-            className="h-full text-lg"
+            className="h-[44px] px-3 py-[10px] text-base leading-6"
           >
             {name}
           </Toggle>

@@ -40,7 +40,7 @@ export default function ProfileDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full flex justify-between text-lg h-[48px]"
+          className="w-full flex justify-between py-[10px] px-[12px] h-[46px]"
         >
           <div>{nickname}</div>
           <ChevronRight />

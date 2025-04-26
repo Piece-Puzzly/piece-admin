@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loginServerInfo } from "@/lib/loginData";
 
@@ -32,7 +33,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col justify-center items-center py-[40px] gap-[40px]"
+      className="flex flex-col justify-center items-center gap-[40px]"
     >
       <Tabs className="w-[432px]" value={`${loginServer}`}>
         <TabsList className="inline-flex w-full grid-cols-2">
@@ -53,8 +54,10 @@ export default function LoginForm() {
       <div className="flex flex-col gap-[40px] ">
         <div className="space-y-4">
           <div className="space-y-[8px]">
-            <div className="font-medium">아이디</div>
+            <Label htmlFor="id">아이디</Label>
+
             <Input
+              id="id"
               type="text"
               className="w-[432px]"
               placeholder="아이디를 입력하세요."
@@ -62,8 +65,9 @@ export default function LoginForm() {
             />
           </div>
           <div className="space-y-[8px]">
-            <div className="font-medium">비밀번호</div>
+            <Label htmlFor="id">비밀번호</Label>
             <Input
+              id="pw"
               type="password"
               {...register("password")}
               className="w-[432px]"

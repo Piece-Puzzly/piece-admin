@@ -30,7 +30,7 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
+  const columnWidth = "150px";
   return (
     <Table className="border-b">
       <TableHeader>
@@ -39,6 +39,11 @@ export function DataTable<TData, TValue>({
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
+                  style={{
+                    width: columnWidth,
+                    minWidth: columnWidth,
+                    maxWidth: columnWidth,
+                  }}
                   key={header.id}
                   className={cn({
                     "bg-secondary border-[#E8EBF0]":
@@ -62,6 +67,11 @@ export function DataTable<TData, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
+              style={{
+                width: columnWidth,
+                minWidth: columnWidth,
+                maxWidth: columnWidth,
+              }}
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
             >

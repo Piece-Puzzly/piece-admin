@@ -12,7 +12,6 @@ export const columns: ColumnDef<BlockedUser>[] = [
     accessorKey: "BlockedUserNickname",
     header: "닉네임",
     cell: ({ row }) => {
-      // const id = row.original.blockedUserId as number;
       const nickname = row.getValue("BlockedUserNickname") as string;
       const id = row.original.blockedUserId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
@@ -20,6 +19,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
   },
 
   {
+    size: 150,
     accessorKey: "blockedUserBirthdate",
     header: "생년월일",
     cell: ({ row }) => {
