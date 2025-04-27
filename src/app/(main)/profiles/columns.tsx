@@ -76,10 +76,10 @@ export const columns: ColumnDef<Profile>[] = [
       ) as Profile["profileStatus"];
 
       const menu = [
-        { name: "반려", color: "#FF3059" },
-        { name: "미완료", color: "#6F00FB" },
-        { name: "수정 제출", color: "#22CB52" },
-        { name: "통과", color: "#CBD1D9" },
+        { value: "보류", name: "반려", color: "#FF3059" },
+        { value: "미완료", name: "미완료", color: "#6F00FB" },
+        { value: "수정 제출", name: "수정 제출", color: "#22CB52" },
+        { value: "통과", name: "통과", color: "#CBD1D9" },
       ];
       return (
         <Select value={profileStatus}>
@@ -87,8 +87,8 @@ export const columns: ColumnDef<Profile>[] = [
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {menu.map(({ name, color }) => (
-              <SelectItem key={name} value={name}>
+            {menu.map(({ value, name, color }) => (
+              <SelectItem key={value} value={value}>
                 <div
                   className="rounded-full h-[12px] w-[12px]"
                   style={{ backgroundColor: color }}

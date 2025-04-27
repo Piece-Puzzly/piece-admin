@@ -16,6 +16,7 @@ export default async function Page({
   const res = (await getProfiles(
     params.page ? parseInt(params.page) - 1 : 0
   )) as UserProfileValidationResponses;
+
   const data = res.data;
   if (data.content === undefined) {
     return JSON.stringify(res);

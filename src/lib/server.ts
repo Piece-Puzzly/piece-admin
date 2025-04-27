@@ -61,9 +61,9 @@ export const updateProfileStatus = async (
   );
 
   revalidatePath("/profiles");
-  if (!response.ok) {
-    redirect("/login");
-  }
+  // if (!response.ok) {
+  //   redirect("/login");
+  // }
   const response_json = await response.json();
   return response_json;
 };
@@ -84,9 +84,9 @@ export const getUserById = async (userId: number) => {
     }
   );
 
-  if (!response.ok) {
-    redirect("/login");
-  }
+  // if (!response.ok) {
+  //   redirect("/login");
+  // }
 
   const response_json = await response.json();
 
@@ -110,9 +110,9 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
     }
   );
 
-  if (!response.ok) {
-    redirect("/login");
-  }
+  // if (!response.ok) {
+  //   redirect("/login");
+  // }
   const response_json: BlockedValidationResponses = await response.json();
 
   return response_json;
@@ -163,9 +163,9 @@ export const getReportDetail = async (
     }
   );
 
-  if (!response.ok) {
-    redirect("/login");
-  }
+  // if (!response.ok) {
+  //   redirect("/login");
+  // }
   const response_json = await response.json();
 
   return response_json;
