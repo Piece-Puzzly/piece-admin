@@ -146,7 +146,7 @@ function ProfileSelect({
       <SelectTrigger className="w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="닉네임을 선택해 주세요" />
       </SelectTrigger>
-      <SelectContent className="bg-[#F4F6FA]">
+      <SelectContent>
         {data.map(({ id, nickname, disabled }) => (
           <SelectItem key={id} value={`${id}`} disabled={disabled}>
             <div>
@@ -167,7 +167,7 @@ function TimeSelect({
       <SelectTrigger className="w-[180px] !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="매칭 시간" />
       </SelectTrigger>
-      <SelectContent className="bg-[#F4F6FA]">
+      <SelectContent>
         {[...Array(12)]
           .map((_, i) => {
             return i + 12;

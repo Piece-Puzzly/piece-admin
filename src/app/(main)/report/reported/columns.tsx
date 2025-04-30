@@ -16,25 +16,17 @@ export const columns: ColumnDef<ReportedUser>[] = [
     accessorKey: "nickName",
     header: "신고 당한 닉네임🚫",
     cell: ({ row }) => {
-      // const id = row.original.blockedUserId as number;
-      const nickname = row.getValue("nickName") as string;
-      const id = row.getValue("userId") as number;
+      const nickname = row.original.nickName as string;
+      const id = row.original.userId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
   },
-  {
-    accessorKey: "name",
-    header: "이름",
-    cell: ({ row }) => {
-      const name = row.getValue("name") as string;
-      return name || "-";
-    },
-  },
+
   {
     accessorKey: "birthdate",
     header: "생년월일",
     cell: ({ row }) => {
-      const birthdate = row.getValue("birthdate") as string | undefined;
+      const birthdate = row.original.birthdate as string | undefined;
 
       return birthdate ? birthdate.replace(/-/g, ".").slice(2) : "-";
     },
@@ -43,7 +35,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
     accessorKey: "totalReportedCnt",
     header: "누적 신고 수",
     cell: ({ row }) => {
-      const totalReportedCnt = row.getValue("totalReportedCnt") as string;
+      const totalReportedCnt = row.original.totalReportedCnt as number;
 
       return totalReportedCnt;
     },
@@ -52,9 +44,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
     accessorKey: "latestReportedReason",
     header: "신고 사유",
     cell: ({ row }) => {
-      const latestReportedReason = row.getValue(
-        "latestReportedReason"
-      ) as string;
+      const latestReportedReason = row.original.latestReportedReason as string;
       const id = row.original.userId as number;
 
       return (
@@ -87,9 +77,9 @@ function ReportDetailButton({
         )
       }
       variant="outline"
-      className="w-full flex justify-between text-lg h-[48px]"
+      className="w-full flex justify-between h-[46px]"
     >
-      <div className="text-[#484B4D]">{latestReportedReason}</div>
+      {latestReportedReason}
       <ChevronRight />
     </Button>
   );

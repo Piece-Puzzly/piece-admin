@@ -46,7 +46,7 @@ export function DataTable<TData, TValue>({
                   }}
                   key={header.id}
                   className={cn({
-                    "bg-secondary border-[#E8EBF0]":
+                    "bg-gray-light-3 border-gray-light-2":
                       header.column.id === "blockingUserNickname" ||
                       header.column.id === "BlockedDate",
                   })}

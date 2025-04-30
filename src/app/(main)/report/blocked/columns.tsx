@@ -10,9 +10,9 @@ import { ColumnDef } from "@tanstack/react-table";
 export const columns: ColumnDef<BlockedUser>[] = [
   {
     accessorKey: "BlockedUserNickname",
-    header: "닉네임",
+    header: "차단 당한 닉네임🚫",
     cell: ({ row }) => {
-      const nickname = row.getValue("BlockedUserNickname") as string;
+      const nickname = row.original.BlockedUserNickname as string;
       const id = row.original.blockedUserId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
@@ -23,9 +23,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     accessorKey: "blockedUserBirthdate",
     header: "생년월일",
     cell: ({ row }) => {
-      const joinDate = row.getValue("blockedUserBirthdate") as
-        | string
-        | undefined;
+      const joinDate = row.original.blockedUserBirthdate as string | undefined;
 
       return joinDate ? joinDate.replace(/-/g, ".").slice(2) : "-";
     },
@@ -34,7 +32,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     accessorKey: "blockingUserNickname",
     header: "차단한 유저 닉네임",
     cell: ({ row }) => {
-      const nickname = row.getValue("blockingUserNickname") as string;
+      const nickname = row.original.blockingUserNickname as string;
       const id = row.original.blockingUserId as number;
       return <ProfileDetailButton id={id} nickname={nickname} />;
     },
@@ -43,7 +41,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     accessorKey: "BlockedDate",
     header: "차단 날짜",
     cell: ({ row }) => {
-      const blockedDate = row.getValue("BlockedDate") as string | undefined;
+      const blockedDate = row.original.BlockedDate as string | undefined;
 
       return blockedDate ? blockedDate.replace(/-/g, ".") : "-";
     },

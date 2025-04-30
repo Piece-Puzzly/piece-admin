@@ -10,17 +10,6 @@ export interface UserProfileValidationResponse {
   rejectImage: boolean;
   rejectDescription: boolean;
 }
-export type Profile = {
-  userId?: number;
-  nickname?: string;
-  name?: string;
-  birthdate?: string;
-  phoneNumber?: string;
-  joinDate?: string;
-  profileStatus?: string;
-  rejectStatus: { image?: boolean; description?: boolean };
-  
-};
 
 export interface UserProfileValidationResponses {
   status: string;

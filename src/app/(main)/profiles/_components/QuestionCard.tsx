@@ -12,12 +12,12 @@ export default function QuestionCard({ data }: { data: QuestionResponseType }) {
     <Card className="px-[20px] py-[24px] gap-[20px] w-[375px]">
       <CardHeader className="p-0">
         <CardTitle className="text-primary text-[14px]">{data.title}</CardTitle>
-        <CardDescription className="text-lg text-[#484B4D]">
+        <CardDescription className="text-lg text-gray-dark-1 font-medium">
           {data.category}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <Card className="bg-secondary px-[16px] py-[14px] border-none">
+        <Card className="bg-gray-light-3 text-gray-black px-[16px] py-[14px] border-none">
           <CardContent className="p-0 min-h-[300px]">{data.answer}</CardContent>
         </Card>
       </CardContent>

@@ -8,23 +8,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateProfileStatus } from "@/lib/server";
-import { Profile } from "@/lib/types";
+import { UserProfileValidationResponse } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 import ProfileDetailButton from "@/components/ProfileDetailButton";
+import { summitDebug } from "@/lib/debugFlags";
+import { updateProfileStatus } from "@/lib/server";
 import RejectedStatusToggle from "./_components/RejectedStatusToggle";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-
-export const columns: ColumnDef<Profile>[] = [
+export const columns: ColumnDef<UserProfileValidationResponse>[] = [
   {
     accessorKey: "userId",
     header: "User ID",
     cell: ({ row }) => {
-      const id = row.getValue("userId") as number;
+      const id = row.original.userId as number;
 
       return id;
     },
@@ -44,7 +42,7 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "birthdate",
     header: "생년월일",
     cell: ({ row }) => {
-      const birthDate = row.getValue("birthdate") as string;
+      const birthDate = row.original.birthdate as string;
 
       return birthDate ? birthDate.replace(/-/g, ".").slice(2) : "-";
     },
@@ -53,7 +51,7 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "phoneNumber",
     header: "전화번호",
     cell: ({ row }) => {
-      const phoneNumber = row.getValue("phoneNumber") as string;
+      const phoneNumber = row.original.phoneNumber as string;
 
       return phoneNumber ? formatPhoneNumber(phoneNumber) : "-";
     },
@@ -62,7 +60,7 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "joinDate",
     header: "가입일",
     cell: ({ row }) => {
-      const joinDate = row.getValue("joinDate") as Profile["joinDate"];
+      const joinDate = row.original.joinDate;
 
       return joinDate ? joinDate.replace(/-/g, ".").slice(2) : "-";
     },
@@ -71,9 +69,7 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "profileStatus",
     header: "상태",
     cell: ({ row }) => {
-      const profileStatus = row.getValue(
-        "profileStatus"
-      ) as Profile["profileStatus"];
+      const profileStatus = row.original.profileStatus;
 
       const menu = [
         { value: "보류", name: "반려", color: "#FF3059" },
@@ -105,17 +101,12 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "rejectStatus",
     header: "부적격",
     cell: ({ row }) => {
-      const rejectStatus: { [key: string]: boolean } = row.getValue(
-        "rejectStatus"
-      ) as Profile["rejectStatus"];
-      const profileStatus = row.getValue(
-        "profileStatus"
-      ) as Profile["profileStatus"];
+      const profileStatus = row.original.profileStatus;
 
       return (
         <RejectedStatusToggle
           profileStatus={profileStatus}
-          rejectStatus={rejectStatus}
+          rowData={row.original}
         />
       );
     },
@@ -124,12 +115,6 @@ export const columns: ColumnDef<Profile>[] = [
     accessorKey: "submit",
     header: "제출",
     cell: ({ row }) => {
-      const rejectStatus = row.getValue(
-        "rejectStatus"
-      ) as Profile["rejectStatus"];
-      const profileStatus = row.getValue(
-        "profileStatus"
-      ) as Profile["profileStatus"];
       const id = row.original.userId as number;
 
       return (
@@ -137,13 +122,13 @@ export const columns: ColumnDef<Profile>[] = [
           onClick={async () => {
             await updateProfileStatus(
               id,
-              rejectStatus.image!,
-              rejectStatus.description!
+              row.original.rejectImage,
+              row.original.rejectDescription!
             );
           }}
-          disabled={profileStatus === "통과"}
-          variant={"outline"}
-          className="h-[44px] w-full text-base border-foreground disabled:bg-[#CBD1D9] disabled:border-0"
+          disabled={!summitDebug && row.original.profileStatus === "통과"}
+          variant={"summit"}
+          className="h-[44px] w-full"
         >
           제출
         </Button>
