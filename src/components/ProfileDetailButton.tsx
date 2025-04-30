@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +15,13 @@ import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 import QuestionCard from "../app/(main)/profiles/_components/QuestionCard";
 export default function ProfileDetailButton({
   id,
   nickname,
 }: {
-  id: number;
+  id: number | null;
   nickname: string;
 }) {
   const [content, setContent] = useState<UserProfileDetailResponse | undefined>(
@@ -31,15 +32,20 @@ export default function ProfileDetailButton({
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          const { data }: { data: UserProfileDetailResponse } =
-            await getUserById(id as number);
-          setContent(data);
+          const res = await getUserById(id as number);
+
+          if (!res.data) {
+            toast.error(JSON.stringify(res));
+          }
+
+          setContent(res.data);
         }
       }}
     >
       <DialogTrigger asChild>
         <Button
           variant="outline"
+          disabled={id == null}
           className="w-full flex justify-between py-[10px] px-[12px] h-[46px] text-base"
         >
           <div>{nickname}</div>
@@ -56,49 +62,35 @@ export default function ProfileDetailButton({
             <div className="flex flex-col gap-[20px] items-center">
               <Image
                 className="rounded-lg"
-                src={content?.imageUrl}
+                src={content.imageUrl}
                 height={220}
                 width={220}
                 alt="Profile"
               />
-              <div className="font-semibold">{content.nickname}</div>
+              <div className="font-semibold text-[20px]">
+                {content.nickname}
+              </div>
             </div>
             <div className="flex items-center gap-x-[20px]">
-              <Button
-                variant={"secondary"}
-                size="icon"
-                disabled={page === 1}
+              <PaginationButton
+                isActive={page !== 1}
                 onClick={() => {
                   setPage(Math.max(page - 1, 1));
                 }}
-                className={cn(
-                  "rounded-full bg-muted text-muted-foreground disabled:opacity-100",
-                  {
-                    "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                      page !== 1,
-                  }
-                )}
               >
                 <ChevronLeft />
-              </Button>
+              </PaginationButton>
+
               <QuestionCard data={content.responses[page - 1]} />
-              <Button
-                variant={"secondary"}
-                size="icon"
-                disabled={page === content.responses.length}
+
+              <PaginationButton
+                isActive={page !== content.responses.length}
                 onClick={() => {
                   setPage(Math.min(page + 1, content.responses.length));
                 }}
-                className={cn(
-                  "rounded-full bg-muted text-muted-foreground disabled:opacity-100",
-                  {
-                    "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                      page !== content.responses.length,
-                  }
-                )}
               >
                 <ChevronRight />
-              </Button>
+              </PaginationButton>
             </div>
           </div>
         ) : (
@@ -106,5 +98,35 @@ export default function ProfileDetailButton({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+type PaginationButtonProps = {
+  isActive?: boolean;
+} & React.ComponentProps<typeof Button>;
+function PaginationButton({
+  className,
+  isActive,
+  children,
+  ...props
+}: PaginationButtonProps) {
+  return (
+    <Button
+      variant={"secondary"}
+      size="icon"
+      disabled={!isActive}
+      className={cn(
+        buttonVariants({ variant: "secondary" }),
+        "bg-muted text-muted-foreground disabled:opacity-100",
+        {
+          [buttonVariants({ variant: "light" })]: isActive,
+        },
+        "rounded-full",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Button>
   );
 }

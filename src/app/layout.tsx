@@ -1,6 +1,7 @@
 import { AuthProvider } from "@/components/AuthProvider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "sonner";
 import Header from "./_components/Header";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
         className={`${pretendard.className} antialiased h-screen flex flex-col`}
       >
         <AuthProvider>
+          <Toaster />
           <Header />
           <div className="flex-1">{children}</div>
         </AuthProvider>

@@ -9,9 +9,12 @@ export default function CheckButton({
     <Button
       // variant={isChecked ? "secondary" : "default"}
       size="icon"
-      className={cn("w-[20px] h-[20px] rounded-full bg-primary", {
-        "hover:bg-[#CBD1D9]/70 bg-[#CBD1D9]": isChecked,
-      })}
+      className={cn(
+        "w-[20px] h-[20px] rounded-full bg-primary flex justify-center items-center",
+        {
+          "hover:bg-gray-light-1 bg-gray-light-1": isChecked,
+        }
+      )}
     >
       {isChecked ? (
         <X className="size-3.5 stroke-3" />

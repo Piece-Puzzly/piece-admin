@@ -19,6 +19,7 @@ import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { ReportDataTable } from "./report-data-table";
 
 export default function ReportReasonDialog() {
@@ -35,12 +36,18 @@ export default function ReportReasonDialog() {
     const id = searchParams.get("id");
     if (id) {
       (async () => {
-        const { data }: { data: ReportedDetailResponseData } =
+        const res_report: { data: ReportedDetailResponseData } =
           await getReportDetail(parseInt(id as string) as number, 0, 10);
-        const { data: userData }: { data: UserProfileDetailResponse } =
+        const res_profile: { data: UserProfileDetailResponse } =
           await getUserById(parseInt(id));
-        setData(data);
-        setNickName(userData.nickname);
+        if (!res_report.data) {
+          toast.error(JSON.stringify(res_report));
+        }
+        if (!res_profile.data) {
+          toast.error(JSON.stringify(res_profile));
+        }
+        setData(res_report.data);
+        setNickName(res_profile.data.nickname);
       })();
     }
   }, [searchParams]);

@@ -33,12 +33,15 @@ export function ReportDataTable<TData, TValue>({
 
   return (
     <Table className="border-b">
-      <TableHeader className="[&_tr]:h-[38px] [&_tr]:border-0">
+      <TableHeader className="bg-gray-light-3 ">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className="border-0 bg-gray-light-3 py-[8px]"
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(

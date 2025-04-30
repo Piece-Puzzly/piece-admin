@@ -46,10 +46,7 @@ export default function PaginationDisplay({
         <PaginationItem>
           <PaginationFirst
             href={pathname + "?" + createQueryString(queryKey, `1`)}
-            className={cn("bg-secondary", {
-              "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                currPage !== 1,
-            })}
+            isActive={currPage !== 1}
           />
         </PaginationItem>
         <PaginationItem>
@@ -62,16 +59,14 @@ export default function PaginationDisplay({
                 `${currPage === 1 ? 1 : currPage - 1}`
               )
             }
-            className={cn("bg-secondary", {
-              "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                currPage !== 1,
-            })}
+            isActive={currPage !== 1}
           />
         </PaginationItem>
         <div className="gap-[4px] flex">
           {getPagesNumber(currPage, num, 10).map((e) => (
             <PaginationItem key={e}>
               <PaginationLink
+                isNumber
                 isActive={e === currPage}
                 href={pathname + "?" + createQueryString(queryKey, `${e}`)}
               >
@@ -90,10 +85,7 @@ export default function PaginationDisplay({
                 `${Math.ceil(num / 10) === currPage ? currPage : currPage + 1}`
               )
             }
-            className={cn("bg-secondary", {
-              "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                currPage !== Math.ceil(num / 10),
-            })}
+            isActive={currPage !== Math.ceil(num / 10)}
           />
         </PaginationItem>
         <PaginationItem>
@@ -103,10 +95,7 @@ export default function PaginationDisplay({
               "?" +
               createQueryString(queryKey, `${Math.ceil(num / 10)}`)
             }
-            className={cn("bg-secondary", {
-              "bg-[#F6EFFF] text-primary hover:bg-[#F6EFFF] hover:text-primary":
-                currPage !== Math.ceil(num / 10),
-            })}
+            isActive={currPage !== Math.ceil(num / 10)}
           />
         </PaginationItem>
       </PaginationContent>

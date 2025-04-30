@@ -15,6 +15,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import ProfileDetailButton from "@/components/ProfileDetailButton";
 import { summitDebug } from "@/lib/debugFlags";
 import { updateProfileStatus } from "@/lib/server";
+import { toast } from "sonner";
 import RejectedStatusToggle from "./_components/RejectedStatusToggle";
 
 export const columns: ColumnDef<UserProfileValidationResponse>[] = [
@@ -120,11 +121,14 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
       return (
         <Button
           onClick={async () => {
-            await updateProfileStatus(
+            const res = await updateProfileStatus(
               id,
               row.original.rejectImage,
               row.original.rejectDescription!
             );
+            if (res.status !== "success") {
+              toast.error(JSON.stringify(res));
+            }
           }}
           disabled={!summitDebug && row.original.profileStatus === "통과"}
           variant={"summit"}
