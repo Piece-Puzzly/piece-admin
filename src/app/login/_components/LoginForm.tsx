@@ -33,9 +33,9 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col justify-center items-center gap-[40px]"
+      className="px-6 md:px-0 w-full md:w-auto flex flex-col justify-center items-center gap-[40px]"
     >
-      <Tabs className="w-[432px]" value={`${loginServer}`}>
+      <Tabs className="w-full md:w-[432px]" value={`${loginServer}`}>
         <TabsList className="inline-flex w-full grid-cols-2">
           {loginServerInfo.map(({ display }, i) => (
             <TabsTrigger
@@ -51,15 +51,14 @@ export default function LoginForm() {
           ))}
         </TabsList>
       </Tabs>
-      <div className="flex flex-col gap-[40px] ">
+      <div className="flex flex-col gap-[40px] w-full">
         <div className="space-y-4">
           <div className="space-y-[8px]">
             <Label htmlFor="id">아이디</Label>
-
             <Input
               id="id"
               type="text"
-              className="w-[432px]"
+              className="w-full md:w-[432px]"
               placeholder="아이디를 입력하세요."
               {...register("id")}
             />
@@ -70,12 +69,14 @@ export default function LoginForm() {
               id="pw"
               type="password"
               {...register("password")}
-              className="w-[432px]"
+              className="w-full md:w-[432px]"
               placeholder="비밀번호를 입력하세요."
             />
           </div>
         </div>
-        <Button className="w-[432px] h-[52px] text-base">로그인</Button>
+        <Button className="w-full md:w-[432px] h-[52px] text-base">
+          로그인
+        </Button>
       </div>
     </form>
   );

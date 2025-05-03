@@ -18,8 +18,8 @@ export default async function layout({
 
   return (
     <div className="flex justify-center">
-      <main className="p-[20px] w-full max-w-screen-xl space-y-[20px]">
-        <div className="flex justify-between items-center">
+      <main className="p-[10px] md:p-[20px] w-full max-w-screen-xl space-y-[20px]">
+        <div className="flex flex-col gap-6 md:flex-row justify-between items-start py-[20px] md:p-0">
           <MenuTabs />
           <ReportMenuTabs />
         </div>

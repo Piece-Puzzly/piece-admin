@@ -13,7 +13,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
       <table
         data-slot="table"
         className={cn(
-          "w-full caption-bottom text-base font-medium text-gray-dark-1",
+          "w-full caption-bottom text-sm md:text-base font-medium text-gray-dark-1",
           className
         )}
         {...props}
@@ -26,7 +26,10 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn(" text-[18px] leading-[22px] [&_tr]:h-auto", className)}
+      className={cn(
+        "text-base md:text-[18px] leading-[22px] [&_tr]:h-auto",
+        className
+      )}
       {...props}
     />
   );
@@ -86,7 +89,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "text-center text-[16px] px-[10px] whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium",
+        "text-center text-sm md:text-[16px] px-[10px] whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] font-medium",
         className
       )}
       {...props}

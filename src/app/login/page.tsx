@@ -4,7 +4,7 @@ import LoginForm from "./_components/LoginForm";
 export default function page() {
   return (
     <div className="h-full flex justify-center items-center">
-      <div className="flex flex-col items-center gap-[60px]">
+      <div className="flex flex-col items-center gap-[60px] w-full md:w-auto">
         <Image
           src={"/logo.png"}
           height={80}

@@ -101,6 +101,7 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
   {
     accessorKey: "rejectStatus",
     header: "부적격",
+
     cell: ({ row }) => {
       const profileStatus = row.original.profileStatus;
 
@@ -132,7 +133,7 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
           }}
           disabled={!summitDebug && row.original.profileStatus === "통과"}
           variant={"summit"}
-          className="h-[44px] w-full"
+          className="h-[40px] md:h-[44px] w-full min-w-[80px]"
         >
           제출
         </Button>

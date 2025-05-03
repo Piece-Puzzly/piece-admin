@@ -19,7 +19,10 @@ export default function MenuTabs() {
   const pathname = usePathname();
   const tokens = pathname.split("/").slice(1);
   return (
-    <LineTabs className="" value={tokens[0]}>
+    <LineTabs
+      className="overflow-auto scrollbar-hide whitespace-nowrap w-full"
+      value={tokens[0]}
+    >
       <LineTabsList>
         {menuList.map((e) => (
           <LineTabsTrigger

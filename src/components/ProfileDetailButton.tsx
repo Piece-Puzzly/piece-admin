@@ -1,5 +1,6 @@
 "use client";
 
+import { useMediaQuery } from "@/app/hooks/use-media-query";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +18,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import QuestionCard from "../app/(main)/profiles/_components/QuestionCard";
+
 export default function ProfileDetailButton({
   id,
   nickname,
@@ -28,6 +30,32 @@ export default function ProfileDetailButton({
     undefined
   );
   const [page, setPage] = useState<number>(1);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const questionComps = [
+    content && (
+      <PaginationButton
+        key="0"
+        isActive={page !== 1}
+        onClick={() => {
+          setPage(Math.max(page - 1, 1));
+        }}
+      >
+        <ChevronLeft />
+      </PaginationButton>
+    ),
+    content && <QuestionCard key="1" data={content.responses[page - 1]} />,
+    content && (
+      <PaginationButton
+        key="2"
+        isActive={page !== content.responses.length}
+        onClick={() => {
+          setPage(Math.min(page + 1, content.responses.length));
+        }}
+      >
+        <ChevronRight />
+      </PaginationButton>
+    ),
+  ];
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -46,20 +74,20 @@ export default function ProfileDetailButton({
         <Button
           variant="outline"
           disabled={id == null}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[46px] text-base"
+          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
         >
           <div>{nickname}</div>
           <ChevronRight />
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[860px] lg:max-w-[860px] px-[60px] pt-[80px] pb-[40px]">
+      <DialogContent className="md:w-[860px] max-h-full overflow-y-auto md:max-w-[860px] md:px-[60px] md:pt-[80px] md:pb-[40px]">
         <DialogHeader className="hidden">
           <DialogTitle />
           <DialogDescription />
         </DialogHeader>
         {content ? (
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-[20px] items-center">
+          <div className="flex items-center justify-between flex-col md:flex-row gap-[20px] md:gap-0">
+            <div className="flex flex-col-reverse md:flex-col gap-[20px] items-center ">
               <Image
                 className="rounded-lg"
                 src={content.imageUrl}
@@ -72,25 +100,16 @@ export default function ProfileDetailButton({
               </div>
             </div>
             <div className="flex items-center gap-x-[20px]">
-              <PaginationButton
-                isActive={page !== 1}
-                onClick={() => {
-                  setPage(Math.max(page - 1, 1));
-                }}
-              >
-                <ChevronLeft />
-              </PaginationButton>
-
-              <QuestionCard data={content.responses[page - 1]} />
-
-              <PaginationButton
-                isActive={page !== content.responses.length}
-                onClick={() => {
-                  setPage(Math.min(page + 1, content.responses.length));
-                }}
-              >
-                <ChevronRight />
-              </PaginationButton>
+              {isDesktop ? (
+                questionComps
+              ) : (
+                <div className="space-y-4">
+                  {questionComps[1]}
+                  <div className="flex gap-2 justify-end">
+                    {questionComps[0]} {questionComps[2]}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (

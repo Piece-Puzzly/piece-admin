@@ -9,7 +9,7 @@ import {
 import { QuestionResponseType } from "@/lib/types";
 export default function QuestionCard({ data }: { data: QuestionResponseType }) {
   return (
-    <Card className="px-[20px] py-[24px] gap-[20px] w-[375px]">
+    <Card className="px-[20px] py-[24px] gap-[20px] md:w-[375px]">
       <CardHeader className="p-0">
         <CardTitle className="text-primary text-[14px]">{data.title}</CardTitle>
         <CardDescription className="text-lg text-gray-dark-1 font-medium">

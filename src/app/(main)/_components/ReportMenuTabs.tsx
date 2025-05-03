@@ -15,7 +15,7 @@ export default function MenuTabs() {
   const tokens = pathname.split("/").slice(1);
   return (
     tokens[0] === "report" && (
-      <Tabs className="h-[48px]" value={tokens[1]}>
+      <Tabs className=" md:h-[48px] " value={tokens[1]}>
         <TabsList>
           {menuList.map((e) => (
             <TabsTrigger
