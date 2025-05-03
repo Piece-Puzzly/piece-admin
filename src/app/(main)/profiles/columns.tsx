@@ -13,7 +13,7 @@ import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 import ProfileDetailButton from "@/components/ProfileDetailButton";
-import { summitDebug } from "@/lib/debugFlags";
+import { submitDebug } from "@/lib/debugFlags";
 import { updateProfileStatus } from "@/lib/server";
 import { toast } from "sonner";
 import RejectedStatusToggle from "./_components/RejectedStatusToggle";
@@ -131,8 +131,8 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
               toast.error(JSON.stringify(res));
             }
           }}
-          disabled={!summitDebug && row.original.profileStatus === "통과"}
-          variant={"summit"}
+          disabled={!submitDebug && row.original.profileStatus === "통과"}
+          variant={"submit"}
           className="h-[40px] md:h-[44px] w-full min-w-[80px]"
         >
           제출

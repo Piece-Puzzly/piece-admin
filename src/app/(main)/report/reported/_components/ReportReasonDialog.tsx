@@ -2,6 +2,18 @@
 
 import PaginationDisplay from "@/components/PaginationDisplay";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -9,7 +21,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getReportDetail, getUserById } from "@/lib/server";
+
+import { banUsers, getReportDetail, getUserById } from "@/lib/server";
 import {
   ReportDetail,
   ReportedDetailResponseData,
@@ -51,17 +64,13 @@ export default function ReportReasonDialog() {
       })();
     }
   }, [searchParams]);
-
+  const userId = parseInt(searchParams.get("id") as string) as number;
   return (
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
           const { data }: { data: ReportedDetailResponseData } =
-            await getReportDetail(
-              parseInt(searchParams.get("id") as string) as number,
-              0,
-              10
-            );
+            await getReportDetail(userId, 0, 10);
           setData(data);
         } else {
           router.push(
@@ -79,16 +88,52 @@ export default function ReportReasonDialog() {
       <DialogTrigger asChild>
         <button className="absolute hidden" />
       </DialogTrigger>
-      <DialogContent className="gap-0 w-[860px] lg:max-w-[860px] px-[40px] pt-[76px] pb-[49px]">
+      <DialogContent className="gap-0  md:px-[40px] md:pt-[76px] md:pb-[49px]">
         <DialogHeader className="hidden">
           <DialogTitle></DialogTitle>
           <DialogDescription />
         </DialogHeader>
+
         {nickName ? (
-          <div className="text-[24px] font-semibold pb-[16px]">{nickName}</div>
+          <div className="flex gap-[20px] items-center pb-[16px]">
+            <div className="text-[24px] font-semibold ">{nickName}</div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="submit"
+                  className="px-[12px] py-[10px] leading-[24px]"
+                >
+                  영구 정지
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>영구 차단 하시겠습니까?</AlertDialogTitle>
+                  <AlertDialogDescription></AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        const res = await banUsers(userId);
+                        if (res.status !== "success") {
+                          toast.error(JSON.stringify(res));
+                        }
+                      }}
+                    >
+                      확인
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         ) : (
           <div>loading</div>
         )}
+
         {data ? (
           <>
             <ReportDataTable columns={columns} data={data.content} />

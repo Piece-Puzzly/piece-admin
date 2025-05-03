@@ -99,7 +99,7 @@ export default function ProfileDetailButton({
                 {content.nickname}
               </div>
             </div>
-            <div className="flex items-center gap-x-[20px]">
+            <div className="flex items-center gap-x-[20px] w-full max-w-full">
               {isDesktop ? (
                 questionComps
               ) : (

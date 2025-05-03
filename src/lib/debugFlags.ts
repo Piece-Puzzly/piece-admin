@@ -1,1 +1,1 @@
-export const summitDebug = false;
+export const submitDebug = false;

@@ -1,6 +1,6 @@
 "use client";
 import { Toggle } from "@/components/ui/toggle";
-import { summitDebug } from "@/lib/debugFlags";
+import { submitDebug } from "@/lib/debugFlags";
 import { UserProfileValidationResponse } from "@/lib/types";
 
 const rejectionType: {
@@ -28,7 +28,7 @@ export default function RejectedStatusToggle({
           onPressedChange={(e) => {
             rowData[key] = e;
           }}
-          disabled={!summitDebug && profileStatus === "통과"}
+          disabled={!submitDebug && profileStatus === "통과"}
           className="h-[40px] md:h-[44px] px-3 py-[10px] leading-6 min-w-[80px]"
         >
           {name}

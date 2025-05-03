@@ -22,7 +22,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         date: "rounded-full",
-        summit:
+        submit:
           "hover:bg-gray-light-1/30 border border-gray-black bg-gray-white disabled:bg-gray-light-1 disabled:border-0 disabled:text-gray-white disabled:opacity-100",
       },
       size: {

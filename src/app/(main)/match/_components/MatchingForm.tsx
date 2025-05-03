@@ -52,11 +52,11 @@ export default function MatchingForm({
   return (
     <Form {...form}>
       <form
-        className="flex items-center gap-[60px]"
+        className="flex flex-col md:flex-row items-center gap-6 md:gap-[60px]"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="flex gap-[24px] flex-1">
-          <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-[448px]">
+        <div className="flex flex-col md:flex-row gap-[24px] flex-1">
+          <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-auto md:w-[448px]">
             {["idA", "idB"].map((e) => (
               <FormField
                 key={e}
@@ -143,7 +143,7 @@ function ProfileSelect({
 } & React.ComponentProps<typeof SelectPrimitive.Root>) {
   return (
     <Select {...props}>
-      <SelectTrigger className="w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
+      <SelectTrigger className="overflow-hidden w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="닉네임을 선택해 주세요" />
       </SelectTrigger>
       <SelectContent>

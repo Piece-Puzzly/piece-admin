@@ -20,7 +20,7 @@ export default function MenuTabs() {
   const tokens = pathname.split("/").slice(1);
   return (
     <LineTabs
-      className="overflow-auto scrollbar-hide whitespace-nowrap w-full"
+      className="overflow-auto scrollbar-hide whitespace-nowrap w-full md:w-auto"
       value={tokens[0]}
     >
       <LineTabsList>
