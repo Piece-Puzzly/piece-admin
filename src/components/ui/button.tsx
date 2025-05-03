@@ -23,7 +23,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         date: "rounded-full",
         submit:
-          "hover:bg-gray-light-1/30 border border-gray-black bg-gray-white disabled:bg-gray-light-1 disabled:border-0 disabled:text-gray-white disabled:opacity-100",
+          "hover:bg-gray-light-1/30 border border-gray-black text-gray-black bg-gray-white disabled:bg-gray-light-1 disabled:border-0 disabled:text-gray-white disabled:opacity-100",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

@@ -2,9 +2,9 @@ import PaginationDisplay from "@/components/PaginationDisplay";
 import { getReportedDatas } from "@/lib/server";
 import { ReportedValidationResponses } from "@/lib/types";
 
-import { DataTable } from "@/components/data-table";
 import ReportReasonDialog from "./_components/ReportReasonDialog";
 import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export default async function Page({
   searchParams,

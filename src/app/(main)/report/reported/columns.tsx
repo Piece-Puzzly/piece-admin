@@ -7,6 +7,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileDetailButton from "../../../../components/ProfileDetailButton";
+import BanDialog from "./_components/BanDialog";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -53,6 +54,14 @@ export const columns: ColumnDef<ReportedUser>[] = [
           latestReportedReason={latestReportedReason}
         />
       );
+    },
+  },
+  {
+    id: "ban",
+    header: "영구 정지",
+    cell: ({ row }) => {
+      const userId = row.original.userId;
+      return <BanDialog userId={userId} />;
     },
   },
 ];

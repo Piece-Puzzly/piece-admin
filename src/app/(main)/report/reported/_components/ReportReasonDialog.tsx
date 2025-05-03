@@ -1,18 +1,7 @@
 "use client";
 
 import PaginationDisplay from "@/components/PaginationDisplay";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -22,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { banUsers, getReportDetail, getUserById } from "@/lib/server";
+import { getReportDetail, getUserById } from "@/lib/server";
 import {
   ReportDetail,
   ReportedDetailResponseData,
@@ -33,6 +22,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import BanDialog from "./BanDialog";
 import { ReportDataTable } from "./report-data-table";
 
 export default function ReportReasonDialog() {
@@ -97,38 +87,7 @@ export default function ReportReasonDialog() {
         {nickName ? (
           <div className="flex gap-[20px] items-center pb-[16px]">
             <div className="text-[24px] font-semibold ">{nickName}</div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="submit"
-                  className="px-[12px] py-[10px] leading-[24px]"
-                >
-                  영구 정지
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>영구 차단 하시겠습니까?</AlertDialogTitle>
-                  <AlertDialogDescription></AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button
-                      variant="destructive"
-                      onClick={async () => {
-                        const res = await banUsers(userId);
-                        if (res.status !== "success") {
-                          toast.error(JSON.stringify(res));
-                        }
-                      }}
-                    >
-                      확인
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <BanDialog userId={userId} />
           </div>
         ) : (
           <div>loading</div>
