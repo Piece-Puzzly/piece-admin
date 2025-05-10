@@ -12,8 +12,10 @@ const rejectionType: {
   { name: "통과", key: "ACCEPTED" },
 ];
 export default function UpdateProfileImageToggle({
+  profileImageStatus,
   rawData,
 }: {
+  profileImageStatus: string;
   rawData: UserProfileImageDetailResponseData;
 }) {
   const [radio, setRadio] = useState<string>(
@@ -38,10 +40,7 @@ export default function UpdateProfileImageToggle({
               rawData.pendingProfileImage.profileImageStatus = "PENDING";
             }
           }}
-          disabled={
-            !submitDebug &&
-            rawData.pendingProfileImage.profileImageStatus !== "PENDING"
-          }
+          disabled={!submitDebug && profileImageStatus !== "PENDING"}
           className="h-[40px] md:h-[44px] px-3 py-[10px] leading-6 min-w-[80px] w-[184px]"
         >
           {name}

@@ -31,7 +31,7 @@ export default function PhotoDetailButton({
   const [content, setContent] = useState<
     UserProfileImageDetailResponseData | undefined
   >(undefined);
-
+  const profileImageStatus = content?.pendingProfileImage.profileImageStatus;
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -90,14 +90,14 @@ export default function PhotoDetailButton({
             </div>
             <div>
               <div className="flex gap-[24px]">
-                <UpdateProfileImageToggle rawData={content} />
+                <UpdateProfileImageToggle
+                  profileImageStatus={profileImageStatus!}
+                  rawData={content}
+                />
                 <Button
                   variant="submit"
                   className=" py-[10px] px-[12px] h-auto w-[76px]"
-                  disabled={
-                    !submitDebug &&
-                    content.pendingProfileImage.profileImageStatus !== "PENDING"
-                  }
+                  disabled={!submitDebug && profileImageStatus !== "PENDING"}
                   onClick={async () => {
                     if (
                       content.pendingProfileImage.profileImageStatus ===
