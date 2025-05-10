@@ -61,7 +61,8 @@ export const columns: ColumnDef<ReportedUser>[] = [
     header: "영구 정지",
     cell: ({ row }) => {
       const userId = row.original.userId;
-      return <BanDialog userId={userId} />;
+      const nickName = row.original.nickName;
+      return <BanDialog userId={userId} nickName={nickName} />;
     },
   },
 ];

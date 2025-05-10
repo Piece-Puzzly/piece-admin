@@ -1,29 +1,31 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { banUsers } from "@/lib/server";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { toast } from "sonner";
 
 export default function BanDialog({
   userId,
+  nickName,
   className,
 }: {
   userId: number;
+  nickName: string;
   className?: string;
 }) {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button
           variant="submit"
           className={cn(
@@ -33,17 +35,37 @@ export default function BanDialog({
         >
           영구 정지
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>영구 차단 하시겠습니까?</AlertDialogTitle>
-          <AlertDialogDescription></AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
-          <AlertDialogAction asChild>
+      </DialogTrigger>
+      <DialogContent className="p-0 sm:max-w-[312px] break-normal">
+        <DialogHeader className="pt-[40px] px-[20px] pb-[12px] items-center flex flex-col break-normal">
+          <DialogTitle className="items-center flex flex-col gap-y-[8px]">
+            <Image
+              src={"/icons/Notice.svg"}
+              height={40}
+              width={40}
+              alt="Notice"
+            />
+            <p className="text-[20px] font-semibold break-normal">
+              {nickName}님을 영구 정지하시겠습니까?
+            </p>
+          </DialogTitle>
+          <DialogDescription className="text-[14px] font-medium">
+            영구 정지 버튼을 누르시면 바로 적용됩니다.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="grid grid-cols-2 pt-[12px] pb-[20px] px-[20px]">
+          <DialogClose asChild>
             <Button
-              variant="destructive"
+              className="h-[52px]"
+              variant={"primary-outline"}
+            >
+              취소
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              className="h-[52px]"
+              variant="default"
               onClick={async () => {
                 const res = await banUsers(userId);
                 if (res.status !== "success") {
@@ -51,11 +73,11 @@ export default function BanDialog({
                 }
               }}
             >
-              확인
+              영구 정지
             </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
