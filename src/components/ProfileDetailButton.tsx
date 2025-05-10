@@ -17,7 +17,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import QuestionCard from "../app/(main)/profiles/_components/QuestionCard";
+import QuestionCard from "../app/(main)/profiles/profile/_components/QuestionCard";
 
 export default function ProfileDetailButton({
   id,
@@ -56,6 +56,7 @@ export default function ProfileDetailButton({
       </PaginationButton>
     ),
   ];
+
   return (
     <Dialog
       onOpenChange={async (e) => {

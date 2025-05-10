@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { authOptions } from "@/lib/authOptions";
 import MenuTabs from "./_components/MenuTabs";
-import ReportMenuTabs from "./_components/ReportMenuTabs";
+import ReportMenuTabs from "./_components/SubMenuTabs";
 
 export default async function layout({
   children,

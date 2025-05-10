@@ -123,3 +123,12 @@ export interface MatchingProfile {
   time: number;
   isMatched: boolean;
 }
+
+export interface UserProfileImageDetailResponseData {
+  profileImageUrl: string;
+  pendingProfileImage: {
+    profileImageId: number;
+    profileImageUrl: string;
+    profileImageStatus: string;
+  };
+}

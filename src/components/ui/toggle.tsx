@@ -12,7 +12,7 @@ const toggleVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary-light text-primary hover:bg-primary-middle/30 hover:text-primary/90 data-[state=on]:hover:bg-primary/90",
+          "bg-primary-light text-primary hover:bg-primary-middle/30 hover:text-primary/90 data-[state=on]:hover:bg-primary/90 data-[state=on]:disabled:bg-gray-light-1 data-[state=on]:disabled:border-0 data-[state=on]:disabled:text-gray-white data-[state=on]:disabled:opacity-100",
         outline:
           "border border-foreground bg-transparent hover:bg-accent hover:text-accent-foreground data-[state=on]:bg-gray-light-1 data-[state=on]:border-none",
       },

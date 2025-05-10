@@ -7,12 +7,29 @@ import {
 } from "@/components/ui/linetabs";
 import { usePathname, useRouter } from "next/navigation";
 
-const menuList = ["profiles", "report", "match"];
-const menuInfo: Record<string, { name: string }> = {
-  profiles: { name: "회원 프로필 심사" },
-  report: { name: "신고 유저 검토 및 제재" },
-  match: { name: "수동 매칭" },
-};
+export const menuInfo: {
+  value: string;
+  name: string;
+  tabs?: { value: string; name: string }[];
+}[] = [
+  {
+    value: "profiles",
+    name: "회원 프로필 심사",
+    tabs: [
+      { value: "profile", name: "프로필" },
+      { value: "photo", name: "사진" },
+    ],
+  },
+  {
+    value: "report",
+    name: "신고 유저 검토 및 제재",
+    tabs: [
+      { value: "blocked", name: "차단" },
+      { value: "reported", name: "신고" },
+    ],
+  },
+  { value: "match", name: "수동 매칭" },
+];
 
 export default function MenuTabs() {
   const router = useRouter();
@@ -24,15 +41,15 @@ export default function MenuTabs() {
       value={tokens[0]}
     >
       <LineTabsList>
-        {menuList.map((e) => (
+        {menuInfo.map(({ value, name, tabs }) => (
           <LineTabsTrigger
             onClick={() => {
-              router.push(`/${e}` + (e === "report" ? "/blocked" : ""));
+              router.push(`/${value}` + (tabs ? `/${tabs[0].value}` : ""));
             }}
-            key={e}
-            value={e}
+            key={value}
+            value={value}
           >
-            {menuInfo[e].name}
+            {name}
           </LineTabsTrigger>
         ))}
       </LineTabsList>
