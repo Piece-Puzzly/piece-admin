@@ -26,7 +26,7 @@ export default function ProfileDetailButton({
 }: {
   id: number | null;
   nickname: string;
-  description: string | undefined | null;
+  description?: string | undefined | null;
 }) {
   const [content, setContent] = useState<UserProfileDetailResponse | undefined>(
     undefined
