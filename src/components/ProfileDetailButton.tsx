@@ -99,7 +99,7 @@ export default function ProfileDetailButton({
                 alt="Profile"
               />
               <div className="flex flex-col gap-[8px] items-center">
-                <div className="text-[14px] font-medium">{description}</div>
+                <div className="text-[14px] font-medium text-gray-black">{description}</div>
                 <div className="font-semibold text-[20px]">
                   {content.nickname}
                 </div>
