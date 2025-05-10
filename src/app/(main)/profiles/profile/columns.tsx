@@ -33,9 +33,16 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
     header: "매칭 프로필",
     cell: ({ row }) => {
       const id = row.original.userId as number;
+
       const nickname = row.getValue("nickname") as string;
 
-      return <ProfileDetailButton id={id} nickname={nickname} />;
+      return (
+        <ProfileDetailButton
+          id={id}
+          nickname={nickname}
+          description={row.original.description}
+        />
+      );
     },
   },
 

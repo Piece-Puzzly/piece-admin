@@ -22,9 +22,11 @@ import QuestionCard from "../app/(main)/profiles/profile/_components/QuestionCar
 export default function ProfileDetailButton({
   id,
   nickname,
+  description,
 }: {
   id: number | null;
   nickname: string;
+  description: string | undefined | null;
 }) {
   const [content, setContent] = useState<UserProfileDetailResponse | undefined>(
     undefined
@@ -96,8 +98,11 @@ export default function ProfileDetailButton({
                 width={220}
                 alt="Profile"
               />
-              <div className="font-semibold text-[20px]">
-                {content.nickname}
+              <div className="flex flex-col gap-[8px] items-center">
+                <div className="text-[14px] font-medium">{description}</div>
+                <div className="font-semibold text-[20px]">
+                  {content.nickname}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-x-[20px] w-full max-w-full">
