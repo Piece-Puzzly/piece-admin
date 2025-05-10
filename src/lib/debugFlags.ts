@@ -1,1 +1,1 @@
-export const submitDebug = true;
+export const submitDebug = false;
