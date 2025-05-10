@@ -87,7 +87,7 @@ export default function ReportReasonDialog() {
         {nickName ? (
           <div className="flex gap-[20px] items-center pb-[16px]">
             <div className="text-[24px] font-semibold ">{nickName}</div>
-            <BanDialog userId={userId} />
+            <BanDialog nickName={nickName} userId={userId} />
           </div>
         ) : (
           <div>loading</div>
