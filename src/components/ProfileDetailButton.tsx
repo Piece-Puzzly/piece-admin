@@ -99,17 +99,19 @@ export default function ProfileDetailButton({
                 alt="Profile"
               />
               <div className="flex flex-col gap-[8px] items-center">
-                <div className="text-[14px] font-medium text-gray-black">{description}</div>
+                <div className="text-[14px] font-medium text-gray-black">
+                  {description}
+                </div>
                 <div className="font-semibold text-[20px]">
                   {content.nickname}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-x-[20px] w-full max-w-full">
+            <div className="flex items-center gap-x-[20px] w-full max-w-full justify-center">
               {isDesktop ? (
                 questionComps
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 w-full">
                   {questionComps[1]}
                   <div className="flex gap-2 justify-end">
                     {questionComps[0]} {questionComps[2]}
@@ -129,6 +131,7 @@ export default function ProfileDetailButton({
 type PaginationButtonProps = {
   isActive?: boolean;
 } & React.ComponentProps<typeof Button>;
+
 function PaginationButton({
   className,
   isActive,
