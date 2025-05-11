@@ -78,7 +78,7 @@ export default function ReportReasonDialog() {
       <DialogTrigger asChild>
         <button className="absolute hidden" />
       </DialogTrigger>
-      <DialogContent className="gap-0  md:px-[40px] md:pt-[76px] md:pb-[49px]">
+      <DialogContent className="gap-0  md:px-[40px] md:pt-[76px] md:pb-[49px] md:w-[860px]">
         <DialogHeader className="hidden">
           <DialogTitle></DialogTitle>
           <DialogDescription />

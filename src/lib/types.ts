@@ -130,5 +130,5 @@ export interface UserProfileImageDetailResponseData {
     profileImageId: number;
     profileImageUrl: string;
     profileImageStatus: string;
-  };
+  } | null;
 }

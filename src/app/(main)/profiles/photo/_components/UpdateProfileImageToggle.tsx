@@ -19,7 +19,7 @@ export default function UpdateProfileImageToggle({
   rawData: UserProfileImageDetailResponseData;
 }) {
   const [radio, setRadio] = useState<string>(
-    rawData.pendingProfileImage.profileImageStatus
+    rawData.pendingProfileImage!.profileImageStatus
   );
 
   return (
@@ -29,15 +29,15 @@ export default function UpdateProfileImageToggle({
           key={name}
           pressed={radio === key}
           defaultPressed={
-            rawData.pendingProfileImage.profileImageStatus === key
+            rawData.pendingProfileImage!.profileImageStatus === key
           }
           onPressedChange={(e) => {
             if (e) {
               setRadio(key);
-              rawData.pendingProfileImage.profileImageStatus = key;
+              rawData.pendingProfileImage!.profileImageStatus = key;
             } else {
               setRadio("PENDING");
-              rawData.pendingProfileImage.profileImageStatus = "PENDING";
+              rawData.pendingProfileImage!.profileImageStatus = "PENDING";
             }
           }}
           disabled={!submitDebug && profileImageStatus !== "PENDING"}
