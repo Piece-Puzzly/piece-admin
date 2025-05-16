@@ -214,7 +214,6 @@ export async function UpdateProfileImageStatus(
   if (!session) {
     return;
   }
-
   const response = await fetch(
     loginServerInfo[session.loginServer].baseUrl +
       `/profileImages/${profileImageId}`,

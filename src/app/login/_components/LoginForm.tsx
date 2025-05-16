@@ -10,6 +10,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const { register, handleSubmit } = useForm();
@@ -22,11 +23,12 @@ export default function LoginForm() {
       redirect: false,
       callbackUrl: "/",
     });
+
     if (res?.ok && res.url) {
       router.push(res.url); // 수동 이동
       router.refresh();
     } else {
-      alert("로그인 실패: 사용자 이름 또는 비밀번호를 확인하세요.");
+      toast.error(JSON.stringify(res));
     }
   };
 
