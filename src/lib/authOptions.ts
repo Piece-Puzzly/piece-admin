@@ -23,9 +23,8 @@ export const authOptions: NextAuthOptions = {
             }),
           });
 
-          const { data } = await res.json();
-
           if (res.ok) {
+            const { data } = await res.json();
             return {
               id: credentials?.loginId,
               accessToken: data.accessToken,
