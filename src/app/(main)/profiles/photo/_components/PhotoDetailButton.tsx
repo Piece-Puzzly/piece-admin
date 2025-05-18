@@ -92,42 +92,41 @@ export default function PhotoDetailButton({
                     />
                   </div>
                 </div>
-                <div>
-                  <div className="flex gap-[24px]">
-                    <UpdateProfileImageToggle
-                      profileImageStatus={profileImageStatus!}
-                      rawData={content}
-                    />
-                    <Button
-                      variant="submit"
-                      className=" py-[10px] px-[12px] h-auto w-[76px]"
-                      disabled={!debug && profileImageStatus !== "PENDING"}
-                      onClick={async () => {
-                        if (
-                          content.pendingProfileImage!.profileImageStatus ===
-                          "PENDING"
-                        ) {
-                          toast.error("반려/통과 여부를 체크해주세요!");
-                          return;
-                        }
-                        const profileImageId =
-                          content.pendingProfileImage!.profileImageId;
-                        const accepted =
-                          content.pendingProfileImage!.profileImageStatus ===
-                          "ACCEPTED";
 
-                        const res = await UpdateProfileImageStatus(
-                          profileImageId,
-                          accepted
-                        );
-                        if (res.status !== "success") {
-                          toast.error(JSON.stringify(res));
-                        }
-                      }}
-                    >
-                      제출
-                    </Button>
-                  </div>
+                <div className="flex gap-[24px] w-full md:w-auto items-center">
+                  <UpdateProfileImageToggle
+                    profileImageStatus={profileImageStatus!}
+                    rawData={content}
+                  />
+                  <Button
+                    variant="submit"
+                    className=" py-[10px] px-[12px] h-[40px] md:h-[44px] w-[76px]"
+                    disabled={!debug && profileImageStatus !== "PENDING"}
+                    onClick={async () => {
+                      if (
+                        content.pendingProfileImage!.profileImageStatus ===
+                        "PENDING"
+                      ) {
+                        toast.error("반려/통과 여부를 체크해주세요!");
+                        return;
+                      }
+                      const profileImageId =
+                        content.pendingProfileImage!.profileImageId;
+                      const accepted =
+                        content.pendingProfileImage!.profileImageStatus ===
+                        "ACCEPTED";
+
+                      const res = await UpdateProfileImageStatus(
+                        profileImageId,
+                        accepted
+                      );
+                      if (res.status !== "success") {
+                        toast.error(JSON.stringify(res));
+                      }
+                    }}
+                  >
+                    제출
+                  </Button>
                 </div>
               </>
             ) : (

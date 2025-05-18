@@ -1,7 +1,6 @@
 import LogoutButton from "@/components/LogoutButton";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
-import DebugSettings from "./DebugSettings";
 
 export default async function Header() {
   const session = await getServerSession();
@@ -28,7 +27,7 @@ export default async function Header() {
           )}
         </span>
         <div className="flex items-center">
-          <DebugSettings />
+          {/* <DebugSettings /> */}
           {session && <LogoutButton />}
         </div>
       </div>
