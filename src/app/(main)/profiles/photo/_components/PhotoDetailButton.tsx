@@ -1,5 +1,6 @@
 "use client";
 
+import { useDebug } from "@/app/hooks/useDebug";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { submitDebug } from "@/lib/debugFlags";
 import {
   getUserProfileImageDetail,
   UpdateProfileImageStatus,
@@ -32,6 +32,7 @@ export default function PhotoDetailButton({
     UserProfileImageDetailResponseData | undefined
   >(undefined);
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
+  const debug = useDebug((e) => e.debug);
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -51,7 +52,7 @@ export default function PhotoDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          disabled={id == null}
+          disabled={!debug && id == null}
           className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
         >
           <div>{nickname}</div>
@@ -100,9 +101,7 @@ export default function PhotoDetailButton({
                     <Button
                       variant="submit"
                       className=" py-[10px] px-[12px] h-auto w-[76px]"
-                      disabled={
-                        !submitDebug && profileImageStatus !== "PENDING"
-                      }
+                      disabled={!debug && profileImageStatus !== "PENDING"}
                       onClick={async () => {
                         if (
                           content.pendingProfileImage!.profileImageStatus ===
@@ -116,7 +115,7 @@ export default function PhotoDetailButton({
                         const accepted =
                           content.pendingProfileImage!.profileImageStatus ===
                           "ACCEPTED";
-                        
+
                         const res = await UpdateProfileImageStatus(
                           profileImageId,
                           accepted

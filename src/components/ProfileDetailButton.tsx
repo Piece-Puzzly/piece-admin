@@ -1,6 +1,7 @@
 "use client";
 
 import { useMediaQuery } from "@/app/hooks/use-media-query";
+import { useDebug } from "@/app/hooks/useDebug";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,6 +34,7 @@ export default function ProfileDetailButton({
   );
   const [page, setPage] = useState<number>(1);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const debug = useDebug((e) => e.debug);
   const questionComps = [
     content && (
       <PaginationButton
@@ -76,7 +78,7 @@ export default function ProfileDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          disabled={id == null}
+          disabled={!debug && id == null}
           className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
         >
           <div>{nickname}</div>

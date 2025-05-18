@@ -1,5 +1,6 @@
 "use client";
 
+import { useDebug } from "@/app/hooks/useDebug";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -141,6 +142,7 @@ function ProfileSelect({
 }: {
   data: { id: number; nickname: string; disabled: boolean }[];
 } & React.ComponentProps<typeof SelectPrimitive.Root>) {
+  const debug = useDebug((e) => e.debug);
   return (
     <Select {...props}>
       <SelectTrigger className="overflow-hidden w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
@@ -148,7 +150,7 @@ function ProfileSelect({
       </SelectTrigger>
       <SelectContent>
         {data.map(({ id, nickname, disabled }) => (
-          <SelectItem key={id} value={`${id}`} disabled={disabled}>
+          <SelectItem key={id} value={`${id}`} disabled={!debug && disabled}>
             <div>
               [{id}] {nickname}
             </div>

@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/select";
 import { UserProfileValidationResponse } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 
+import { useDebug } from "@/app/hooks/useDebug";
 import ProfileDetailButton from "@/components/ProfileDetailButton";
-import { submitDebug } from "@/lib/debugFlags";
 import { updateProfileStatus } from "@/lib/server";
 import { toast } from "sonner";
 import RejectedStatusToggle from "./_components/RejectedStatusToggle";
@@ -123,28 +123,30 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
   {
     accessorKey: "submit",
     header: "제출",
-    cell: ({ row }) => {
-      const id = row.original.userId as number;
-
-      return (
-        <Button
-          onClick={async () => {
-            const res = await updateProfileStatus(
-              id,
-              row.original.rejectImage,
-              row.original.rejectDescription!
-            );
-            if (res.status !== "success") {
-              toast.error(JSON.stringify(res));
-            }
-          }}
-          disabled={!submitDebug && row.original.profileStatus === "통과"}
-          variant={"submit"}
-          className="h-[40px] md:h-[44px] w-full min-w-[80px]"
-        >
-          제출
-        </Button>
-      );
-    },
+    cell: ({ row }) => <SubmitButton row={row} />,
   },
 ];
+
+function SubmitButton({ row }: { row: Row<UserProfileValidationResponse> }) {
+  const id = row.original.userId as number;
+  const debug = useDebug((e) => e.debug);
+  return (
+    <Button
+      onClick={async () => {
+        const res = await updateProfileStatus(
+          id,
+          row.original.rejectImage,
+          row.original.rejectDescription!
+        );
+        if (res.status !== "success") {
+          toast.error(JSON.stringify(res));
+        }
+      }}
+      disabled={!debug && row.original.profileStatus === "통과"}
+      variant={"submit"}
+      className="h-[40px] md:h-[44px] w-full min-w-[80px]"
+    >
+      제출
+    </Button>
+  );
+}

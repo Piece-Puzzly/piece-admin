@@ -1,6 +1,6 @@
 "use client";
+import { useDebug } from "@/app/hooks/useDebug";
 import { Toggle } from "@/components/ui/toggle";
-import { submitDebug } from "@/lib/debugFlags";
 import { UserProfileImageDetailResponseData } from "@/lib/types";
 import { useState } from "react";
 
@@ -21,7 +21,7 @@ export default function UpdateProfileImageToggle({
   const [radio, setRadio] = useState<string>(
     rawData.pendingProfileImage!.profileImageStatus
   );
-
+  const debug = useDebug((e) => e.debug);
   return (
     <div className="grid grid-cols-2 gap-x-2 h-[46px] min-w-[180px] items-center">
       {rejectionType.map(({ name, key }) => (
@@ -40,7 +40,7 @@ export default function UpdateProfileImageToggle({
               rawData.pendingProfileImage!.profileImageStatus = "PENDING";
             }
           }}
-          disabled={!submitDebug && profileImageStatus !== "PENDING"}
+          disabled={!debug && profileImageStatus !== "PENDING"}
           className="h-[40px] md:h-[44px] px-3 py-[10px] leading-6 min-w-[80px] w-[184px]"
         >
           {name}
