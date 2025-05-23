@@ -1,6 +1,6 @@
-import PaginationDisplay from "@/components/PaginationDisplay";
+import PaginationDisplay from "@/components/pagination-display";
 
-import MatchingForm from "./_components/MatchingForm";
+import MatchingForm from "./_components/matching-form";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

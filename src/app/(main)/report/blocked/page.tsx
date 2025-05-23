@@ -1,4 +1,4 @@
-import PaginationDisplay from "@/components/PaginationDisplay";
+import PaginationDisplay from "@/components/pagination-display";
 import { getBlockDatas } from "@/lib/server";
 import { BlockedValidationResponses } from "@/lib/types";
 import { columns } from "./columns";

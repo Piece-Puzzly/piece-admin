@@ -1,7 +1,7 @@
 "use client";
 
+import { useDebug } from "@/app/hooks/use-debug";
 import { useMediaQuery } from "@/app/hooks/use-media-query";
-import { useDebug } from "@/app/hooks/useDebug";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +18,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import QuestionCard from "../app/(main)/profiles/profile/_components/QuestionCard";
+import QuestionCard from "../app/(main)/profiles/profile/_components/question-card";
 
 export default function ProfileDetailButton({
   id,

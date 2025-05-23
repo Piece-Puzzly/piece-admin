@@ -4,7 +4,7 @@ import { UserProfileValidationResponse } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
-import PhotoDetailButton from "./_components/PhotoDetailButton";
+import PhotoDetailButton from "./_components/photo-detail-button";
 
 export const columns: ColumnDef<UserProfileValidationResponse>[] = [
   {

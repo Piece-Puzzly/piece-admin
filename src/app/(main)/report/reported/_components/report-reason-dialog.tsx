@@ -1,6 +1,6 @@
 "use client";
 
-import PaginationDisplay from "@/components/PaginationDisplay";
+import PaginationDisplay from "@/components/pagination-display";
 
 import {
   Dialog,
@@ -22,7 +22,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import BanDialog from "./BanDialog";
+import BanDialog from "./ban-dialog";
 import { ReportDataTable } from "./report-data-table";
 
 export default function ReportReasonDialog() {

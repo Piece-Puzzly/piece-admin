@@ -1,6 +1,6 @@
 import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { loginServerInfo } from "./loginData";
+import { loginServerInfo } from "./login-data";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,

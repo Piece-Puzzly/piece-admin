@@ -1,6 +1,6 @@
 "use client";
 
-import { useDebug } from "@/app/hooks/useDebug";
+import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +19,7 @@ import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import UpdateProfileImageToggle from "./UpdateProfileImageToggle";
+import UpdateProfileImageToggle from "./update-profile-image-toggle";
 
 export default function PhotoDetailButton({
   id,

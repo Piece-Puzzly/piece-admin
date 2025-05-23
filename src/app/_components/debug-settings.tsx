@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useDebug } from "../hooks/useDebug";
+import { useDebug } from "../hooks/use-debug";
 const FormSchema = z.object({
   debug: z.boolean(),
 });

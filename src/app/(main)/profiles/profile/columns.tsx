@@ -12,11 +12,11 @@ import { UserProfileValidationResponse } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 
-import { useDebug } from "@/app/hooks/useDebug";
-import ProfileDetailButton from "@/components/ProfileDetailButton";
+import { useDebug } from "@/app/hooks/use-debug";
+import ProfileDetailButton from "@/components/profile-detail-button";
 import { updateProfileStatus } from "@/lib/server";
 import { toast } from "sonner";
-import RejectedStatusToggle from "./_components/RejectedStatusToggle";
+import RejectedStatusToggle from "./_components/rejected-status-toggle";
 
 export const columns: ColumnDef<UserProfileValidationResponse>[] = [
   {

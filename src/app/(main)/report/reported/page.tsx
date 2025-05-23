@@ -1,8 +1,8 @@
-import PaginationDisplay from "@/components/PaginationDisplay";
+import PaginationDisplay from "@/components/pagination-display";
 import { getReportedDatas } from "@/lib/server";
 import { ReportedValidationResponses } from "@/lib/types";
 
-import ReportReasonDialog from "./_components/ReportReasonDialog";
+import ReportReasonDialog from "./_components/report-reason-dialog";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

@@ -1,4 +1,4 @@
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/logout-button";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 

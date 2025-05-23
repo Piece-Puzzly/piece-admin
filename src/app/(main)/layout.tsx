@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "@/lib/authOptions";
-import MenuTabs from "./_components/MenuTabs";
-import ReportMenuTabs from "./_components/SubMenuTabs";
+import { authOptions } from "@/lib/auth-options";
+import MenuTabs from "./_components/menu-tabs";
+import ReportMenuTabs from "./_components/sub-menu-tabs";
 
 export default async function layout({
   children,

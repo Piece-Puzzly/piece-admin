@@ -1,8 +1,8 @@
-import { AuthProvider } from "@/components/AuthProvider";
+import { AuthProvider } from "@/components/auth-provider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
-import Header from "./_components/Header";
+import Header from "./_components/header";
 import "./globals.css";
 
 const pretendard = localFont({

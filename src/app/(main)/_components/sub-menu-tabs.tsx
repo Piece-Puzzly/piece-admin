@@ -2,7 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePathname, useRouter } from "next/navigation";
-import { menuInfo } from "./MenuTabs";
+import { menuInfo } from "./menu-tabs";
 
 export default function SubMenuTabs() {
   const router = useRouter();

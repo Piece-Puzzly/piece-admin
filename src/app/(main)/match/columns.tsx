@@ -1,7 +1,7 @@
 "use client";
 
-import CheckButton from "@/components/CheckButton";
-import ProfileDetailButton from "@/components/ProfileDetailButton";
+import CheckButton from "@/components/check-button";
+import ProfileDetailButton from "@/components/profile-detail-button";
 import { MatchingProfile } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 

@@ -1,4 +1,4 @@
-import PaginationDisplay from "@/components/PaginationDisplay";
+import PaginationDisplay from "@/components/pagination-display";
 
 import { getProfiles } from "@/lib/server";
 

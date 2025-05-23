@@ -1,6 +1,6 @@
 "use client";
 
-import { useDebug } from "@/app/hooks/useDebug";
+import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";

@@ -1,5 +1,5 @@
 "use client";
-import { useDebug } from "@/app/hooks/useDebug";
+import { useDebug } from "@/app/hooks/use-debug";
 import { Toggle } from "@/components/ui/toggle";
 import { UserProfileImageDetailResponseData } from "@/lib/types";
 import { useState } from "react";

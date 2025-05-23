@@ -3,8 +3,8 @@
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { authOptions } from "./authOptions";
-import { loginServerInfo } from "./loginData";
+import { authOptions } from "./auth-options";
+import { loginServerInfo } from "./login-data";
 import { BlockedValidationResponses } from "./types";
 
 export async function getProfiles(page: number) {
