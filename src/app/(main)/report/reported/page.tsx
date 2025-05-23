@@ -1,10 +1,10 @@
 import PaginationDisplay from "@/components/pagination-display";
 import { getReportedDatas } from "@/lib/server";
-import { ReportedValidationResponses } from "@/lib/types";
 
+import { columns } from "@/components/tables/report/columns";
+import { ReportDataTable } from "@/components/tables/report/report-data-table";
+import { ReportedUsersResponses } from "@/lib/types";
 import ReportReasonDialog from "./_components/report-reason-dialog";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
 
 export default async function Page({
   searchParams,
@@ -16,7 +16,7 @@ export default async function Page({
   const res = (await getReportedDatas(
     params.page ? parseInt(params.page) - 1 : 0,
     10
-  )) as ReportedValidationResponses;
+  )) as ReportedUsersResponses;
 
   if (res.data == undefined) {
     return JSON.stringify(res);
@@ -25,7 +25,7 @@ export default async function Page({
     return (
       <div className="space-y-[44px] mb-[86px]">
         <ReportReasonDialog />
-        <DataTable columns={columns} data={data.content} />
+        <ReportDataTable columns={columns} data={data.content} />
         <PaginationDisplay num={data.totalElements} />
       </div>
     );

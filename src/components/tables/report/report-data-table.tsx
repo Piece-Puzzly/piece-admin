@@ -14,23 +14,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ReportedUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TValue> {
+  columns: ColumnDef<ReportedUser, TValue>[];
+  data: ReportedUser[];
 }
 
-export function DataTable<TData, TValue>({
+export function ReportDataTable<TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-  const columnWidth = "150px";
+
   return (
     <Table className="border-b">
       <TableHeader>
@@ -39,16 +40,10 @@ export function DataTable<TData, TValue>({
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
-                  style={{
-                    width: columnWidth,
-                    minWidth: columnWidth,
-                    maxWidth: columnWidth,
-                  }}
                   key={header.id}
                   className={cn({
                     "bg-gray-light-3 border-gray-light-2":
-                      header.column.id === "blockingUserNickname" ||
-                      header.column.id === "BlockedDate",
+                      header.column.id === "ban",
                   })}
                 >
                   {header.isPlaceholder
@@ -67,11 +62,6 @@ export function DataTable<TData, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
-              style={{
-                width: columnWidth,
-                minWidth: columnWidth,
-                maxWidth: columnWidth,
-              }}
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
             >

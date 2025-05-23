@@ -1,4 +1,5 @@
 "use client";
+
 import {
   ColumnDef,
   flexRender,
@@ -20,25 +21,27 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function ReportDetailDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
-
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <Table className="border-b">
-      <TableHeader>
+      <TableHeader className="bg-gray-light-3 ">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className="border-0 bg-gray-light-3 py-[8px]"
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -55,19 +58,26 @@ export function DataTable<TData, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
+              className="h-fit"
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  className="py-[10px] text-center text-[16px]"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>
           ))
         ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
+          <TableRow className="h-fit">
+            <TableCell
+              colSpan={columns.length}
+              className="py-[10px] text-center text-[16px]"
+            >
               No results.
             </TableCell>
           </TableRow>

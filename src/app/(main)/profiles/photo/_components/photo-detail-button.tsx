@@ -14,7 +14,8 @@ import {
   getUserProfileImageDetail,
   UpdateProfileImageStatus,
 } from "@/lib/server";
-import { UserProfileImageDetailResponseData } from "@/lib/types";
+
+import { Photo } from "@/lib/types";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -28,9 +29,7 @@ export default function PhotoDetailButton({
   id: number | null;
   nickname: string;
 }) {
-  const [content, setContent] = useState<
-    UserProfileImageDetailResponseData | undefined
-  >(undefined);
+  const [content, setContent] = useState<Photo | undefined>(undefined);
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   return (

@@ -1,7 +1,8 @@
 "use client";
 import { useDebug } from "@/app/hooks/use-debug";
 import { Toggle } from "@/components/ui/toggle";
-import { UserProfileImageDetailResponseData } from "@/lib/types";
+import { Photo } from "@/lib/types";
+
 import { useState } from "react";
 
 const rejectionType: {
@@ -16,7 +17,7 @@ export default function UpdateProfileImageToggle({
   rawData,
 }: {
   profileImageStatus: string;
-  rawData: UserProfileImageDetailResponseData;
+  rawData: Photo;
 }) {
   const [radio, setRadio] = useState<string>(
     rawData.pendingProfileImage!.profileImageStatus

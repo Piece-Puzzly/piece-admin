@@ -14,17 +14,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Profile } from "@/lib/types";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TValue> {
+  columns: ColumnDef<Profile, TValue>[];
+  data: Profile[];
 }
 
-export function DataTable<TData, TValue>({
+export function ProfileDataTable<TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TValue>) {
   const table = useReactTable({
     data,
     columns,
@@ -38,13 +38,7 @@ export function DataTable<TData, TValue>({
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead
-                  key={header.id}
-                  className={cn({
-                    "bg-gray-light-3 border-gray-light-2":
-                      header.column.id === "ban",
-                  })}
-                >
+                <TableHead key={header.id}>
                   {header.isPlaceholder
                     ? null
                     : flexRender(

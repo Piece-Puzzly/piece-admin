@@ -12,21 +12,18 @@ import {
 } from "@/components/ui/dialog";
 
 import { getReportDetail, getUserById } from "@/lib/server";
-import {
-  ReportDetail,
-  ReportedDetailResponseData,
-  UserProfileDetailResponse,
-} from "@/lib/types";
+
+import { columns } from "@/components/tables/report-detail/columns";
+import { ReportDetailDataTable } from "@/components/tables/report-detail/report-detail-data-table";
+import { ProfileDetail, ReportDetailsResponses } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import BanDialog from "./ban-dialog";
-import { ReportDataTable } from "./report-data-table";
 
 export default function ReportReasonDialog() {
-  const [data, setData] = useState<ReportedDetailResponseData | undefined>(
+  const [data, setData] = useState<ReportDetailsResponses["data"] | undefined>(
     undefined
   );
   const [nickName, setNickName] = useState<string | undefined>(undefined);
@@ -39,10 +36,14 @@ export default function ReportReasonDialog() {
     const id = searchParams.get("id");
     if (id) {
       (async () => {
-        const res_report: { data: ReportedDetailResponseData } =
-          await getReportDetail(parseInt(id as string) as number, 0, 10);
-        const res_profile: { data: UserProfileDetailResponse } =
-          await getUserById(parseInt(id));
+        const res_report = (await getReportDetail(
+          parseInt(id as string) as number,
+          0,
+          10
+        )) as ReportDetailsResponses;
+        const res_profile: { data: ProfileDetail } = await getUserById(
+          parseInt(id)
+        );
         if (!res_report.data) {
           toast.error(JSON.stringify(res_report));
         }
@@ -59,8 +60,11 @@ export default function ReportReasonDialog() {
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          const { data }: { data: ReportedDetailResponseData } =
-            await getReportDetail(userId, 0, 10);
+          const { data } = (await getReportDetail(
+            userId,
+            0,
+            10
+          )) as ReportDetailsResponses;
           setData(data);
         } else {
           router.push(
@@ -95,7 +99,7 @@ export default function ReportReasonDialog() {
 
         {data ? (
           <>
-            <ReportDataTable columns={columns} data={data.content} />
+            <ReportDetailDataTable columns={columns} data={data.content} />
             <PaginationDisplay
               queryKey={"reportpage"}
               num={data.totalElements}
@@ -109,44 +113,3 @@ export default function ReportReasonDialog() {
     </Dialog>
   );
 }
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export interface ReportedUser {
-  userId: number; // 유저 ID
-  nickName: string; // 유저 닉네임
-  name: string; // 유저 이름
-  birthdate: string; // 유저 생년월일 (yyyy-MM-dd 형식)
-  totalReportedCnt: number; // 유저가 리포트된 총 횟수
-  latestReportedReason: string; // 가장 최근에 리포트된 이유
-}
-
-export const columns: ColumnDef<ReportDetail>[] = [
-  {
-    accessorKey: "cnt",
-    header: "횟수",
-    cell: ({ row }) => {
-      // const id = row.original.blockedUserId as number;
-      const cnt = row.getValue("cnt") as number;
-
-      return <span className="text-[14px] text-muted-foreground">{cnt}</span>;
-    },
-  },
-  {
-    accessorKey: "reason",
-    header: "신고 사유",
-    cell: ({ row }) => {
-      const reason = row.getValue("reason") as string;
-      return reason || "-";
-    },
-  },
-  {
-    accessorKey: "reportedDate",
-    header: "신고 날짜",
-    cell: ({ row }) => {
-      const reportedDate = row.getValue("reportedDate") as string | undefined;
-
-      return reportedDate ? reportedDate.replace(/-/g, ".") : "-";
-    },
-  },
-];

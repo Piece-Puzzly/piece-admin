@@ -1,13 +1,13 @@
 "use client";
 
+import BanDialog from "@/app/(main)/report/reported/_components/ban-dialog";
+import ProfileDetailButton from "@/components/profile-detail-button";
 import { Button } from "@/components/ui/button";
 import { ReportedUser } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import ProfileDetailButton from "../../../../components/profile-detail-button";
-import BanDialog from "./_components/ban-dialog";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.

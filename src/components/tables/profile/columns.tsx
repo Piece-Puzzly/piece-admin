@@ -8,17 +8,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserProfileValidationResponse } from "@/lib/types";
+import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 
 import { useDebug } from "@/app/hooks/use-debug";
 import ProfileDetailButton from "@/components/profile-detail-button";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
 import { toast } from "sonner";
-import RejectedStatusToggle from "./_components/rejected-status-toggle";
-
-export const columns: ColumnDef<UserProfileValidationResponse>[] = [
+import { useProfileTableStore } from "./profile-table-provider";
+const profileStatusInfo = [
+  { value: "보류", name: "반려", color: "#FF3059" },
+  { value: "미완료", name: "미완료", color: "#6F00FB" },
+  { value: "수정 제출", name: "수정 제출", color: "#22CB52" },
+  { value: "통과", name: "통과", color: "#CBD1D9" },
+];
+export const columns: ColumnDef<Profile>[] = [
   {
     accessorKey: "userId",
     header: "User ID",
@@ -79,19 +86,13 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
     cell: ({ row }) => {
       const profileStatus = row.original.profileStatus;
 
-      const menu = [
-        { value: "보류", name: "반려", color: "#FF3059" },
-        { value: "미완료", name: "미완료", color: "#6F00FB" },
-        { value: "수정 제출", name: "수정 제출", color: "#22CB52" },
-        { value: "통과", name: "통과", color: "#CBD1D9" },
-      ];
-      return (
+      return row.original.nickname ? (
         <Select value={profileStatus}>
           <SelectTrigger className="w-full ">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {menu.map(({ value, name, color }) => (
+            {profileStatusInfo.map(({ value, name, color }) => (
               <SelectItem key={value} value={value}>
                 <div
                   className="rounded-full h-[12px] w-[12px]"
@@ -102,6 +103,8 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
             ))}
           </SelectContent>
         </Select>
+      ) : (
+        "-"
       );
     },
   },
@@ -110,38 +113,77 @@ export const columns: ColumnDef<UserProfileValidationResponse>[] = [
     header: "부적격",
 
     cell: ({ row }) => {
-      const profileStatus = row.original.profileStatus;
-
-      return (
-        <RejectedStatusToggle
-          profileStatus={profileStatus}
-          rowData={row.original}
-        />
+      return row.original.nickname ? (
+        <RejectStatusToggleGroup row={row} />
+      ) : (
+        "-"
       );
     },
   },
   {
     accessorKey: "submit",
     header: "제출",
-    cell: ({ row }) => <SubmitButton row={row} />,
+    cell: ({ row }) =>
+      row.original.nickname ? <SubmitButton row={row} /> : "-",
   },
 ];
 
-function SubmitButton({ row }: { row: Row<UserProfileValidationResponse> }) {
-  const id = row.original.userId as number;
+const rejectionStatusInfo: {
+  label: "사진" | "소개글";
+  key: "rejectImage" | "rejectDescription";
+}[] = [
+  { label: "사진", key: "rejectImage" },
+  { label: "소개글", key: "rejectDescription" },
+];
+
+function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
   const debug = useDebug((e) => e.debug);
+  const form = useProfileTableStore((e) => e.form);
+  return (
+    <div className="grid grid-cols-2 gap-x-2 h-[46px] min-w-[180px] items-center">
+      {rejectionStatusInfo.map(({ label, key }) => (
+        <FormField
+          key={key}
+          control={form.control}
+          name={`rejectStatuses.${row.index}.${key}`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Toggle
+                  onPressedChange={field.onChange}
+                  pressed={field.value}
+                  disabled={!debug && row.original.profileStatus === "통과"}
+                  className="h-[40px] md:h-[44px] px-3 py-[10px] leading-6 min-w-[80px]"
+                >
+                  {label}
+                </Toggle>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SubmitButton({ row }: { row: Row<Profile> }) {
+  const debug = useDebug((e) => e.debug);
+  const form = useProfileTableStore((e) => e.form);
+
   return (
     <Button
-      onClick={async () => {
+      onClick={form.handleSubmit(async () => {
         const res = await updateProfileStatus(
-          id,
-          row.original.rejectImage,
-          row.original.rejectDescription!
+          row.original.userId,
+          form.getValues("rejectStatuses")[row.index].rejectImage,
+          form.getValues("rejectStatuses")[row.index].rejectDescription
         );
         if (res.status !== "success") {
           toast.error(JSON.stringify(res));
         }
-      }}
+
+        // 데이터 refetch
+      })}
       disabled={!debug && row.original.profileStatus === "통과"}
       variant={"submit"}
       className="h-[40px] md:h-[44px] w-full min-w-[80px]"

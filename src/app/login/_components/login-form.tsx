@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginServerInfo } from "@/lib/login-data";
+import { loginServerInfo } from "@/lib/login-info";
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";

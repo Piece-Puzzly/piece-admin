@@ -1,12 +1,11 @@
 "use client";
 
-import { UserProfileValidationResponse } from "@/lib/types";
+import PhotoDetailButton from "@/app/(main)/profiles/photo/_components/photo-detail-button";
+import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
-import PhotoDetailButton from "./_components/photo-detail-button";
-
-export const columns: ColumnDef<UserProfileValidationResponse>[] = [
+export const columns: ColumnDef<Profile>[] = [
   {
     accessorKey: "userId",
     header: "User ID",

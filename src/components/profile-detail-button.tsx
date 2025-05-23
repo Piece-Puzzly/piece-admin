@@ -12,7 +12,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getUserById } from "@/lib/server";
-import { UserProfileDetailResponse } from "@/lib/types";
+
+import { ProfileDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -29,9 +30,7 @@ export default function ProfileDetailButton({
   nickname: string;
   description?: string | undefined | null;
 }) {
-  const [content, setContent] = useState<UserProfileDetailResponse | undefined>(
-    undefined
-  );
+  const [content, setContent] = useState<ProfileDetail | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const debug = useDebug((e) => e.debug);
@@ -78,7 +77,7 @@ export default function ProfileDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          disabled={!debug && id == null}
+          disabled={!debug && (id == null || !nickname)}
           className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
         >
           <div>{nickname}</div>

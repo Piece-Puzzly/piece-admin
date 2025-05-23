@@ -1,4 +1,4 @@
-export interface UserProfileValidationResponse {
+export interface Profile {
   userId: number;
   description: string;
   nickname: string;
@@ -11,28 +11,27 @@ export interface UserProfileValidationResponse {
   rejectDescription: boolean;
 }
 
-export interface UserProfileValidationResponses {
+export interface ProfilesResponse {
   status: string;
   message: string;
-  data: UserProfileValidationResponseData;
+  data: {
+    content: Profile[];
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: number;
+    isFirstPage: boolean;
+    isLastPage: boolean;
+  };
 }
 
-export interface UserProfileValidationResponseData {
-  content: UserProfileValidationResponse[];
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-}
-export interface UserProfileDetailResponse {
+export interface ProfileDetail {
   imageUrl: string;
   nickname: string;
-  responses: QuestionResponseType[];
+  responses: Question[];
 }
 
-export interface QuestionResponseType {
+export interface Question {
   title: string;
   category: string;
   answer: string;
@@ -51,20 +50,18 @@ export interface BlockedUser {
   BlockedDate: string; // 차단된 날짜 (yyyy-MM-dd 형식)
 }
 
-export interface BlockedResponseData {
-  content: BlockedUser[];
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-}
-
-export interface BlockedValidationResponses {
+export interface BlockedUsersResponses {
   status: string;
   message: string;
-  data: BlockedResponseData;
+  data: {
+    content: BlockedUser[];
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: number;
+    isFirstPage: boolean;
+    isLastPage: boolean;
+  };
 }
 
 export interface ReportedUser {
@@ -76,20 +73,18 @@ export interface ReportedUser {
   latestReportedReason: string; // 가장 최근에 리포트된 이유
 }
 
-export interface ReportedResponseData {
-  content: ReportedUser[];
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-}
-
-export interface ReportedValidationResponses {
+export interface ReportedUsersResponses {
   status: string;
   message: string;
-  data: ReportedResponseData;
+  data: {
+    content: ReportedUser[];
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: number;
+    isFirstPage: boolean;
+    isLastPage: boolean;
+  };
 }
 
 export interface ReportDetail {
@@ -98,20 +93,27 @@ export interface ReportDetail {
   reportedDate: string;
 }
 
-export interface ReportedDetailResponseData {
-  content: ReportDetail[];
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalElements: number;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-}
-
-export interface ReportedDetailValidationResponses {
+export interface ReportDetailsResponses {
   status: string;
   message: string;
-  data: ReportedDetailResponseData;
+  data: {
+    content: ReportDetail[];
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: number;
+    isFirstPage: boolean;
+    isLastPage: boolean;
+  };
+}
+
+export interface ReportProfile {
+  userId: number; // 유저 ID
+  nickName: string; // 유저 닉네임
+  name: string; // 유저 이름
+  birthdate: string; // 유저 생년월일 (yyyy-MM-dd 형식)
+  totalReportedCnt: number; // 유저가 리포트된 총 횟수
+  latestReportedReason: string; // 가장 최근에 리포트된 이유
 }
 
 export interface MatchingProfile {
@@ -124,7 +126,7 @@ export interface MatchingProfile {
   isMatched: boolean;
 }
 
-export interface UserProfileImageDetailResponseData {
+export interface Photo {
   profileImageUrl: string;
   pendingProfileImage: {
     profileImageId: number;

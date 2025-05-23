@@ -4,8 +4,8 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authOptions } from "./auth-options";
-import { loginServerInfo } from "./login-data";
-import { BlockedValidationResponses } from "./types";
+import { loginServerInfo } from "./login-info";
+import { BlockedUsersResponses } from "./types";
 
 export async function getProfiles(page: number) {
   const session = await getServerSession(authOptions);
@@ -104,7 +104,7 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
     }
   );
 
-  const response_json: BlockedValidationResponses = await response.json();
+  const response_json: BlockedUsersResponses = await response.json();
 
   return response_json;
 };
