@@ -6,8 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QuestionResponseType } from "@/lib/types";
-export default function QuestionCard({ data }: { data: QuestionResponseType }) {
+import { Question } from "@/lib/types";
+
+export default function QuestionCard({ data }: { data: Question }) {
   return (
     <Card className="px-[20px] py-[24px] gap-[20px] md:w-[375px] ">
       <CardHeader className="p-0">
