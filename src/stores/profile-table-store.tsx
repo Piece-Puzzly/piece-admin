@@ -1,9 +1,7 @@
-import { Profile } from "@/lib/types";
 import { UseFormReturn } from "react-hook-form";
 import { createStore } from "zustand/vanilla";
 
 export type ProfileTableState = {
-  data: Profile[];
   form: UseFormReturn<
     {
       rejectStatuses: {

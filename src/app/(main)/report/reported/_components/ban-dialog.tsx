@@ -36,7 +36,7 @@ export default function BanDialog({
           영구 정지
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-0 sm:max-w-[312px] break-normal">
+      <DialogContent className="p-0 w-[312px] sm:max-w-[312px] break-normal">
         <DialogHeader className="pt-[40px] px-[20px] pb-[12px] items-center flex flex-col break-normal">
           <DialogTitle className="items-center flex flex-col gap-y-[8px]">
             <Image
@@ -56,7 +56,7 @@ export default function BanDialog({
         <DialogFooter className="grid grid-cols-2 pt-[12px] pb-[20px] px-[20px]">
           <DialogClose asChild>
             <Button
-              className="h-[52px]"
+              className="h-[52px] font-semibold"
               variant={"primary-outline"}
             >
               취소

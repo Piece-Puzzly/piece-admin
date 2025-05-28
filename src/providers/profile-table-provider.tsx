@@ -3,12 +3,12 @@
 import { type ReactNode, createContext, useContext, useRef } from "react";
 import { useStore } from "zustand";
 
+import { Form } from "@/components/ui/form";
+import { Profile } from "@/lib/types";
 import {
   type ProfileTableStore,
   createProfileTableStore,
-} from "@/components/tables/profile/profile-table-store";
-import { Form } from "@/components/ui/form";
-import { Profile } from "@/lib/types";
+} from "@/stores/profile-table-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -49,7 +49,7 @@ export const ProfileTableStoreProvider = ({
 
   const storeRef = useRef<ProfileTableStoreApi | null>(null);
   if (storeRef.current === null) {
-    storeRef.current = createProfileTableStore({ data, form });
+    storeRef.current = createProfileTableStore({ form });
   }
 
   return (

@@ -1,6 +1,6 @@
+import { DataTable } from "@/components/data-table";
 import PaginationDisplay from "@/components/pagination-display";
-import { BlockDataTable } from "@/components/tables/block/block-data-table";
-import { columns } from "@/components/tables/block/columns";
+import { columns } from "@/app/(main)/report/blocked/block-columns";
 import { getBlockDatas } from "@/lib/server";
 import { BlockedUsersResponses } from "@/lib/types";
 
@@ -21,7 +21,21 @@ export default async function Page({
     const data = res.data;
     return (
       <div className="space-y-[44px] mb-[86px]">
-        <BlockDataTable columns={columns} data={data.content} />
+        <DataTable
+          columns={columns}
+          data={data.content}
+          columnOptions={{
+            default: {
+              tableHead: "w-[150px]",
+            },
+            blockingUserNickname: {
+              tableHead: "bg-gray-light-3 border-gray-light-2",
+            },
+            BlockedDate: {
+              tableHead: "bg-gray-light-3 border-gray-light-2",
+            },
+          }}
+        />
         <PaginationDisplay num={data.totalElements} />
       </div>
     );

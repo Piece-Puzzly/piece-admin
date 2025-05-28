@@ -13,8 +13,9 @@ import {
 
 import { getReportDetail, getUserById } from "@/lib/server";
 
-import { columns } from "@/components/tables/report-detail/columns";
-import { ReportDetailDataTable } from "@/components/tables/report-detail/report-detail-data-table";
+import { columns } from "@/app/(main)/report/reported/_components/report-detail-columns";
+
+import { DataTable } from "@/components/data-table";
 import { ProfileDetail, ReportDetailsResponses } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -99,7 +100,11 @@ export default function ReportReasonDialog() {
 
         {data ? (
           <>
-            <ReportDetailDataTable columns={columns} data={data.content} />
+            <DataTable
+              variant="secondary"
+              columns={columns}
+              data={data.content}
+            />
             <PaginationDisplay
               queryKey={"reportpage"}
               num={data.totalElements}

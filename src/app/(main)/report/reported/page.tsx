@@ -1,8 +1,8 @@
 import PaginationDisplay from "@/components/pagination-display";
 import { getReportedDatas } from "@/lib/server";
 
-import { columns } from "@/components/tables/report/columns";
-import { ReportDataTable } from "@/components/tables/report/report-data-table";
+import { DataTable } from "@/components/data-table";
+import { columns } from "@/app/(main)/report/reported/_components/report-columns";
 import { ReportedUsersResponses } from "@/lib/types";
 import ReportReasonDialog from "./_components/report-reason-dialog";
 
@@ -25,7 +25,14 @@ export default async function Page({
     return (
       <div className="space-y-[44px] mb-[86px]">
         <ReportReasonDialog />
-        <ReportDataTable columns={columns} data={data.content} />
+
+        <DataTable
+          columns={columns}
+          data={data.content}
+          columnOptions={{
+            ban: { tableHead: "bg-gray-light-3 border-gray-light-2" },
+          }}
+        />
         <PaginationDisplay num={data.totalElements} />
       </div>
     );

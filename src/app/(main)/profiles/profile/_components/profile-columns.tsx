@@ -18,7 +18,7 @@ import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
 import { toast } from "sonner";
-import { useProfileTableStore } from "./profile-table-provider";
+import { useProfileTableStore } from "../../../../../providers/profile-table-provider";
 const profileStatusInfo = [
   { value: "보류", name: "반려", color: "#FF3059" },
   { value: "미완료", name: "미완료", color: "#6F00FB" },

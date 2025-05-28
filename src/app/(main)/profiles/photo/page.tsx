@@ -1,6 +1,6 @@
+import { DataTable } from "@/components/data-table";
 import PaginationDisplay from "@/components/pagination-display";
-import { columns } from "@/components/tables/photo/columns";
-import { PhotoDataTable } from "@/components/tables/photo/photo-data-table";
+import { columns } from "@/app/(main)/profiles/photo/_components/photo-columns";
 
 import { getProfiles } from "@/lib/server";
 import { ProfilesResponse } from "@/lib/types";
@@ -22,7 +22,7 @@ export default async function Page({
   } else {
     return (
       <div className="space-y-[44px] mb-[86px]">
-        <PhotoDataTable columns={columns} data={data.content} />
+        <DataTable columns={columns} data={data.content} />
         <PaginationDisplay num={data.totalElements} />
       </div>
     );
