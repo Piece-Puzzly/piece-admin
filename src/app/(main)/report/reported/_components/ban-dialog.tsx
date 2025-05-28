@@ -45,7 +45,7 @@ export default function BanDialog({
               width={40}
               alt="Notice"
             />
-            <p className="text-[20px] font-semibold break-normal">
+            <p className="text-[20px] font-semibold text-center break-words whitespace-normal break-keep leading-[24px]">
               {nickName}님을 영구 정지하시겠습니까?
             </p>
           </DialogTitle>
