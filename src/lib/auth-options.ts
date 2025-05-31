@@ -2,24 +2,28 @@ import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXT_PUBLIC_AUTH_SECRET,
   providers: [
     CredentialsProvider({
-      id: `${process.env.NEXTAUTH_NAME}-login`,
+      id: `${process.env.NEXT_PUBLIC_NEXTAUTH_NAME}-login`,
       name: "Credentials",
       credentials: {
         loginId: { label: "loginId", type: "text" },
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await fetch(process.env.NEXTAUTH_BASE_URL + "/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            loginId: credentials?.loginId,
-            password: credentials?.password,
-          }),
-        });
+        console.log(process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL);
+        const res = await fetch(
+          process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + "/auth/login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              loginId: credentials?.loginId,
+              password: credentials?.password,
+            }),
+          }
+        );
 
         if (res.ok) {
           const { data } = await res.json();

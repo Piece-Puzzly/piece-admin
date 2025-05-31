@@ -14,7 +14,7 @@ export default function LoginForm() {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await signIn(`${process.env.NEXTAUTH_NAME}-login`, {
+    const res = await signIn(`${process.env.NEXT_PUBLIC_NEXTAUTH_NAME}-login`, {
       loginId: data.id,
       password: data.password,
       redirect: false,

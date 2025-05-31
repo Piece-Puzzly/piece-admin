@@ -13,7 +13,8 @@ export async function getProfiles(page: number) {
     redirect("/login");
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/users?page=${page}&size=${10}`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/users?page=${page}&size=${10}`,
     {
       method: "GET",
       headers: {
@@ -43,7 +44,7 @@ export const updateProfileStatus = async (
   }
 
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/users/${userId}/profile`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profile`,
     {
       method: "POST",
       headers: {
@@ -69,7 +70,7 @@ export const getUserById = async (userId: number) => {
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/users/${userId}`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}`,
     {
       method: "GET",
       headers: {
@@ -90,7 +91,8 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/blocks?page=${page}&size=${size}`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/blocks?page=${page}&size=${size}`,
     {
       method: "GET",
       headers: {
@@ -111,7 +113,8 @@ export const getReportedDatas = async (page: number = 0, size: number = 10) => {
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/reports?page=${page}&size=${size}`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/reports?page=${page}&size=${size}`,
     {
       method: "GET",
       headers: {
@@ -136,7 +139,7 @@ export const getReportDetail = async (
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL +
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/reports/users/${userId}?page=${page}&size=${size}`,
     {
       method: "GET",
@@ -158,17 +161,20 @@ export const banUsers = async (userId: number) => {
     return;
   }
 
-  const response = await fetch(process.env.NEXTAUTH_BASE_URL + `/bans/users`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId,
-    }),
-    cache: "no-store",
-  });
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/bans/users`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+      }),
+      cache: "no-store",
+    }
+  );
 
   revalidatePath("/report/reported");
 
@@ -183,7 +189,7 @@ export async function getUserProfileImageDetail(userId: number) {
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/users/${userId}/profileImage`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profileImage`,
     {
       method: "GET",
       headers: {
@@ -206,7 +212,8 @@ export async function UpdateProfileImageStatus(
     return;
   }
   const response = await fetch(
-    process.env.NEXTAUTH_BASE_URL + `/profileImages/${profileImageId}`,
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/profileImages/${profileImageId}`,
     {
       method: "PATCH",
       headers: {
