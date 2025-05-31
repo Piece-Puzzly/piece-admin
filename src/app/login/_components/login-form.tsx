@@ -3,21 +3,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginServerInfo } from "@/lib/login-info";
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export default function LoginForm() {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
-  const [loginServer, setLoginServer] = useState<number>(0);
+
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const res = await signIn(`${loginServerInfo[loginServer].name}-login`, {
+    const res = await signIn(`${process.env.NEXTAUTH_NAME}-login`, {
       loginId: data.id,
       password: data.password,
       redirect: false,
@@ -37,22 +34,6 @@ export default function LoginForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="px-6 md:px-0 w-full md:w-auto flex flex-col justify-center items-center gap-[40px]"
     >
-      <Tabs className="w-full md:w-[432px]" value={`${loginServer}`}>
-        <TabsList className="inline-flex w-full grid-cols-2">
-          {loginServerInfo.map(({ display }, i) => (
-            <TabsTrigger
-              // disabled={i === 1}
-              onClick={() => {
-                setLoginServer(i);
-              }}
-              key={i}
-              value={`${i}`}
-            >
-              {display}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
       <div className="flex flex-col gap-[40px] w-full">
         <div className="space-y-4">
           <div className="space-y-[8px]">

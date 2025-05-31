@@ -1,41 +1,37 @@
 import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { loginServerInfo } from "./login-info";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
   providers: [
-    ...[0, 1].map((i) =>
-      CredentialsProvider({
-        id: `${loginServerInfo[i].name}-login`,
-        name: "Credentials",
-        credentials: {
-          loginId: { label: "loginId", type: "text" },
-          password: { label: "password", type: "password" },
-        },
-        async authorize(credentials) {
-          const res = await fetch(loginServerInfo[i].baseUrl + "/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              loginId: credentials?.loginId,
-              password: credentials?.password,
-            }),
-          });
+    CredentialsProvider({
+      id: `${process.env.NEXTAUTH_NAME}-login`,
+      name: "Credentials",
+      credentials: {
+        loginId: { label: "loginId", type: "text" },
+        password: { label: "password", type: "password" },
+      },
+      async authorize(credentials) {
+        const res = await fetch(process.env.NEXTAUTH_BASE_URL + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            loginId: credentials?.loginId,
+            password: credentials?.password,
+          }),
+        });
 
-          if (res.ok) {
-            const { data } = await res.json();
-            return {
-              id: credentials?.loginId,
-              accessToken: data.accessToken,
-              refreshToken: data.refreshToken,
-              loginServer: i,
-            } as User;
-          }
-          return null;
-        },
-      })
-    ),
+        if (res.ok) {
+          const { data } = await res.json();
+          return {
+            id: credentials?.loginId,
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+          } as User;
+        }
+        return null;
+      },
+    }),
   ],
   session: {
     strategy: "jwt",

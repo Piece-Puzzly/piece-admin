@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
 
   env: {
     NEXTAUTH_SECRET: "dL0dhbBFKMgRWcjKIB6ud+VbO4RXkH1Pj1r8tqOSbrw=",
+    
   },
   images: {
     remotePatterns: [
