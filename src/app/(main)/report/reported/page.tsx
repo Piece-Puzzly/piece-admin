@@ -1,9 +1,10 @@
 import PaginationDisplay from "@/components/pagination-display";
 import { getReportedDatas } from "@/lib/server";
 
-import { DataTable } from "@/components/data-table";
 import { columns } from "@/app/(main)/report/reported/_components/report-columns";
+import { DataTable } from "@/components/data-table";
 import { ReportedUsersResponses } from "@/lib/types";
+import { ReportTableStoreProvider } from "@/providers/report-table-provider";
 import ReportReasonDialog from "./_components/report-reason-dialog";
 
 export default async function Page({
@@ -22,18 +23,21 @@ export default async function Page({
     return JSON.stringify(res);
   } else {
     const data = res.data;
+
     return (
       <div className="space-y-[44px] mb-[86px]">
-        <ReportReasonDialog />
+        <ReportTableStoreProvider data={data.content}>
+          <ReportReasonDialog />
 
-        <DataTable
-          columns={columns}
-          data={data.content}
-          columnOptions={{
-            ban: { tableHead: "bg-gray-light-3 border-gray-light-2" },
-          }}
-        />
-        <PaginationDisplay num={data.totalElements} />
+          <DataTable
+            columns={columns}
+            data={data.content}
+            columnOptions={{
+              ban: { tableHead: "bg-gray-light-3 border-gray-light-2" },
+            }}
+          />
+          <PaginationDisplay num={data.totalElements} />
+        </ReportTableStoreProvider>
       </div>
     );
   }

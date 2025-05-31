@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import { authOptions } from "@/lib/auth-options";
-import MenuTabs from "./_components/menu-tabs";
-import ReportMenuTabs from "./_components/sub-menu-tabs";
+
+import MenuTabs from "@/components/menu/menu-tabs";
+import SubMenuTabs from "@/components/menu/sub-menu-tabs";
 
 export default async function layout({
   children,
@@ -21,7 +22,7 @@ export default async function layout({
       <main className="p-[10px] md:p-[20px] w-full max-w-screen-xl space-y-[20px]">
         <div className="flex flex-col gap-6 md:flex-row justify-between items-start py-[20px] md:p-0">
           <MenuTabs />
-          <ReportMenuTabs />
+          <SubMenuTabs />
         </div>
         {children}
       </main>

@@ -1,13 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
@@ -43,13 +36,7 @@ export const columns: ColumnDef<Profile>[] = [
 
       const nickname = row.getValue("nickname") as string;
 
-      return (
-        <ProfileDetailButton
-          id={id}
-          nickname={nickname}
-          description={row.original.description}
-        />
-      );
+      return <ProfileDetailButton userId={id} nickname={nickname} />;
     },
   },
 
@@ -86,24 +73,39 @@ export const columns: ColumnDef<Profile>[] = [
     cell: ({ row }) => {
       const profileStatus = row.original.profileStatus;
 
+      const profileStatusDetail = profileStatusInfo.find(
+        (e) => e.value === profileStatus
+      );
+
       return row.original.nickname ? (
-        <Select value={profileStatus}>
-          <SelectTrigger className="w-full ">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {profileStatusInfo.map(({ value, name, color }) => (
-              <SelectItem key={value} value={value}>
-                <div
-                  className="rounded-full h-[12px] w-[12px]"
-                  style={{ backgroundColor: color }}
-                />
-                {name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="w-full justify-start bg-secondary px-[16px] py-[9px] md:py-[10px] rounded-md">
+          <div className="flex items-center gap-[6px]">
+            <div
+              className="rounded-full h-[12px] w-[12px]"
+              style={{
+                backgroundColor: profileStatusDetail?.color,
+              }}
+            />
+            {profileStatusDetail?.name}
+          </div>
+        </div>
       ) : (
+        // <Select value={profileStatus}>
+        //   <SelectTrigger className="w-full ">
+        //     <SelectValue />
+        //   </SelectTrigger>
+        //   <SelectContent>
+        //     {profileStatusInfo.map(({ value, name, color }) => (
+        //       <SelectItem key={value} value={value}>
+        //         <div
+        //           className="rounded-full h-[12px] w-[12px]"
+        //           style={{ backgroundColor: color }}
+        //         />
+        //         {name}
+        //       </SelectItem>
+        //     ))}
+        //   </SelectContent>
+        // </Select>
         "-"
       );
     },

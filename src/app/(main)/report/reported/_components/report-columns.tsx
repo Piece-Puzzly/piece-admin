@@ -1,6 +1,5 @@
 "use client";
 
-import BanDialog from "@/app/(main)/report/reported/_components/ban-dialog";
 import ProfileDetailButton from "@/components/profile-detail-button";
 import { Button } from "@/components/ui/button";
 import { ReportedUser } from "@/lib/types";
@@ -8,6 +7,7 @@ import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import BanButton from "./ban-button";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -19,7 +19,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
     cell: ({ row }) => {
       const nickname = row.original.nickName as string;
       const id = row.original.userId as number;
-      return <ProfileDetailButton id={id} nickname={nickname} />;
+      return <ProfileDetailButton userId={id} nickname={nickname} />;
     },
   },
 
@@ -62,7 +62,14 @@ export const columns: ColumnDef<ReportedUser>[] = [
     cell: ({ row }) => {
       const userId = row.original.userId;
       const nickName = row.original.nickName;
-      return <BanDialog userId={userId} nickName={nickName} />;
+      const userRole = row.original.userRole;
+      return (
+        <BanButton
+          disabled={userRole === "BANNED"}
+          userId={userId}
+          nickName={nickName}
+        />
+      );
     },
   },
 ];

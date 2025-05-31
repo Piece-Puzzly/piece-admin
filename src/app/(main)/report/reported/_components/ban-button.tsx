@@ -11,18 +11,19 @@ import {
 } from "@/components/ui/dialog";
 import { banUsers } from "@/lib/server";
 import { cn } from "@/lib/utils";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { toast } from "sonner";
 
-export default function BanDialog({
+export default function BanButton({
   userId,
   nickName,
   className,
+  ...props
 }: {
   userId: number;
   nickName: string;
-  className?: string;
-}) {
+} & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -32,6 +33,7 @@ export default function BanDialog({
             "px-[12px] py-[10px] leading-[24px] h-[44px]",
             className
           )}
+          {...props}
         >
           영구 정지
         </Button>

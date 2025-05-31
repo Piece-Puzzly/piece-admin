@@ -20,7 +20,7 @@ export const columns: ColumnDef<MatchingProfile>[] = [
           <div className="w-[60px] text-right">{id}</div>
 
           <div className="flex-1">
-            <ProfileDetailButton id={id} nickname={nickname} />
+            <ProfileDetailButton userId={id} nickname={nickname} />
           </div>
         </div>
       );
@@ -36,7 +36,7 @@ export const columns: ColumnDef<MatchingProfile>[] = [
         <div className="items-center gap-[10px] flex ">
           <div className="w-[60px] text-right">{id}</div>
           <div className="flex-1">
-            <ProfileDetailButton id={id} nickname={nickname} />
+            <ProfileDetailButton userId={id} nickname={nickname} />
           </div>
         </div>
       );

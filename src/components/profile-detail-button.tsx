@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getUserById } from "@/lib/server";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 import { ProfileDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -22,18 +23,18 @@ import { toast } from "sonner";
 import QuestionCard from "../app/(main)/profiles/profile/_components/question-card";
 
 export default function ProfileDetailButton({
-  id,
+  userId,
   nickname,
-  description,
+  ...props
 }: {
-  id: number | null;
+  userId: number | null;
   nickname: string;
-  description?: string | undefined | null;
-}) {
+} & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   const [content, setContent] = useState<ProfileDetail | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const debug = useDebug((e) => e.debug);
+
   const questionComps = [
     content && (
       <PaginationButton
@@ -64,7 +65,7 @@ export default function ProfileDetailButton({
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          const res = await getUserById(id as number);
+          const res = await getUserById(userId as number);
 
           if (!res.data) {
             toast.error(JSON.stringify(res));
@@ -77,8 +78,9 @@ export default function ProfileDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          disabled={!debug && (id == null || !nickname)}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
+          disabled={!debug && (userId == null || !nickname)}
+          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px]"
+          {...props}
         >
           <div>{nickname}</div>
           <ChevronRight />
@@ -101,7 +103,7 @@ export default function ProfileDetailButton({
               />
               <div className="flex flex-col gap-[8px] items-center">
                 <div className="text-[14px] font-medium text-gray-black">
-                  {description}
+                  {content.description}
                 </div>
                 <div className="font-semibold text-[20px]">
                   {content.nickname}

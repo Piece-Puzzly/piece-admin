@@ -18,10 +18,11 @@ import { columns } from "@/app/(main)/report/reported/_components/report-detail-
 import { DataTable } from "@/components/data-table";
 import { ProfileDetail, ReportDetailsResponses } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
+import { useReportTableStore } from "@/providers/report-table-provider";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import BanDialog from "./ban-dialog";
+import BanButton from "./ban-button";
 
 export default function ReportReasonDialog() {
   const [data, setData] = useState<ReportDetailsResponses["data"] | undefined>(
@@ -30,8 +31,8 @@ export default function ReportReasonDialog() {
   const [nickName, setNickName] = useState<string | undefined>(undefined);
   const searchParams = useSearchParams();
   const pathname = usePathname();
-
   const router = useRouter();
+  const reportTableData = useReportTableStore((e) => e.data);
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -45,18 +46,21 @@ export default function ReportReasonDialog() {
         const res_profile: { data: ProfileDetail } = await getUserById(
           parseInt(id)
         );
+
         if (!res_report.data) {
           toast.error(JSON.stringify(res_report));
         }
         if (!res_profile.data) {
           toast.error(JSON.stringify(res_profile));
         }
+
         setData(res_report.data);
         setNickName(res_profile.data.nickname);
       })();
     }
   }, [searchParams]);
   const userId = parseInt(searchParams.get("id") as string) as number;
+
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -92,7 +96,14 @@ export default function ReportReasonDialog() {
         {nickName ? (
           <div className="flex gap-[20px] items-center pb-[16px]">
             <div className="text-[24px] font-semibold ">{nickName}</div>
-            <BanDialog nickName={nickName} userId={userId} />
+            <BanButton
+              nickName={nickName}
+              userId={userId}
+              disabled={
+                reportTableData.find((e) => e.userId === userId)?.userRole ===
+                "BANNED"
+              }
+            />
           </div>
         ) : (
           <div>loading</div>

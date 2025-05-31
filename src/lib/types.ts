@@ -28,6 +28,7 @@ export interface ProfilesResponse {
 export interface ProfileDetail {
   imageUrl: string;
   nickname: string;
+  description: string;
   responses: Question[];
 }
 
@@ -71,6 +72,7 @@ export interface ReportedUser {
   birthdate: string; // 유저 생년월일 (yyyy-MM-dd 형식)
   totalReportedCnt: number; // 유저가 리포트된 총 횟수
   latestReportedReason: string; // 가장 최근에 리포트된 이유
+  userRole: "USER" | "BANNED";
 }
 
 export interface ReportedUsersResponses {
@@ -91,6 +93,8 @@ export interface ReportDetail {
   cnt: number;
   reason: string;
   reportedDate: string;
+  reporterNickName: string;
+  reporterUserId: number;
 }
 
 export interface ReportDetailsResponses {

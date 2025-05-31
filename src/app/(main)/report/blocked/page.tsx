@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/data-table";
 import PaginationDisplay from "@/components/pagination-display";
-import { columns } from "@/app/(main)/report/blocked/block-columns";
+import { columns } from "@/app/(main)/report/blocked/_components/block-columns";
 import { getBlockDatas } from "@/lib/server";
 import { BlockedUsersResponses } from "@/lib/types";
 
