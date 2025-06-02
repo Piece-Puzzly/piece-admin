@@ -57,10 +57,12 @@ export const updateProfileStatus = async (
       }),
     }
   );
+  console.log(response);
 
   revalidatePath("/profiles");
 
   const response_json = await response.json();
+
   return response_json;
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import ProfileDetailButton from "@/components/profile-detail-button";
+import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { Button } from "@/components/ui/button";
 import { ReportedUser } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";

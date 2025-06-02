@@ -1,5 +1,6 @@
 "use client";
 
+import UpdateProfileImageToggle from "@/app/(main)/profiles/photo/_components/update-profile-image-toggle";
 import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import UpdateProfileImageToggle from "./update-profile-image-toggle";
 
 export default function PhotoDetailButton({
   id,

@@ -1,6 +1,6 @@
 "use client";
 
-import ProfileDetailButton from "@/components/profile-detail-button";
+import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { BlockedUser } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 

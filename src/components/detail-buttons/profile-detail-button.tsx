@@ -20,7 +20,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import QuestionCard from "../app/(main)/profiles/profile/_components/question-card";
+import QuestionCard from "../../app/(main)/profiles/profile/_components/question-card";
 
 export default function ProfileDetailButton({
   userId,

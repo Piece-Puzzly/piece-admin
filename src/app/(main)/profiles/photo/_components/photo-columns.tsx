@@ -1,6 +1,6 @@
 "use client";
 
-import PhotoDetailButton from "@/app/(main)/profiles/photo/_components/photo-detail-button";
+import PhotoDetailButton from "@/components/detail-buttons/photo-detail-button";
 import { Profile } from "@/lib/types";
 import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";

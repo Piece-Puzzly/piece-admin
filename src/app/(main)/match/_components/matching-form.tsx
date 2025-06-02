@@ -104,11 +104,11 @@ export default function MatchingForm({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        // disabled={(date) => {
-                        //   const now = new Date();
-                        //   const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-                        //   return date < startOfDay;
-                        // }}
+                        disabled={(date) => {
+                          const now = new Date();
+                          const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+                          return date < startOfDay;
+                        }}
                         initialFocus
                       />
                     </PopoverContent>

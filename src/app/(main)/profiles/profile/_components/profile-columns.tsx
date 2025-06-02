@@ -6,7 +6,7 @@ import { formatPhoneNumber } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 
 import { useDebug } from "@/app/hooks/use-debug";
-import ProfileDetailButton from "@/components/profile-detail-button";
+import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
