@@ -49,7 +49,12 @@ export const ProfileTableStoreProvider = ({
 
   const storeRef = useRef<ProfileTableStoreApi | null>(null);
   if (storeRef.current === null) {
-    storeRef.current = createProfileTableStore({ form });
+    storeRef.current = createProfileTableStore({
+      form,
+      data,
+      selectValue: 0,
+      inputValue: "",
+    });
   }
 
   return (

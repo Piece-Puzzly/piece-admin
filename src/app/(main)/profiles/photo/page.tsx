@@ -1,6 +1,7 @@
+import { columns } from "@/app/(main)/profiles/photo/_components/photo-columns";
 import { DataTable } from "@/components/data-table";
 import PaginationDisplay from "@/components/pagination-display";
-import { columns } from "@/app/(main)/profiles/photo/_components/photo-columns";
+import ProfileSearchBar from "@/components/profile-search-bar";
 
 import { getProfiles } from "@/lib/server";
 import { ProfilesResponse } from "@/lib/types";
@@ -22,6 +23,7 @@ export default async function Page({
   } else {
     return (
       <div className="space-y-[44px] mb-[86px]">
+        <ProfileSearchBar />
         <DataTable columns={columns} data={data.content} />
         <PaginationDisplay num={data.totalElements} />
       </div>
