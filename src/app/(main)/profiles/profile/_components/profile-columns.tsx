@@ -10,6 +10,8 @@ import ProfileDetailButton from "@/components/detail-buttons/profile-detail-butt
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
+import { Loader } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useProfileTableStore } from "../../../../../providers/profile-table-provider";
 const profileStatusInfo = [
@@ -90,22 +92,6 @@ export const columns: ColumnDef<Profile>[] = [
           </div>
         </div>
       ) : (
-        // <Select value={profileStatus}>
-        //   <SelectTrigger className="w-full ">
-        //     <SelectValue />
-        //   </SelectTrigger>
-        //   <SelectContent>
-        //     {profileStatusInfo.map(({ value, name, color }) => (
-        //       <SelectItem key={value} value={value}>
-        //         <div
-        //           className="rounded-full h-[12px] w-[12px]"
-        //           style={{ backgroundColor: color }}
-        //         />
-        //         {name}
-        //       </SelectItem>
-        //     ))}
-        //   </SelectContent>
-        // </Select>
         "-"
       );
     },
@@ -171,26 +157,29 @@ function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
 function SubmitButton({ row }: { row: Row<Profile> }) {
   const debug = useDebug((e) => e.debug);
   const form = useProfileTableStore((e) => e.form);
-
+  const [loading, setLoading] = useState<boolean>(false);
   return (
     <Button
-      onClick={form.handleSubmit(async () => {
-        const res = await updateProfileStatus(
-          row.original.userId,
-          form.getValues("rejectStatuses")[row.index].rejectImage,
-          form.getValues("rejectStatuses")[row.index].rejectDescription
-        );
-        if (res.status !== "success") {
-          toast.error(JSON.stringify(res));
-        }
-
-        // 데이터 refetch
-      })}
-      disabled={!debug && row.original.profileStatus === "통과"}
+      onClick={(e) => {
+        form.handleSubmit(async () => {
+          setLoading(true);
+          const res = await updateProfileStatus(
+            row.original.userId,
+            form.getValues("rejectStatuses")[row.index].rejectImage,
+            form.getValues("rejectStatuses")[row.index].rejectDescription
+          );
+          if (res.status !== "success") {
+            toast.error(JSON.stringify(res));
+          }
+          setLoading(false);
+          // 데이터 refetch
+        })(e);
+      }}
+      disabled={loading || (!debug && row.original.profileStatus === "통과")}
       variant={"submit"}
       className="h-[40px] md:h-[44px] w-full min-w-[80px]"
     >
-      제출
+      {loading ? <Loader className="animate-spin" /> : "제출"}
     </Button>
   );
 }

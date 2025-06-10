@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useProfileTableStore } from "@/providers/profile-table-provider";
 import Image from "next/image";
 import { Input } from "./ui/input";
 import {
@@ -17,14 +16,18 @@ const selectData = [
   { label: "프로필 식별값", key: "profileId" },
 ];
 
-export default function ProfileSearchBar({
+export default function SearchBar({
+  selectValue,
+  setSelectValue,
+  inputValue,
+  setInputValue,
   className,
-}: React.ComponentProps<"div">) {
-  const selectValue = useProfileTableStore((e) => e.selectValue);
-  const setSelectValue = useProfileTableStore((e) => e.setSelectValue);
-  const inputValue = useProfileTableStore((e) => e.inputValue);
-  const setInputValue = useProfileTableStore((e) => e.setInputValue);
-
+}: {
+  selectValue: number;
+  inputValue: string;
+  setSelectValue: (value: number) => void;
+  setInputValue: (value: string) => void;
+} & React.ComponentProps<"div">) {
   return (
     <div className={cn("flex gap-[8px]", className)}>
       <Select

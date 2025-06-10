@@ -3,8 +3,8 @@ import PaginationDisplay from "@/components/pagination-display";
 import { getProfiles } from "@/lib/server";
 
 import { columns } from "@/app/(main)/profiles/profile/_components/profile-columns";
+import ProfileSearchBar from "@/app/(main)/profiles/profile/_components/profile-search-bar";
 import { DataTable } from "@/components/data-table";
-import ProfileSearchBar from "@/components/profile-search-bar";
 import { ProfilesResponse } from "@/lib/types";
 import { ProfileTableStoreProvider } from "@/providers/profile-table-provider";
 

@@ -17,7 +17,7 @@ import {
 } from "@/lib/server";
 
 import { Photo } from "@/lib/types";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ export default function PhotoDetailButton({
   const [content, setContent] = useState<Photo | undefined>(undefined);
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
+  const [loading, setLoading] = useState<boolean>(false);
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -100,7 +101,9 @@ export default function PhotoDetailButton({
                   <Button
                     variant="submit"
                     className=" py-[10px] px-[12px] h-[40px] md:h-[44px] w-[76px]"
-                    disabled={!debug && profileImageStatus !== "PENDING"}
+                    disabled={
+                      loading || (!debug && profileImageStatus !== "PENDING")
+                    }
                     onClick={async () => {
                       if (
                         content.pendingProfileImage!.profileImageStatus ===
@@ -109,6 +112,7 @@ export default function PhotoDetailButton({
                         toast.error("반려/통과 여부를 체크해주세요!");
                         return;
                       }
+                      setLoading(true);
                       const profileImageId =
                         content.pendingProfileImage!.profileImageId;
                       const accepted =
@@ -122,9 +126,10 @@ export default function PhotoDetailButton({
                       if (res.status !== "success") {
                         toast.error(JSON.stringify(res));
                       }
+                      setLoading(false);
                     }}
                   >
-                    제출
+                    {loading ? <Loader className="animate-spin" /> : "제출"}
                   </Button>
                 </div>
               </>

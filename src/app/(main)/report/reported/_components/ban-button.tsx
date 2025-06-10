@@ -12,7 +12,9 @@ import {
 import { banUsers } from "@/lib/server";
 import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Loader } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export default function BanButton({
@@ -24,6 +26,7 @@ export default function BanButton({
   userId: number;
   nickName: string;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  const [loading, setLoading] = useState<boolean>(false);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -69,13 +72,15 @@ export default function BanButton({
               className="h-[52px]"
               variant="default"
               onClick={async () => {
+                setLoading(true);
                 const res = await banUsers(userId);
                 if (res.status !== "success") {
                   toast.error(JSON.stringify(res));
                 }
+                setLoading(false);
               }}
             >
-              영구 정지
+              {loading ? <Loader className="animate-spin" /> : "영구 정지"}
             </Button>
           </DialogClose>
         </DialogFooter>
