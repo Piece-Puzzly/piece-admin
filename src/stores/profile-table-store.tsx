@@ -1,8 +1,8 @@
 import { getFilteredProfile, getProfiles } from "@/lib/server";
 import { Profile } from "@/lib/types";
+import Cookies from "js-cookie";
 import { UseFormReturn } from "react-hook-form";
 import { createStore } from "zustand/vanilla";
-
 export type ProfileTableState = {
   data: Profile[];
   totalNum: number;
@@ -46,7 +46,10 @@ export const createProfileTableStore = (initState: ProfileTableState) => {
   return createStore<ProfileTableStore>()((set) => ({
     ...initState,
 
-    setSelectValue: (value: number) => set(() => ({ selectValue: value })),
+    setSelectValue: (value: number) => {
+      Cookies.set("selectValue", String(value));
+      set(() => ({ selectValue: value }));
+    },
     setInputValue: (value: string) => set(() => ({ inputValue: value })),
     update: async (
       params:
