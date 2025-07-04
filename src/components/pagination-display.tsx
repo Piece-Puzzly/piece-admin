@@ -11,54 +11,37 @@ import {
 } from "@/components/ui/pagination";
 
 import { cn, getPagesNumber } from "@/lib/utils";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useState } from "react";
 
 export default function PaginationDisplay({
   num,
-  queryKey = "page",
+  onChangePage,
   className,
 }: {
   num: number;
-  queryKey?: string;
+  onChangePage: (page: number) => void;
   className?: string;
 }) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
-
-  const currPage =
-    searchParams.get(queryKey) === null
-      ? 1
-      : parseInt(searchParams.get(queryKey) as string);
+  const [currPage, setCurrPage] = useState<number>(1);
 
   return (
     <Pagination className={cn("mb-8 mt-[44px]", className)}>
       <PaginationContent className="gap-[6px]">
         <PaginationItem>
           <PaginationFirst
-            href={pathname + "?" + createQueryString(queryKey, `1`)}
+            onClick={() => {
+              setCurrPage(1);
+              onChangePage(1);
+            }}
             isActive={currPage !== 1}
           />
         </PaginationItem>
         <PaginationItem>
           <PaginationPrevious
-            href={
-              pathname +
-              "?" +
-              createQueryString(
-                queryKey,
-                `${currPage === 1 ? 1 : currPage - 1}`
-              )
-            }
+            onClick={() => {
+              setCurrPage(currPage === 1 ? 1 : currPage - 1);
+              onChangePage(currPage === 1 ? 1 : currPage - 1);
+            }}
             isActive={currPage !== 1}
           />
         </PaginationItem>
@@ -68,7 +51,10 @@ export default function PaginationDisplay({
               <PaginationLink
                 isNumber
                 isActive={e === currPage}
-                href={pathname + "?" + createQueryString(queryKey, `${e}`)}
+                onClick={() => {
+                  setCurrPage(e);
+                  onChangePage(e);
+                }}
               >
                 {e}
               </PaginationLink>
@@ -77,24 +63,23 @@ export default function PaginationDisplay({
         </div>
         <PaginationItem>
           <PaginationNext
-            href={
-              pathname +
-              "?" +
-              createQueryString(
-                queryKey,
-                `${Math.ceil(num / 10) === currPage ? currPage : currPage + 1}`
-              )
-            }
+            onClick={() => {
+              setCurrPage(
+                Math.ceil(num / 10) === currPage ? currPage : currPage + 1
+              );
+              onChangePage(
+                Math.ceil(num / 10) === currPage ? currPage : currPage + 1
+              );
+            }}
             isActive={currPage !== Math.ceil(num / 10)}
           />
         </PaginationItem>
         <PaginationItem>
           <PaginationLast
-            href={
-              pathname +
-              "?" +
-              createQueryString(queryKey, `${Math.ceil(num / 10)}`)
-            }
+            onClick={() => {
+              setCurrPage(Math.ceil(num / 10));
+              onChangePage(Math.ceil(num / 10));
+            }}
             isActive={currPage !== Math.ceil(num / 10)}
           />
         </PaginationItem>

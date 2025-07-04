@@ -12,7 +12,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
-        console.log(process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL);
         const res = await fetch(
           process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + "/auth/login",
           {

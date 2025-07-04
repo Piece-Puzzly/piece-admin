@@ -1,7 +1,5 @@
 "use client";
 
-import PaginationDisplay from "@/components/pagination-display";
-
 import {
   Dialog,
   DialogContent,
@@ -18,11 +16,13 @@ import { columns } from "@/app/(main)/report/reported/_components/report-detail-
 import { DataTable } from "@/components/data-table";
 import { ProfileDetail, ReportDetailsResponses } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
+import { ReportDetailTableStoreProvider } from "@/providers/report-detail-table-provider";
 import { useReportTableStore } from "@/providers/report-table-provider";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import BanButton from "./ban-button";
+import ReportReasonPagination from "./report-reason-pagination";
 
 export default function ReportReasonDialog() {
   const [data, setData] = useState<ReportDetailsResponses["data"] | undefined>(
@@ -110,18 +110,18 @@ export default function ReportReasonDialog() {
         )}
 
         {data ? (
-          <>
+          <ReportDetailTableStoreProvider
+            id={Number(searchParams.get("id"))}
+            data={data.content}
+            totalNum={data.totalElements}
+          >
             <DataTable
               variant="secondary"
               columns={columns}
               data={data.content}
             />
-            <PaginationDisplay
-              queryKey={"reportpage"}
-              num={data.totalElements}
-              className="mt-[20px] mb-0"
-            />
-          </>
+            <ReportReasonPagination />
+          </ReportDetailTableStoreProvider>
         ) : (
           <div>loading</div>
         )}

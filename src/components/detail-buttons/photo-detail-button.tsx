@@ -33,6 +33,7 @@ export default function PhotoDetailButton({
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
+
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -42,7 +43,7 @@ export default function PhotoDetailButton({
           if (!res.data) {
             toast.error(JSON.stringify(res));
           }
-
+          
           setContent(res.data);
         } else {
           setContent(undefined);

@@ -22,6 +22,7 @@ export const ProfileTableStoreContext = createContext<
 export interface ProfileTableStoreProviderProps {
   children: ReactNode;
   data: Profile[];
+  totalNum: number;
 }
 
 const rowSchema = z.object({
@@ -35,6 +36,7 @@ const tableSchema = z.object({
 
 export const ProfileTableStoreProvider = ({
   children,
+  totalNum,
   data,
 }: ProfileTableStoreProviderProps) => {
   const form = useForm<z.infer<typeof tableSchema>>({
@@ -50,6 +52,8 @@ export const ProfileTableStoreProvider = ({
   const storeRef = useRef<ProfileTableStoreApi | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createProfileTableStore({
+      totalNum,
+      page: 1,
       form,
       data,
       selectValue: 0,

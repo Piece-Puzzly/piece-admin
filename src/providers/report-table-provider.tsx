@@ -17,16 +17,18 @@ export const ReportTableStoreContext = createContext<
 
 export interface ReportTableStoreProviderProps {
   children: ReactNode;
+  totalNum: number;
   data: ReportedUser[];
 }
 
 export const ReportTableStoreProvider = ({
   children,
+  totalNum,
   data,
 }: ReportTableStoreProviderProps) => {
   const storeRef = useRef<ReportTableStoreApi | null>(null);
   if (storeRef.current === null) {
-    storeRef.current = createReportTableStore({ data });
+    storeRef.current = createReportTableStore({ data, totalNum, page: 0 });
   }
 
   return (

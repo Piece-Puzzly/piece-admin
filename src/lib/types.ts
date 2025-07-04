@@ -11,7 +11,7 @@ export interface Profile {
   rejectDescription: boolean;
 }
 
-export interface ProfilesResponse {
+export type ProfilesResponse = {
   status: string;
   message: string;
   data: {
@@ -23,7 +23,7 @@ export interface ProfilesResponse {
     isFirstPage: boolean;
     isLastPage: boolean;
   };
-}
+};
 
 export interface ProfileDetail {
   imageUrl: string;

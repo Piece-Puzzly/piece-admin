@@ -9,7 +9,6 @@ import * as React from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -42,8 +41,7 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean;
   isNumber?: boolean;
-} & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<typeof Link>;
+} & React.ComponentProps<typeof Button>;
 
 function PaginationLink({
   className,
@@ -53,8 +51,9 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <Link
-      scroll={false}
+    <Button
+      type="button"
+      variant={"ghost"}
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
@@ -71,7 +70,7 @@ function PaginationLink({
             )
           : cn(
               buttonVariants({ variant: "ghost", size }),
-              "text-muted-foreground text-[18px] h-[24px] w-[24px]",
+              "p-0 text-muted-foreground text-[18px] h-[24px] w-[24px]",
               { "text-gray-black": isActive }
             ),
         !isNumber && !isActive && "pointer-events-none",

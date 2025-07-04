@@ -5,9 +5,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authOptions } from "./auth-options";
 
-import { BlockedUsersResponses } from "./types";
+import {
+  BlockedUsersResponses,
+  Profile,
+  ProfilesResponse,
+  ReportedUsersResponses,
+} from "./types";
 
-export async function getProfiles(page: number) {
+export async function getProfiles(page: number): Promise<ProfilesResponse> {
   const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/login");
@@ -15,6 +20,7 @@ export async function getProfiles(page: number) {
   const response = await fetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/users?page=${page}&size=${10}`,
+
     {
       method: "GET",
       headers: {
@@ -29,6 +35,32 @@ export async function getProfiles(page: number) {
   }
 
   const res = await response.json();
+
+  return res as ProfilesResponse;
+}
+
+export async function getFilteredProfile(
+  select: "userId" | "profileId" | "nickname",
+  value: string
+): Promise<Profile> {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/login");
+  }
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/users/search?` +
+      `&${select}=${value}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const res: Profile = (await response.json()).data;
 
   return res;
 }
@@ -108,10 +140,13 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
   return response_json;
 };
 
-export const getReportedDatas = async (page: number = 0, size: number = 10) => {
+export async function getReportedDatas(
+  page: number = 0,
+  size: number = 10
+): Promise<ReportedUsersResponses | null> {
   const session = await getServerSession(authOptions);
   if (!session) {
-    return;
+    return null;
   }
   const response = await fetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
@@ -127,8 +162,8 @@ export const getReportedDatas = async (page: number = 0, size: number = 10) => {
 
   const response_json = await response.json();
 
-  return response_json;
-};
+  return response_json as ReportedUsersResponses;
+}
 
 export const getReportDetail = async (
   userId: number,

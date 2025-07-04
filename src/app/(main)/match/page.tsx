@@ -1,8 +1,8 @@
 import PaginationDisplay from "@/components/pagination-display";
 
 import { DataTable } from "@/components/data-table";
-import MatchingForm from "./_components/matching-form";
 import { columns } from "./_components/matching-columns";
+import MatchingForm from "./_components/matching-form";
 
 export default async function Page({
   searchParams,

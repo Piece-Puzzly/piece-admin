@@ -1,23 +1,13 @@
-import PaginationDisplay from "@/components/pagination-display";
 import { getReportedDatas } from "@/lib/server";
 
-import { columns } from "@/app/(main)/report/reported/_components/report-columns";
-import { DataTable } from "@/components/data-table";
 import { ReportedUsersResponses } from "@/lib/types";
 import { ReportTableStoreProvider } from "@/providers/report-table-provider";
+import ReportDataTable from "./_components/report-data-table";
+import ReportPagination from "./_components/report-pagination";
 import ReportReasonDialog from "./_components/report-reason-dialog";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string; id?: string; reportpage?: string }>;
-}) {
-  const params = await searchParams;
-
-  const res = (await getReportedDatas(
-    params.page ? parseInt(params.page) - 1 : 0,
-    10
-  )) as ReportedUsersResponses;
+export default async function Page() {
+  const res = (await getReportedDatas(0)) as ReportedUsersResponses;
 
   if (res.data == undefined) {
     return JSON.stringify(res);
@@ -26,17 +16,13 @@ export default async function Page({
 
     return (
       <div className="space-y-[44px] mb-[86px]">
-        <ReportTableStoreProvider data={data.content}>
+        <ReportTableStoreProvider
+          data={data.content}
+          totalNum={res.data.totalElements}
+        >
           <ReportReasonDialog />
-
-          <DataTable
-            columns={columns}
-            data={data.content}
-            columnOptions={{
-              ban: { tableHead: "bg-gray-light-3 border-gray-light-2" },
-            }}
-          />
-          <PaginationDisplay num={data.totalElements} />
+          <ReportDataTable />
+          <ReportPagination />
         </ReportTableStoreProvider>
       </div>
     );
