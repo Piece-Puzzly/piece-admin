@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { banUsers } from "@/lib/server";
 import { cn } from "@/lib/utils";
+import { useReportTableStore } from "@/providers/report-table-provider";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Loader } from "lucide-react";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -27,6 +29,10 @@ export default function BanButton({
   nickName: string;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   const [loading, setLoading] = useState<boolean>(false);
+  const update = useReportTableStore((e) => e.update);
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -78,6 +84,8 @@ export default function BanButton({
                   toast.error(JSON.stringify(res));
                 }
                 setLoading(false);
+                update();
+                router.replace(pathname);
               }}
             >
               {loading ? <Loader className="animate-spin" /> : "영구 정지"}

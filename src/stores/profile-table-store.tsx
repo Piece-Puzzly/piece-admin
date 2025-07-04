@@ -3,10 +3,18 @@ import { Profile } from "@/lib/types";
 import Cookies from "js-cookie";
 import { UseFormReturn } from "react-hook-form";
 import { createStore } from "zustand/vanilla";
+type query =
+  | { type: "all"; page: number }
+  | {
+      type: "search";
+      select: "userId" | "profileId" | "nickname";
+      value: string;
+    };
 export type ProfileTableState = {
   data: Profile[];
   totalNum: number;
   page: number;
+
   form: UseFormReturn<
     {
       rejectStatuses: {
@@ -24,26 +32,19 @@ export type ProfileTableState = {
   >;
   selectValue: number;
   inputValue: string;
+  query: query;
 };
 
 export type ProfileTableActions = {
   setSelectValue: (value: number) => void;
   setInputValue: (value: string) => void;
-  update: (
-    params:
-      | { type: "all"; page: number }
-      | {
-          type: "search";
-          select: "userId" | "profileId" | "nickname";
-          value: string;
-        }
-  ) => void;
+  update: (params?: query) => void;
 };
 
 export type ProfileTableStore = ProfileTableState & ProfileTableActions;
 
 export const createProfileTableStore = (initState: ProfileTableState) => {
-  return createStore<ProfileTableStore>()((set) => ({
+  return createStore<ProfileTableStore>()((set, get) => ({
     ...initState,
 
     setSelectValue: (value: number) => {
@@ -52,7 +53,7 @@ export const createProfileTableStore = (initState: ProfileTableState) => {
     },
     setInputValue: (value: string) => set(() => ({ inputValue: value })),
     update: async (
-      params:
+      query?:
         | { type: "all"; page: number }
         | {
             type: "search";
@@ -60,15 +61,27 @@ export const createProfileTableStore = (initState: ProfileTableState) => {
             value: string;
           }
     ) => {
-      if (params.type === "all") {
-        const data = await getProfiles(params.page - 1);
+      const { form } = get();
+      let data: Profile[];
+      let totalNum: number;
+      query = query ? query : get().query;
 
-        set({ totalNum: data.data.totalElements, data: data.data.content });
+      if (query.type === "all") {
+        const d = await getProfiles(query.page - 1);
+        data = d.data.content;
+        totalNum = d.data.totalElements;
       } else {
-        const data = await getFilteredProfile(params.select, params.value);
-
-        set({ data: data ? [data] : [], totalNum: data ? 1 : 0 });
+        const d = await getFilteredProfile(query.select, query.value);
+        data = d ? [d] : [];
+        totalNum = d ? 1 : 0;
       }
+      set({ totalNum, data });
+      form.reset({
+        rejectStatuses: data.map(({ rejectImage, rejectDescription }) => ({
+          rejectImage,
+          rejectDescription,
+        })),
+      });
     },
   }));
 };

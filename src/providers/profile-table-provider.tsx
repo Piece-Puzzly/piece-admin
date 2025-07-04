@@ -59,6 +59,7 @@ export const ProfileTableStoreProvider = ({
       data,
       selectValue: cookieSelectValue ? Number(cookieSelectValue) : 0,
       inputValue: "",
+      query: { type: "all", page: 1 },
     });
   }
 

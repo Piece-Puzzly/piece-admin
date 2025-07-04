@@ -158,6 +158,7 @@ function SubmitButton({ row }: { row: Row<Profile> }) {
   const debug = useDebug((e) => e.debug);
   const form = useProfileTableStore((e) => e.form);
   const [loading, setLoading] = useState<boolean>(false);
+  const update = useProfileTableStore((e) => e.update);
   return (
     <Button
       onClick={(e) => {
@@ -171,8 +172,9 @@ function SubmitButton({ row }: { row: Row<Profile> }) {
           if (res.status !== "success") {
             toast.error(JSON.stringify(res));
           }
+
           setLoading(false);
-          // 데이터 refetch
+          update();
         })(e);
       }}
       disabled={loading || (!debug && row.original.profileStatus === "통과")}

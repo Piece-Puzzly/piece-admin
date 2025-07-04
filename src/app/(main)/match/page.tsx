@@ -44,7 +44,7 @@ export default async function Page({
             { id: 2, nickname: "닉네임2", disabled: true },
           ]}
         />
-        <DataTable columns={columns} data={data.content} key={Math.random()} />
+        <DataTable columns={columns} data={data.content} />
         {/* <PaginationDisplay num={data.totalElements} /> */}
       </div>
     </div>

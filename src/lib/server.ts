@@ -1,7 +1,6 @@
 "use server";
 
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authOptions } from "./auth-options";
 
@@ -65,11 +64,11 @@ export async function getFilteredProfile(
   return res;
 }
 
-export const updateProfileStatus = async (
+export async function updateProfileStatus(
   userId: number,
   rejectImage: boolean,
   rejectDescription: boolean
-) => {
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return;
@@ -90,12 +89,10 @@ export const updateProfileStatus = async (
     }
   );
 
-  revalidatePath("/profiles");
-
   const response_json = await response.json();
 
   return response_json;
-};
+}
 
 export const getUserById = async (userId: number) => {
   const session = await getServerSession(authOptions);
@@ -212,8 +209,6 @@ export const banUsers = async (userId: number) => {
     }
   );
 
-  revalidatePath("/report/reported");
-
   const response_json = await response.json();
 
   return response_json;
@@ -262,7 +257,7 @@ export async function UpdateProfileImageStatus(
       cache: "no-store",
     }
   );
-  revalidatePath("/profiles/profile");
+
   const response_json = await response.json();
 
   return response_json;
