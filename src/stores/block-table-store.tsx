@@ -6,6 +6,7 @@ import { createStore } from "zustand/vanilla";
 export type BlockTableState = {
   data: BlockedUser[];
   totalNum: number;
+  page: number;
 };
 export type BlockTableActions = {
   update: (page: number) => void;
@@ -22,7 +23,7 @@ export const createBlockTableStore = (initState: BlockTableState) => {
         toast("not authenticated");
         return;
       }
-      set({ data: data.data.content, totalNum: data.data.totalElements });
+      set({ data: data.data.content, totalNum: data.data.totalElements, page });
     },
   }));
 };

@@ -36,6 +36,7 @@ export const ReportDetailTableStoreProvider = ({
       id,
       data,
       totalNum,
+      page: 1,
     });
   }
 

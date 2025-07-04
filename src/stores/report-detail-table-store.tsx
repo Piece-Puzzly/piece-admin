@@ -7,6 +7,7 @@ export type ReportDetailTableState = {
   id: number;
   data: ReportDetail[];
   totalNum: number;
+  page: number;
 };
 export type ReportDetailTableActions = {
   update: (page: number) => void;
@@ -28,7 +29,7 @@ export const createReportDetailTableStore = (
         toast("not authenticated");
         return;
       }
-      set({ data: data.content, totalNum: data.totalElements });
+      set({ data: data.content, totalNum: data.totalElements, page });
     },
   }));
 };
