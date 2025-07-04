@@ -13,7 +13,6 @@ type query =
 export type ProfileTableState = {
   data: Profile[];
   totalNum: number;
-  page: number;
 
   form: UseFormReturn<
     {
@@ -38,7 +37,7 @@ export type ProfileTableState = {
 export type ProfileTableActions = {
   setSelectValue: (value: number) => void;
   setInputValue: (value: string) => void;
-  update: (params?: query) => void;
+  update: (params?: query) => Promise<void>;
 };
 
 export type ProfileTableStore = ProfileTableState & ProfileTableActions;
@@ -75,7 +74,8 @@ export const createProfileTableStore = (initState: ProfileTableState) => {
         data = d ? [d] : [];
         totalNum = d ? 1 : 0;
       }
-      set({ totalNum, data });
+      set({ totalNum, data, query });
+
       form.reset({
         rejectStatuses: data.map(({ rejectImage, rejectDescription }) => ({
           rejectImage,

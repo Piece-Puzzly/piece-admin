@@ -45,7 +45,7 @@ export default function PhotoDetailButton({
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          update();
+          await update();
         } else {
           setContent(undefined);
         }

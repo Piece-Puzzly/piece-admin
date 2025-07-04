@@ -54,7 +54,6 @@ export const ProfileTableStoreProvider = ({
     const cookieSelectValue = Cookies.get("selectValue");
     storeRef.current = createProfileTableStore({
       totalNum,
-      page: 1,
       form,
       data,
       selectValue: cookieSelectValue ? Number(cookieSelectValue) : 0,

@@ -29,7 +29,7 @@ export const createReportDetailTableStore = (
         toast("not authenticated");
         return;
       }
-      set({ data: data.content, totalNum: data.totalElements });
+      set({ data: data.content, totalNum: data.totalElements, page });
     },
   }));
 };

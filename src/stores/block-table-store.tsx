@@ -23,7 +23,7 @@ export const createBlockTableStore = (initState: BlockTableState) => {
         toast("not authenticated");
         return;
       }
-      set({ data: data.data.content, totalNum: data.data.totalElements });
+      set({ data: data.data.content, totalNum: data.data.totalElements, page });
     },
   }));
 };

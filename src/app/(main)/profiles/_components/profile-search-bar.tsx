@@ -18,13 +18,20 @@ export default function ProfileSearchBar({
       setSelectValue={setSelectValue}
       inputValue={inputValue}
       setInputValue={setInputValue}
-      onSearch={() =>
-        update({
-          type: "search",
-          select: selectData[selectValue].key,
-          value: inputValue,
-        })
-      }
+      onSearch={() => {
+        if (inputValue.length > 0) {
+          update({
+            type: "search",
+            select: selectData[selectValue].key,
+            value: inputValue,
+          });
+        } else {
+          update({
+            type: "all",
+            page: 1,
+          });
+        }
+      }}
       className={className}
     />
   );

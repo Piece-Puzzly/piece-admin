@@ -84,7 +84,7 @@ export default function BanButton({
                   toast.error(JSON.stringify(res));
                 }
                 setLoading(false);
-                update();
+                await update();
                 router.replace(pathname);
               }}
             >
