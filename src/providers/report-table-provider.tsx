@@ -28,7 +28,7 @@ export const ReportTableStoreProvider = ({
 }: ReportTableStoreProviderProps) => {
   const storeRef = useRef<ReportTableStoreApi | null>(null);
   if (storeRef.current === null) {
-    storeRef.current = createReportTableStore({ data, totalNum, page: 0 });
+    storeRef.current = createReportTableStore({ data, totalNum, page: 1 });
   }
 
   return (

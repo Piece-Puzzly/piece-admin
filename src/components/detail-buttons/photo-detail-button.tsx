@@ -19,7 +19,7 @@ import {
 import { Photo } from "@/lib/types";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export default function PhotoDetailButton({
@@ -33,18 +33,19 @@ export default function PhotoDetailButton({
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
+  const update = useCallback(async () => {
+    const res = await getUserProfileImageDetail(id as number);
 
+    if (!res.data) {
+      toast.error(JSON.stringify(res));
+    }
+    setContent(res.data);
+  }, [id]);
   return (
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          const res = await getUserProfileImageDetail(id as number);
-
-          if (!res.data) {
-            toast.error(JSON.stringify(res));
-          }
-          
-          setContent(res.data);
+          update();
         } else {
           setContent(undefined);
         }
@@ -127,6 +128,7 @@ export default function PhotoDetailButton({
                       if (res.status !== "success") {
                         toast.error(JSON.stringify(res));
                       }
+                      await update();
                       setLoading(false);
                     }}
                   >

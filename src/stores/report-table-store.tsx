@@ -9,16 +9,19 @@ export type ReportTableState = {
   page: number;
 };
 export type ReportTableActions = {
-  update: (page: number) => void;
+  update: (page?: number) => void;
 };
 
 export type ReportTableStore = ReportTableState & ReportTableActions;
 
 export const createReportTableStore = (initState: ReportTableState) => {
-  return createStore<ReportTableStore>()((set) => ({
+  return createStore<ReportTableStore>()((set, get) => ({
     ...initState,
-    update: async (page: number) => {
+    update: async (page?: number) => {
+      page = page ?? get().page;
+      
       const data = await getReportedDatas(page - 1);
+      console.log(data);
       if (!data) {
         toast("not authenticated");
         return;

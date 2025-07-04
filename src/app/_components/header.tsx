@@ -1,7 +1,7 @@
 import LogoutButton from "@/components/logout-button";
 import { getServerSession } from "next-auth";
-import Image from "next/image";
 import DebugSettings from "./debug-settings";
+import LogoButton from "./logo-button";
 
 export default async function Header() {
   const session = await getServerSession();
@@ -9,13 +9,8 @@ export default async function Header() {
     <div className="shrink-0 h-12 md:h-20 flex w-full items-center justify-center border-b">
       <div className="w-full max-w-screen-xl flex justify-between pl-[10px] md:pl-[40px] pr-2 md:pr-4 items-center">
         <span className="flex flex-row gap-2 items-center">
-          <Image
-            src={"/logo1.png"}
-            height={500}
-            width={500}
-            className="w-auto h-8 md:h-10"
-            alt="Piece"
-          />
+          <LogoButton />
+
           {session && (
             <span className="text-[16px] px-5 py-2.5 font-medium hidden md:block">
               <span className="decoration-grayscale-black underline">
