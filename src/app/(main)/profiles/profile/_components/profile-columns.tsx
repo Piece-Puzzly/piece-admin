@@ -12,6 +12,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
 import { Loader } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useProfileTableStore } from "../../../../../providers/profile-table-provider";
 const profileStatusInfo = [
@@ -157,12 +158,14 @@ function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
 function SubmitButton({ row }: { row: Row<Profile> }) {
   const debug = useDebug((e) => e.debug);
   const form = useProfileTableStore((e) => e.form);
+  const { handleSubmit } = useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const update = useProfileTableStore((e) => e.update);
   return (
     <Button
-      onClick={(e) => {
-        form.handleSubmit(async () => {
+      type="button"
+      onClick={() => {
+        handleSubmit(async () => {
           setLoading(true);
           const res = await updateProfileStatus(
             row.original.userId,
@@ -173,9 +176,9 @@ function SubmitButton({ row }: { row: Row<Profile> }) {
             toast.error(JSON.stringify(res));
           }
 
+          await update();
           setLoading(false);
-          update();
-        })(e);
+        })();
       }}
       disabled={loading || (!debug && row.original.profileStatus === "통과")}
       variant={"submit"}

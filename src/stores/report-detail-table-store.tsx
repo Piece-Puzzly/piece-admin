@@ -7,7 +7,6 @@ export type ReportDetailTableState = {
   id: number;
   data: ReportDetail[];
   totalNum: number;
-  page: number;
 };
 export type ReportDetailTableActions = {
   update: (page: number) => void;

@@ -9,7 +9,7 @@ export type ReportTableState = {
   page: number;
 };
 export type ReportTableActions = {
-  update: (page?: number) => void;
+  update: (page?: number) => Promise<void>;
 };
 
 export type ReportTableStore = ReportTableState & ReportTableActions;
@@ -19,14 +19,14 @@ export const createReportTableStore = (initState: ReportTableState) => {
     ...initState,
     update: async (page?: number) => {
       page = page ?? get().page;
-      
+
       const data = await getReportedDatas(page - 1);
       console.log(data);
       if (!data) {
         toast("not authenticated");
         return;
       }
-      set({ data: data.data.content, totalNum: data.data.totalElements });
+      set({ data: data.data.content, totalNum: data.data.totalElements, page });
     },
   }));
 };

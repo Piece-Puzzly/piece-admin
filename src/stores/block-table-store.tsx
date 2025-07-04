@@ -6,7 +6,6 @@ import { createStore } from "zustand/vanilla";
 export type BlockTableState = {
   data: BlockedUser[];
   totalNum: number;
-  page: number;
 };
 export type BlockTableActions = {
   update: (page: number) => void;
