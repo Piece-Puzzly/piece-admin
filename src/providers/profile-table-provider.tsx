@@ -1,8 +1,5 @@
 "use client";
 
-import { type ReactNode, createContext, useContext, useRef } from "react";
-import { useStore } from "zustand";
-
 import { Form } from "@/components/ui/form";
 import { Profile } from "@/lib/types";
 import {
@@ -10,8 +7,11 @@ import {
   createProfileTableStore,
 } from "@/stores/profile-table-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
+import { type ReactNode, createContext, useContext, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useStore } from "zustand";
 
 export type ProfileTableStoreApi = ReturnType<typeof createProfileTableStore>;
 
@@ -51,12 +51,13 @@ export const ProfileTableStoreProvider = ({
 
   const storeRef = useRef<ProfileTableStoreApi | null>(null);
   if (storeRef.current === null) {
+    const cookieSelectValue = Cookies.get("selectValue");
     storeRef.current = createProfileTableStore({
       totalNum,
       page: 1,
       form,
       data,
-      selectValue: 0,
+      selectValue: cookieSelectValue ? Number(cookieSelectValue) : 0,
       inputValue: "",
     });
   }
