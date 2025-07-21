@@ -11,7 +11,6 @@ export default function ReportReasonPagination() {
     <PaginationDisplay
       num={total}
       onChangePage={(e) => {
-        console.log(e);
         update(e);
       }}
       className="mt-[20px] mb-0"

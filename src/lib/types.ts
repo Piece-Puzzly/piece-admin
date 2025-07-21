@@ -120,15 +120,15 @@ export interface ReportProfile {
   latestReportedReason: string; // 가장 최근에 리포트된 이유
 }
 
-export interface MatchingProfile {
-  idA: number;
-  nicknameA: string;
-  idB: number;
-  nicknameB: string;
-  date: string;
-  time: number;
-  isMatched: boolean;
-}
+// export interface MatchingProfile {
+//   idA: number;
+//   nicknameA: string;
+//   idB: number;
+//   nicknameB: string;
+//   date: string;
+//   time: number;
+//   isMatched: boolean;
+// }
 
 export interface Photo {
   profileImageUrl: string;
@@ -138,3 +138,31 @@ export interface Photo {
     profileImageStatus: string;
   } | null;
 }
+
+export type MatchHistoryResponse = {
+  status: string;
+  message: string;
+  data: MatchHistory[];
+};
+
+export type MatchHistory = {
+  manualMatchId: number; // 매칭 히스토리 ID
+  user1Id: number; // 첫 번째 유저 ID
+  user1Nickname: string; // 첫 번째 유저 닉네임
+  user2Id: number; // 두 번째 유저 ID
+  user2Nickname: string; // 두 번째 유저 닉네임
+  matchDateTime: string; // 예약된 매칭 시간 (ISO8601 문자열)
+  isMatched: boolean; // 실제 매칭 여부
+};
+
+export type MatchCandidate = {
+  userId: number; // 유저 ID
+  nickName: string; // 유저 닉네임
+  canBeMatched: boolean; // 해당 시간대에 수동 매칭 가능한지 여부
+};
+
+export type MatchCandidateResponse = {
+  message: string;
+  status: string;
+  data: { candidateList: MatchCandidate[] };
+};
