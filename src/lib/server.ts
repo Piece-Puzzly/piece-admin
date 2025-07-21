@@ -287,7 +287,7 @@ export async function getMatchHistory(
   );
 
   const response_json = (await response.json()) as MatchHistoryResponse;
-  console.log(response_json);
+
   return response_json;
 }
 

@@ -75,8 +75,10 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
 };
 
 function makeDateTimeString(baseDate: Date, hourStr: string): string {
-  const datePart = baseDate.toISOString().split("T")[0]; // YYYY-MM-DD
-  const hour = hourStr.padStart(2, "0"); // "9" → "09"
+  const yyyy = baseDate.getFullYear();
+  const mm = String(baseDate.getMonth() + 1).padStart(2, "0"); // getMonth()는 0~11
+  const dd = String(baseDate.getDate()).padStart(2, "0");
+  const hour = hourStr.padStart(2, "0");
 
-  return `${datePart}T${hour}:00:00`;
+  return `${yyyy}-${mm}-${dd}T${hour}:30:00`;
 }
