@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model black_list_phone {
+  phone_number String    @id @db.VarChar(255)
+  created_at   DateTime? @db.DateTime(6)
+  updated_at   DateTime? @db.DateTime(6)
+}
+
+model block_contact_sync_time {
+  user_id   BigInt    @id
+  sync_time DateTime? @db.DateTime(6)
+}
+
+model blocked_contacts {
+  id           BigInt     @id @default(autoincrement())
+  created_at   DateTime?  @db.DateTime(6)
+  updated_at   DateTime?  @db.DateTime(6)
+  phone_number String     @db.VarChar(255)
+  user_id      BigInt
+  user_table   user_table @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FKfoakajgpbes48ywbcudvhkhi1")
+
+  @@unique([user_id, phone_number], map: "unq_user_phone")
+  @@index([phone_number], map: "idx_phone_number")
+}
+
+model direct_block {
+  id               BigInt    @id @default(autoincrement())
+  created_at       DateTime? @db.DateTime(6)
+  updated_at       DateTime? @db.DateTime(6)
+  blocked_user_id  BigInt?
+  blocking_user_id BigInt?
+}
+
+model fcm_token {
+  id         BigInt    @id @default(autoincrement())
+  token      String?   @db.VarChar(255)
+  user_id    BigInt?
+  created_at DateTime? @db.DateTime(6)
+  updated_at DateTime? @db.DateTime(6)
+}
+
+model free_instant_match_history {
+  id           BigInt    @id @default(autoincrement())
+  matched_time DateTime? @db.DateTime(6)
+  user_id      BigInt?
+}
+
+model manual_match_history {
+  id              BigInt    @id @default(autoincrement())
+  match_date_time DateTime? @db.DateTime(6)
+  is_matched      Boolean?  @db.Bit(1)
+  user_1_id       BigInt?
+  user_2_id       BigInt?
+}
+
+model match_info {
+  id                                       BigInt                          @id @default(autoincrement())
+  date                                     DateTime?                       @db.Date
+  user_1_match_status                      match_info_user_1_match_status?
+  user_2_match_status                      match_info_user_2_match_status?
+  user_1                                   BigInt?
+  user_2                                   BigInt?
+  created_at                               DateTime?                       @db.DateTime(6)
+  updated_at                               DateTime?                       @db.DateTime(6)
+  is_attraction_sent                       Boolean?                        @db.Bit(1)
+  is_instant_match                         Boolean?                        @db.Bit(1)
+  user_table_match_info_user_2Touser_table user_table?                     @relation("match_info_user_2Touser_table", fields: [user_2], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FK6bk1twrpdbnry2aqccldymxoj")
+  user_table_match_info_user_1Touser_table user_table?                     @relation("match_info_user_1Touser_table", fields: [user_1], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FK9ig2fq32wsnxp4h56pttkwwrt")
+
+  @@index([user_2], map: "FK6bk1twrpdbnry2aqccldymxoj")
+  @@index([user_1], map: "FK9ig2fq32wsnxp4h56pttkwwrt")
+}
+
+model notification_history {
+  notification_id   BigInt                                  @id @default(autoincrement())
+  body              String?                                 @db.VarChar(255)
+  date_time         DateTime?                               @db.DateTime(6)
+  is_read           Boolean?                                @db.Bit(1)
+  notification_type notification_history_notification_type?
+  title             String?                                 @db.VarChar(255)
+  user_id           BigInt?
+}
+
+model profile {
+  profile_id         BigInt                  @id @default(autoincrement())
+  created_at         DateTime?               @db.DateTime(6)
+  updated_at         DateTime?               @db.DateTime(6)
+  birthdate          DateTime?               @db.Date
+  contacts           Json?
+  description        String?                 @db.VarChar(255)
+  height             Int?
+  image_url          String?                 @db.VarChar(255)
+  job                String?                 @db.VarChar(255)
+  location           String?                 @db.VarChar(255)
+  nickname           String                  @db.VarChar(255)
+  smoking_status     String?                 @db.VarChar(255)
+  sns_activity_level String?                 @db.VarChar(255)
+  weight             Int?
+  profile_status     profile_profile_status?
+  profile_image      profile_image[]
+  profile_value_pick profile_value_pick[]
+  profile_value_talk profile_value_talk[]
+  user_table         user_table?
+}
+
+model profile_image {
+  profile_image_id BigInt                @id @default(autoincrement())
+  created_at       DateTime?             @db.DateTime(6)
+  updated_at       DateTime?             @db.DateTime(6)
+  image_url        String?               @db.VarChar(255)
+  status           profile_image_status?
+  profile_id       BigInt?
+  profile          profile?              @relation(fields: [profile_id], references: [profile_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_profile")
+
+  @@index([profile_id], map: "fk_profile")
+}
+
+model profile_value_pick {
+  profile_value_pick_id BigInt     @id @default(autoincrement())
+  selected_answer       Int?
+  profile_id            BigInt
+  value_pick_id         BigInt
+  value_pick            value_pick @relation(fields: [value_pick_id], references: [value_pick_id], onDelete: NoAction, onUpdate: NoAction, map: "FK5jvxun0plmcfsyjp20djd4eie")
+  profile               profile    @relation(fields: [profile_id], references: [profile_id], onDelete: NoAction, onUpdate: NoAction, map: "FKppgtpnepbk0tncgrn2o9fhpdc")
+
+  @@index([value_pick_id], map: "FK5jvxun0plmcfsyjp20djd4eie")
+  @@index([profile_id], map: "FKppgtpnepbk0tncgrn2o9fhpdc")
+}
+
+model profile_value_talk {
+  profile_value_talk_id BigInt     @id @default(autoincrement())
+  answer                String?    @db.VarChar(300)
+  summary               String?    @db.VarChar(255)
+  profile_id            BigInt
+  value_talk_id         BigInt
+  value_talk            value_talk @relation(fields: [value_talk_id], references: [value_talk_id], onDelete: NoAction, onUpdate: NoAction, map: "FK8dlt94j8xh6wpw19a9u0gir4f")
+  profile               profile    @relation(fields: [profile_id], references: [profile_id], onDelete: NoAction, onUpdate: NoAction, map: "FKjpxi3qx7pj9b8jjy08uj7uax3")
+
+  @@index([value_talk_id], map: "FK8dlt94j8xh6wpw19a9u0gir4f")
+  @@index([profile_id], map: "FKjpxi3qx7pj9b8jjy08uj7uax3")
+}
+
+model refresh_token {
+  user_id BigInt  @id
+  token   String? @db.VarChar(500)
+}
+
+model report {
+  report_id                                      BigInt     @id @default(autoincrement())
+  created_at                                     DateTime?  @db.DateTime(6)
+  updated_at                                     DateTime?  @db.DateTime(6)
+  reason                                         String?    @db.VarChar(500)
+  reported_user_id                               BigInt
+  reporter_user_id                               BigInt
+  user_table_report_reporter_user_idTouser_table user_table @relation("report_reporter_user_idTouser_table", fields: [reporter_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FK37hoc2qqyokot8xpenjrjb60g")
+  user_table_report_reported_user_idTouser_table user_table @relation("report_reported_user_idTouser_table", fields: [reported_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FKoy23a5e60j565hgdfhg2c7fn6")
+
+  @@index([reporter_user_id], map: "FK37hoc2qqyokot8xpenjrjb60g")
+  @@index([reported_user_id], map: "FKoy23a5e60j565hgdfhg2c7fn6")
+}
+
+model setting {
+  id                 BigInt    @id @default(autoincrement())
+  acquaintance_block Boolean?  @db.Bit(1)
+  match_notification Boolean?  @db.Bit(1)
+  notification       Boolean?  @db.Bit(1)
+  user_id            BigInt?
+  created_at         DateTime? @db.DateTime(6)
+  updated_at         DateTime? @db.DateTime(6)
+}
+
+model term {
+  term_id        BigInt           @id @default(autoincrement())
+  content        String?          @db.VarChar(255)
+  is_active      Boolean          @default(dbgenerated("b'1'")) @db.Bit(1)
+  required       Boolean          @db.Bit(1)
+  start_date     DateTime         @db.DateTime(6)
+  title          String?          @db.VarChar(255)
+  version        String?          @db.VarChar(255)
+  term_agreement term_agreement[]
+}
+
+model term_agreement {
+  agreement_id BigInt     @id @default(autoincrement())
+  agreed_at    DateTime   @db.DateTime(6)
+  term_id      BigInt
+  user_id      BigInt
+  term         term       @relation(fields: [term_id], references: [term_id], onDelete: NoAction, onUpdate: NoAction, map: "FKhksnjpep6cp1k4pscd01nv2e5")
+  user_table   user_table @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FKo7wtdf2abk5n2npjlmwbdg9ov")
+
+  @@index([term_id], map: "FKhksnjpep6cp1k4pscd01nv2e5")
+  @@index([user_id], map: "FKo7wtdf2abk5n2npjlmwbdg9ov")
+}
+
+model user_delete_reason {
+  user_id    BigInt    @id
+  reason     String?   @db.VarChar(255)
+  created_at DateTime? @db.DateTime(6)
+  updated_at DateTime? @db.DateTime(6)
+}
+
+model user_reject_history {
+  user_reject_history_id BigInt      @id @default(autoincrement())
+  created_at             DateTime?   @db.DateTime(6)
+  updated_at             DateTime?   @db.DateTime(6)
+  reason_description     Boolean     @default(dbgenerated("b'0'")) @db.Bit(1)
+  reason_image           Boolean     @default(dbgenerated("b'0'")) @db.Bit(1)
+  user_id                BigInt?
+  user_table             user_table? @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "FK9yk1m1mdw9025xuusm1pu0tya")
+
+  @@index([user_id], map: "FK9yk1m1mdw9025xuusm1pu0tya")
+}
+
+model user_table {
+  user_id                                    BigInt                @id @default(autoincrement())
+  created_at                                 DateTime?             @db.DateTime(6)
+  updated_at                                 DateTime?             @db.DateTime(6)
+  name                                       String?               @db.VarChar(255)
+  oauth_id                                   String?               @db.VarChar(255)
+  phone                                      String?               @db.VarChar(255)
+  role                                       String?               @db.VarChar(255)
+  profile_id                                 BigInt?               @unique(map: "UK6lo9rjcyf73jl027y72b32ya2")
+  is_admin                                   Boolean?              @db.Bit(1)
+  blocked_contacts                           blocked_contacts[]
+  match_info_match_info_user_2Touser_table   match_info[]          @relation("match_info_user_2Touser_table")
+  match_info_match_info_user_1Touser_table   match_info[]          @relation("match_info_user_1Touser_table")
+  report_report_reporter_user_idTouser_table report[]              @relation("report_reporter_user_idTouser_table")
+  report_report_reported_user_idTouser_table report[]              @relation("report_reported_user_idTouser_table")
+  term_agreement                             term_agreement[]
+  user_reject_history                        user_reject_history[]
+  profile                                    profile?              @relation(fields: [profile_id], references: [profile_id], onDelete: NoAction, onUpdate: NoAction, map: "FK9onylk6purvx1i2lxyemux6hx")
+}
+
+model value_pick {
+  value_pick_id      BigInt               @id @default(autoincrement())
+  answers            String               @db.LongText
+  category           String?              @db.VarChar(255)
+  is_active          Boolean              @db.Bit(1)
+  question           String               @db.VarChar(255)
+  profile_value_pick profile_value_pick[]
+}
+
+model value_talk {
+  value_talk_id      BigInt               @id @default(autoincrement())
+  category           String?              @db.VarChar(255)
+  guides             Json?
+  is_active          Boolean              @default(dbgenerated("b'1'")) @db.Bit(1)
+  placeholder        String?              @db.VarChar(255)
+  title              String               @db.VarChar(255)
+  profile_value_talk profile_value_talk[]
+}
+
+enum match_info_user_1_match_status {
+  ACCEPTED
+  BLOCKED
+  CHECKED
+  REFUSED
+  UNCHECKED
+}
+
+enum match_info_user_2_match_status {
+  ACCEPTED
+  BLOCKED
+  CHECKED
+  REFUSED
+  UNCHECKED
+}
+
+enum notification_history_notification_type {
+  MATCH_ACCEPTED
+  MATCH_COMPLETED
+  MATCH_NEW
+  PROFILE_APPROVED
+  PROFILE_REJECTED
+  PROFILE_IMAGE_APPROVED
+  PROFILE_IMAGE_REJECTED
+}
+
+enum profile_image_status {
+  ACCEPTED
+  PENDING
+  REJECTED
+}
+
+enum profile_profile_status {
+  APPROVED
+  INCOMPLETE
+  REJECTED
+  REVISED
+}

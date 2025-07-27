@@ -29,6 +29,7 @@ export const menuInfo: {
     ],
   },
   { value: "match", name: "수동 매칭" },
+  { value: "match-action", name: "매치 수락/거절" },
 ];
 
 export default function MenuTabs() {

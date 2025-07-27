@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Pagination,
   PaginationContent,
@@ -17,12 +18,17 @@ export default function PaginationDisplay({
   num,
   onChangePage,
   className,
+  currPage = 1,
+  perPage = 10, // ✅ 기본값 10
 }: {
   num: number;
   onChangePage: (page: number) => void;
   className?: string;
+  currPage?: number;
+  perPage?: number; // ✅ perPage prop 추가
 }) {
-  const [currPage, setCurrPage] = useState<number>(1);
+  const [currPage_, setCurrPage] = useState<number>(currPage);
+  const totalPages = Math.ceil(num / perPage); // ✅ perPage 반영
 
   return (
     <Pagination className={cn("mb-8 mt-[44px]", className)}>
@@ -33,24 +39,26 @@ export default function PaginationDisplay({
               setCurrPage(1);
               onChangePage(1);
             }}
-            isActive={currPage !== 1}
+            isActive={currPage_ !== 1}
           />
         </PaginationItem>
         <PaginationItem>
           <PaginationPrevious
             onClick={() => {
-              setCurrPage(currPage === 1 ? 1 : currPage - 1);
-              onChangePage(currPage === 1 ? 1 : currPage - 1);
+              const prev = currPage_ === 1 ? 1 : currPage_ - 1;
+              setCurrPage(prev);
+              onChangePage(prev);
             }}
-            isActive={currPage !== 1}
+            isActive={currPage_ !== 1}
           />
         </PaginationItem>
+
         <div className="gap-[4px] flex">
-          {getPagesNumber(currPage, num, 10).map((e) => (
+          {getPagesNumber(currPage_, num, perPage).map((e) => (
             <PaginationItem key={e}>
               <PaginationLink
                 isNumber
-                isActive={e === currPage}
+                isActive={e === currPage_}
                 onClick={() => {
                   setCurrPage(e);
                   onChangePage(e);
@@ -61,26 +69,24 @@ export default function PaginationDisplay({
             </PaginationItem>
           ))}
         </div>
+
         <PaginationItem>
           <PaginationNext
             onClick={() => {
-              setCurrPage(
-                Math.ceil(num / 10) === currPage ? currPage : currPage + 1
-              );
-              onChangePage(
-                Math.ceil(num / 10) === currPage ? currPage : currPage + 1
-              );
+              const next = currPage_ === totalPages ? currPage_ : currPage_ + 1;
+              setCurrPage(next);
+              onChangePage(next);
             }}
-            isActive={currPage !== Math.ceil(num / 10)}
+            isActive={currPage_ !== totalPages}
           />
         </PaginationItem>
         <PaginationItem>
           <PaginationLast
             onClick={() => {
-              setCurrPage(Math.ceil(num / 10));
-              onChangePage(Math.ceil(num / 10));
+              setCurrPage(totalPages);
+              onChangePage(totalPages);
             }}
-            isActive={currPage !== Math.ceil(num / 10)}
+            isActive={currPage_ !== totalPages}
           />
         </PaginationItem>
       </PaginationContent>
