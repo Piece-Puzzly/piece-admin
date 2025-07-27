@@ -80,5 +80,5 @@ function makeDateTimeString(baseDate: Date, hourStr: string): string {
   const dd = String(baseDate.getDate()).padStart(2, "0");
   const hour = hourStr.padStart(2, "0");
 
-  return `${yyyy}-${mm}-${dd}T${hour}:30:00`;
+  return `${yyyy}-${mm}-${dd}T${hour}:00:00`;
 }
