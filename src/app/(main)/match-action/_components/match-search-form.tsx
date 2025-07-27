@@ -55,13 +55,13 @@ export function MatchSearchForm({
     >
       <div className="flex items-center gap-2">
         <Input
-          placeholder="User 1 ID"
+          placeholder="아이디"
           value={user1Id}
           onChange={(e) => setUser1Id(e.target.value)}
           className="w-[150px]"
         />
         <Input
-          placeholder="User 2 ID"
+          placeholder="상대방 아이디"
           value={user2Id}
           onChange={(e) => setUser2Id(e.target.value)}
           className="w-[150px]"
