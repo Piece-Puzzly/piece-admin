@@ -25,8 +25,11 @@ import QuestionCard from "../../app/(main)/profiles/profile/_components/question
 export default function ProfileDetailButton({
   userId,
   nickname,
+  showId = false,
+  className,
   ...props
 }: {
+  showId?: boolean;
   userId: number | null;
   nickname: string;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
@@ -79,10 +82,16 @@ export default function ProfileDetailButton({
         <Button
           variant="outline"
           disabled={!debug && userId == null}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px]"
+          className={cn(
+            "w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px]",
+            className
+          )}
           {...props}
         >
-          <div>{nickname}</div>
+          <div className="flex items-center gap-1">
+            {showId && <div className="text-muted-foreground">[{userId}]</div>}
+            <div>{nickname}</div>
+          </div>
           <ChevronRight />
         </Button>
       </DialogTrigger>

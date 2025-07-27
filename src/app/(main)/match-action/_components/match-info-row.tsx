@@ -48,12 +48,15 @@ export default function MatchInfoRow({
     <TableRow key={match.id}>
       <TableCell>{match.id}</TableCell>
       <TableCell>
-        <ProfileDetailButton
-          userId={Number(match.user_1!)}
-          nickname={
-            match.user_table_match_info_user_1Touser_table!.profile!.nickname!
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ProfileDetailButton
+            showId
+            userId={Number(match.user_1!)}
+            nickname={
+              match.user_table_match_info_user_1Touser_table!.profile!.nickname!
+            }
+          />
+        </div>
       </TableCell>
       <TableCell>
         <Select
@@ -75,12 +78,15 @@ export default function MatchInfoRow({
         </Select>
       </TableCell>
       <TableCell>
-        <ProfileDetailButton
-          userId={Number(match.user_2!)}
-          nickname={
-            match.user_table_match_info_user_2Touser_table!.profile!.nickname!
-          }
-        />
+        <div className="flex items-center gap-2">
+          <ProfileDetailButton
+            showId
+            userId={Number(match.user_2!)}
+            nickname={
+              match.user_table_match_info_user_2Touser_table!.profile!.nickname!
+            }
+          />
+        </div>
       </TableCell>
 
       <TableCell>
