@@ -78,7 +78,7 @@ export default function ProfileDetailButton({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          disabled={!debug && (userId == null || !nickname)}
+          disabled={!debug && userId == null}
           className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px]"
           {...props}
         >

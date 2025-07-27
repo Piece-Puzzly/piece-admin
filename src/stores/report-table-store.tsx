@@ -21,7 +21,7 @@ export const createReportTableStore = (initState: ReportTableState) => {
       page = page ?? get().page;
 
       const data = await getReportedDatas(page - 1);
-      console.log(data);
+
       if (!data) {
         toast("not authenticated");
         return;

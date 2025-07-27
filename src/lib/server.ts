@@ -6,6 +6,8 @@ import { authOptions } from "./auth-options";
 
 import {
   BlockedUsersResponses,
+  MatchCandidateResponse,
+  MatchHistoryResponse,
   Profile,
   ProfilesResponse,
   ReportedUsersResponses,
@@ -49,7 +51,7 @@ export async function getFilteredProfile(
   const response = await fetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/users/search?` +
-      `&${select}=${value}`,
+      `${select}=${value}`,
     {
       method: "GET",
       headers: {
@@ -259,6 +261,113 @@ export async function UpdateProfileImageStatus(
   );
 
   const response_json = await response.json();
+
+  return response_json;
+}
+
+export async function getMatchHistory(
+  page: number
+): Promise<undefined | MatchHistoryResponse> {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return;
+  }
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/manual-match/history` +
+      `?page=${page}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  const response_json = (await response.json()) as MatchHistoryResponse;
+
+  return response_json;
+}
+
+export async function getMatchCandidate(
+  page: number
+): Promise<undefined | MatchCandidateResponse> {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return;
+  }
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
+      `/manual-match/candidates` +
+      `?page=${page}`,
+    // `?match-time=${new Date().toISOString().slice(0, 19)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  const response_json = (await response.json()) as MatchCandidateResponse;
+
+  return response_json;
+}
+
+export async function reserveMatch(
+  user1Id: number,
+  user2Id: number,
+  dateTime: string
+) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return;
+  }
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
+
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user1Id, user2Id, dateTime }),
+
+      cache: "no-store",
+    }
+  );
+
+  const response_json = (await response.json()) as MatchCandidateResponse;
+
+  return response_json;
+}
+
+export async function cancelMatch(matchId: number) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return;
+  }
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
+
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ manualMatchId: matchId }),
+
+      cache: "no-store",
+    }
+  );
+
+  const response_json = (await response.json()) as MatchCandidateResponse;
 
   return response_json;
 }
