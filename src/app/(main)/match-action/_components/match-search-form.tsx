@@ -70,7 +70,7 @@ export function MatchSearchForm({
         <Button
           type="submit"
           variant="default"
-          className="py-[14px] px-[16px] h-auto"
+          className="py-[14px] px-[32px] h-auto"
         >
           검색
         </Button>
