@@ -28,7 +28,6 @@ export default async function MatchInfoPage({
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">매치 상태 변경</h1>
       <MatchSearchForm
         defaultUser1Id={user1Id}
         defaultUser2Id={user2Id}
