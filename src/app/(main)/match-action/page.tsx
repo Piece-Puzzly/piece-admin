@@ -27,7 +27,7 @@ export default async function MatchInfoPage({
   });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <MatchSearchForm
         defaultUser1Id={user1Id}
         defaultUser2Id={user2Id}
