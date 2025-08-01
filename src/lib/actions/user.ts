@@ -3,6 +3,7 @@
 
 import prisma from "../prisma";
 import { User } from "../types";
+import { checkAuth } from "./auth";
 
 const PAGE_SIZE = 10;
 
@@ -63,6 +64,7 @@ export async function getFilteredUsers({
   userIdQuery?: string;
   nicknameQuery?: string;
 }) {
+  await checkAuth();
   const where = {
     AND: [
       userIdQuery

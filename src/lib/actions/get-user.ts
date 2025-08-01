@@ -2,8 +2,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { checkAuth } from "./auth";
 
 export async function getUserInfo(userId: string | number | bigint) {
+  await checkAuth();
   try {
     const user = await prisma.user_table.findUnique({
       where: { user_id: BigInt(userId) },
