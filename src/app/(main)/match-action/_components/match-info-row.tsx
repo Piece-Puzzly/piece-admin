@@ -28,7 +28,6 @@ const matchSatatusName = {
   ACCEPTED: "수락",
   UNCHECKED: "확인 안 함",
   CHECKED: "확인함",
-
   BLOCKED: "차단",
   REFUSED: "거절",
 };
@@ -65,7 +64,7 @@ export default function MatchInfoRow({
             setUser1Status(value as match_info_user_1_match_status)
           }
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>
@@ -96,7 +95,7 @@ export default function MatchInfoRow({
             setUser2Status(value as match_info_user_2_match_status)
           }
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>

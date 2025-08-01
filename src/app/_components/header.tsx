@@ -1,16 +1,20 @@
 import LogoutButton from "@/components/logout-button";
 import { getServerSession } from "next-auth";
+import AppSidebarMenuButton from "./app-sidebar-menu-button";
 import DebugSettings from "./debug-settings";
 import LogoButton from "./logo-button";
 
 export default async function Header() {
   const session = await getServerSession();
   return (
-    <div className="shrink-0 h-12 md:h-20 flex w-full items-center justify-center border-b">
-      <div className="w-full max-w-screen-xl flex justify-between pl-[10px] md:pl-[40px] pr-2 md:pr-4 items-center">
+    <div className="shrink-0 h-20 md:h-20 flex w-full items-center justify-center border-b">
+      <div className="w-full max-w-screen-2xl flex justify-between pl-[10px] md:pl-[40px] pr-2 md:pr-4 items-center">
         <span className="flex flex-row gap-2 items-center">
-          <LogoButton />
+          <div className="flex gap-2 items-center lg:-mx-4">
+            <AppSidebarMenuButton />
 
+            <LogoButton />
+          </div>
           {session && (
             <span className="text-[16px] px-5 py-2.5 font-medium hidden md:block">
               <span className="decoration-grayscale-black underline">

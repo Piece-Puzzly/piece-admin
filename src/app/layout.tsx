@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/components/auth-provider";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
@@ -38,9 +39,11 @@ export default function RootLayout({
         className={`${pretendard.className} antialiased h-screen flex flex-col`}
       >
         <AuthProvider>
-          <Toaster />
-          <Header />
-          <div className="flex-1">{children}</div>
+          <SidebarProvider className="flex flex-col [--header-height:calc(--spacing(12))] md:[--header-height:calc(--spacing(20))]">
+            <Toaster />
+            <Header />
+            <div className="flex-1">{children}</div>
+          </SidebarProvider>
         </AuthProvider>
       </body>
     </html>
