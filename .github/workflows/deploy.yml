@@ -1,0 +1,32 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - dev # main 브랜치 푸시 시 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pm2 stop all
+            pm2 delete all
+            rm -rf piece-admin
+            git clone -b dev --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
+            cp /home/ec2-user/config/.env piece-admin/.env
+            cd piece-admin
+            npm install
+            npm run build
+            pm2 start npm --name "next-app" -- start
+            pm2 save
