@@ -15,6 +15,7 @@ export async function getUserInfo(userId: string | number | bigint) {
     if (!user) {
       return null;
     }
+    
 
     return {
       nickname: user.profile?.nickname ?? null,
