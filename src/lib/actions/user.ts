@@ -21,6 +21,7 @@ export async function fetchPagedUsers({
   users: User[];
   totalPages: number;
 }> {
+  await checkAuth();
   const skip = (page - 1) * PAGE_SIZE;
 
   const where = {
