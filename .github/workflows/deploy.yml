@@ -5,6 +5,10 @@ on:
     branches:
       - dev # main 브랜치 푸시 시 실행
 
+concurrency:
+  group: deploy-to-ec2
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,7 +28,7 @@ jobs:
             pm2 delete all
             rm -rf piece-admin
             git clone -b dev --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
-            cp /home/ec2-user/config/.env piece-admin/.env
+            cp config/.env piece-admin/.env
             cd piece-admin
             npm install
             npm run build
