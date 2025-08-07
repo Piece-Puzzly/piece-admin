@@ -11,11 +11,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-
-// 서버 액션을 불러오는 래퍼 함수
 import { fetchPagedUsers } from "@/lib/actions/user";
 import { User } from "@/lib/types";
+import { useEffect, useState } from "react";
+import { useDebounce } from "use-debounce"; // 추가
 
 export default function UserSearchDialogTrigger({
   onUserSelect,
@@ -31,23 +30,26 @@ export default function UserSearchDialogTrigger({
   const [userIdQuery, setUserIdQuery] = useState("");
   const [nicknameQuery, setNicknameQuery] = useState("");
 
+  // 디바운스된 값
+  const [debouncedUserId] = useDebounce(userIdQuery, 300);
+  const [debouncedNickname] = useDebounce(nicknameQuery, 300);
+
   useEffect(() => {
     if (!open) return;
 
     const loadUsers = async () => {
       const { users, totalPages } = await fetchPagedUsers({
         page,
-        userId: userIdQuery,
-        nickname: nicknameQuery,
+        userId: debouncedUserId,
+        nickname: debouncedNickname,
       });
       setUsers(users);
       setTotalPages(totalPages);
     };
 
     loadUsers();
-  }, [page, open, userIdQuery, nicknameQuery]);
+  }, [page, open, debouncedUserId, debouncedNickname]);
 
-  // 검색 입력 변경 시 1페이지부터
   const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPage(1);
     setUserIdQuery(e.target.value);
@@ -69,7 +71,6 @@ export default function UserSearchDialogTrigger({
           </DialogDescription>
         </DialogHeader>
 
-        {/* 검색 필터 */}
         <div className="flex gap-2 mt-2">
           <Input
             placeholder="ID"
@@ -83,7 +84,6 @@ export default function UserSearchDialogTrigger({
           />
         </div>
 
-        {/* 유저 리스트 */}
         <div className="max-h-80 overflow-y-auto divide-y mt-4">
           {users.map((user) => (
             <button
@@ -122,7 +122,6 @@ export default function UserSearchDialogTrigger({
           )}
         </div>
 
-        {/* 페이지네이션 */}
         <div className="flex justify-between items-center pt-4">
           <Button
             variant="outline"
