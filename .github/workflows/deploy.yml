@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - dev # main 브랜치 푸시 시 실행
+      - dev
 
 concurrency:
   group: deploy-to-ec2
@@ -24,13 +24,27 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 stop all
-            pm2 delete all
-            rm -rf piece-admin
+            # 기존 프로젝트 폴더가 있으면 백업
+            mv piece-admin piece-admin-backup || true
+
+            # 새 버전 클론
             git clone -b dev --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
+
+            # 환경 변수 설정
             cp config/.env piece-admin/.env
+
+            # 새 프로젝트 디렉토리로 이동
             cd piece-admin
+
+            # 의존성 설치 및 빌드
             npm install
             npm run build
-            pm2 start npm --name "next-app" -- start
+
+            # 프로세스 빠르게 재시작
+            pm2 startOrReload ecosystem.config.js --only next-app || pm2 restart next-app || pm2 start npm --name "next-app" -- start
+
+            # pm2 상태 저장
             pm2 save
+
+            # 백업 삭제 (빌드 성공 이후)
+            rm -rf ../piece-admin-backup
