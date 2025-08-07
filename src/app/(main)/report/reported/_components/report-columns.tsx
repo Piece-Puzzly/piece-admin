@@ -1,7 +1,7 @@
 "use client";
 
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { Button } from "@/components/ui/button";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { ReportedUser } from "@/lib/types";
 import { createQueryString } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
@@ -19,7 +19,7 @@ export const columns: ColumnDef<ReportedUser>[] = [
     cell: ({ row }) => {
       const nickname = row.original.nickName as string;
       const id = row.original.userId as number;
-      return <ProfileDetailButton userId={id} nickname={nickname} />;
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
 

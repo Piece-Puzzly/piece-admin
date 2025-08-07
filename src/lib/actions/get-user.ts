@@ -15,7 +15,6 @@ export async function getUserInfo(userId: string | number | bigint) {
     if (!user) {
       return null;
     }
-    
 
     return {
       nickname: user.profile?.nickname ?? null,
@@ -34,4 +33,39 @@ export async function getUserInfo(userId: string | number | bigint) {
     console.error("getUserInfo error:", err);
     throw new Error("Server error");
   }
+}
+
+export async function getUserAllInfo(user_id: bigint | number) {
+  // BigInt인 경우 대비해서 number도 받을 수 있게 처리
+  const userIdBigInt = typeof user_id === "number" ? BigInt(user_id) : user_id;
+
+  const user = await prisma.user_table.findUnique({
+    where: { user_id: userIdBigInt },
+    include: {
+      profile: {
+        include: {
+          profile_image: true,
+          profile_value_pick: {
+            include: { value_pick: true },
+          },
+          profile_value_talk: {
+            include: { value_talk: true },
+          },
+        },
+      },
+      // blocked_contacts: true,
+      // match_info_match_info_user_1Touser_table: true,
+      // match_info_match_info_user_2Touser_table: true,
+      // report_report_reporter_user_idTouser_table: true,
+      // report_report_reported_user_idTouser_table: true,
+      term_agreement: {
+        include: {
+          term: true,
+        },
+      },
+      // user_reject_history: true,
+    },
+  });
+
+  return user;
 }

@@ -7,6 +7,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 
 import { useDebug } from "@/app/hooks/use-debug";
 import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
+import ProfileStatus from "@/components/profile-status";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Toggle } from "@/components/ui/toggle";
 import { updateProfileStatus } from "@/lib/server";
@@ -15,12 +16,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useProfileTableStore } from "../../../../../providers/profile-table-provider";
-const profileStatusInfo = [
-  { value: "보류", name: "반려", color: "#FF3059" },
-  { value: "미완료", name: "미완료", color: "#6F00FB" },
-  { value: "수정 제출", name: "수정 제출", color: "#22CB52" },
-  { value: "통과", name: "통과", color: "#CBD1D9" },
-];
+
 export const columns: ColumnDef<Profile>[] = [
   {
     accessorKey: "userId",
@@ -76,22 +72,8 @@ export const columns: ColumnDef<Profile>[] = [
     cell: ({ row }) => {
       const profileStatus = row.original.profileStatus;
 
-      const profileStatusDetail = profileStatusInfo.find(
-        (e) => e.value === profileStatus
-      );
-
       return row.original.nickname ? (
-        <div className="w-full justify-start bg-secondary px-[16px] py-[9px] md:py-[10px] rounded-md">
-          <div className="flex items-center gap-[6px]">
-            <div
-              className="rounded-full h-[12px] w-[12px]"
-              style={{
-                backgroundColor: profileStatusDetail?.color,
-              }}
-            />
-            {profileStatusDetail?.name}
-          </div>
-        </div>
+        <ProfileStatus status={profileStatus} />
       ) : (
         "-"
       );

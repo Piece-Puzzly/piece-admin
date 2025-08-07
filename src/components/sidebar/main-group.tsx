@@ -31,9 +31,11 @@ export const navMain = [
   },
   { url: "/match", title: "수동 매칭" },
   { url: "/match-action", title: "매치 수락/거절" },
+  { url: "/user", title: "유저 상세 정보" },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -42,7 +44,9 @@ export default function MainGroup() {
             (sub) => pathname === sub.url
           );
 
-          const isSingleActive = pathname === item.url;
+          // pathname이 item.url과 같거나, item.url + '/'로 시작하면 active 처리
+          const isSingleActive =
+            pathname === item.url || pathname.startsWith(item.url + "/");
 
           return (
             <SidebarMenuItem key={item.url}>

@@ -1,4 +1,3 @@
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -8,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { MatchHistoryRow, updateMatchInfoStatus } from "@/lib/match-infos";
 
 import {
@@ -48,8 +48,7 @@ export default function MatchInfoRow({
       <TableCell>{match.id}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <ProfileDetailButton
-            showId
+          <UserInfoButton
             userId={Number(match.user_1!)}
             nickname={
               match.user_table_match_info_user_1Touser_table!.profile!.nickname!
@@ -78,8 +77,7 @@ export default function MatchInfoRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <ProfileDetailButton
-            showId
+          <UserInfoButton
             userId={Number(match.user_2!)}
             nickname={
               match.user_table_match_info_user_2Touser_table!.profile!.nickname!

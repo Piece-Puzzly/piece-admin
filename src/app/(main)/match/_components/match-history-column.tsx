@@ -1,7 +1,7 @@
 "use client";
 
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { Button } from "@/components/ui/button";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { cancelMatch } from "@/lib/server";
 import { MatchHistory } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
         <div className="items-center gap-[10px] flex ">
           <div className="w-[60px] text-right">{id}</div>
           <div className="flex-1">
-            <ProfileDetailButton userId={id} nickname={nickname} />
+            <UserInfoButton userId={id} nickname={nickname} />
           </div>
         </div>
       );
@@ -40,7 +40,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
         <div className="items-center gap-[10px] flex ">
           <div className="w-[60px] text-right">{id}</div>
           <div className="flex-1">
-            <ProfileDetailButton userId={id} nickname={nickname} />
+            <UserInfoButton userId={id} nickname={nickname} />
           </div>
         </div>
       );
