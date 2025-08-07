@@ -31,7 +31,6 @@ export const navMain = [
   },
   { url: "/match", title: "수동 매칭" },
   { url: "/match-action", title: "매치 수락/거절" },
-  { url: "/user", title: "유저 상세 정보" },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
