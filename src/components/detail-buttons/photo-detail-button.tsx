@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,6 +22,7 @@ import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import UserInfoTrigger from "../user-info/user-info-trigger";
 
 export default function PhotoDetailButton({
   id,
@@ -152,6 +154,11 @@ export default function PhotoDetailButton({
         ) : (
           <div>loading</div>
         )}
+        <DialogFooter>
+          <UserInfoTrigger asChild userId={id} nickname={nickname}>
+            <Button variant={"outline"}>자세히 보기</Button>
+          </UserInfoTrigger>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

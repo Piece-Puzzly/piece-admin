@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,6 +22,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import QuestionCard from "../../app/(main)/profiles/profile/_components/question-card";
+import UserInfoTrigger from "../user-info/user-info-trigger";
 
 export default function ProfileDetailButton({
   userId,
@@ -135,6 +137,11 @@ export default function ProfileDetailButton({
         ) : (
           <div>loading</div>
         )}
+        <DialogFooter>
+          <UserInfoTrigger asChild userId={userId} nickname={nickname}>
+            <Button variant={"outline"}>자세히 보기</Button>
+          </UserInfoTrigger>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

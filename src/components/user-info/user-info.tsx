@@ -342,7 +342,7 @@ function ValueTalkCard({
         <CardDescription>profile-value-talk</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 break-all">
         {valueTalk.map(
           ({ value_talk: { category, title }, answer, summary }) => {
             // const answer = JSON.parse(answers) as Record<string, string>;
@@ -351,7 +351,7 @@ function ValueTalkCard({
                 <p className="text-primary font-medium">{category}</p>
                 <p className="text-lg font-medium">{title}</p>
                 <Card className="bg-background my-2 py-4">
-                  <CardContent className="px-4">
+                  <CardContent className="px-4  break-all">
                     <p>{answer}</p>
                   </CardContent>
                   <CardFooter className="justify-end">

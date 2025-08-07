@@ -8,6 +8,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +35,7 @@ export const navMain = [
 ];
 export default function MainGroup() {
   const pathname = usePathname();
-
+  const { setOpenMobile } = useSidebar();
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -71,6 +72,7 @@ export default function MainGroup() {
                             className={
                               isActive ? "bg-accent text-foreground" : ""
                             }
+                            onClick={() => setOpenMobile(false)}
                           >
                             <Link href={subItem.url}>
                               <span className="text-base font-medium">

@@ -8,6 +8,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "../ui/sidebar";
 
 export default function TableCollapsible({
@@ -25,7 +26,7 @@ export default function TableCollapsible({
 }) {
   const pathname = usePathname();
   const isParentActive = item.items?.some((sub) => pathname === sub.url);
-
+  const { setOpenMobile } = useSidebar();
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
@@ -46,6 +47,7 @@ export default function TableCollapsible({
               className={
                 pathname === subItem.url ? "bg-accent text-foreground" : ""
               }
+              onClick={() => setOpenMobile(false)}
             >
               <Link href={subItem.url}>
                 <span className="text-base font-medium">
