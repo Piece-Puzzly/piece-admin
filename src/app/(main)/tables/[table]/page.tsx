@@ -27,6 +27,7 @@ export default async function TablePage({
   const page = Number(searchParams_?.page || "1");
   const pageSize = 20;
 
+  
   const { data, total } = await fetchTableData({
     table: tableName,
     page,
