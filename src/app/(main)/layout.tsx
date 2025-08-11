@@ -20,7 +20,7 @@ export default async function layout({
       <div className="flex justify-center">
         <main className="space-y-[20px] relative max-w-screen-2xl w-full flex flex-row">
           <AppSidebar />
-          <SidebarInset className="p-[10px] md:p-[20px] overflow-auto w-full">
+          <SidebarInset className="p-[10px] md:p-[20px] overflow-auto w-full @container/main">
             <AppBreadcrumbs />
             <div className="">{children}</div>
           </SidebarInset>

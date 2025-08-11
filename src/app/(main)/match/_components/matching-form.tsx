@@ -38,9 +38,9 @@ export default function MatchingForm() {
   // const onSubmit: SubmitHandler<FieldValues> = async (data) => {};
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-[60px]">
-      <div className="flex flex-col md:flex-row gap-[24px] flex-1">
-        <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-auto md:w-[448px]">
+    <div className="flex flex-col @3xl:flex-row items-center gap-4">
+      <div className="flex flex-col @3xl:flex-row gap-4 flex-1">
+        <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-auto ">
           {[0, 1].map((e) => (
             <MatchingFormDialog userIndex={e as 0 | 1} key={e} />
           ))}
@@ -52,7 +52,7 @@ export default function MatchingForm() {
       </div>
       <Button
         disabled={loading}
-        className="h-[52px] w-[200px] text-base"
+        className="!h-[48px] min-w-[100px]"
         onClick={async () => {
           setLoading(true);
           await match();
@@ -76,7 +76,7 @@ function DateSelect() {
         <Button
           variant={"secondary"}
           className={cn(
-            "w-[180px] !h-[52px] text-base text-secondary-foreground font-medium px-[16px] flex justify-between "
+            " !h-[48px] w-[180px] text-secondary-foreground font-medium px-[16px] flex justify-between "
           )}
         >
           {date ? format(date, "yyyy년 MM월 dd일") : <span>매칭 날짜</span>}
@@ -105,7 +105,7 @@ function TimeSelect() {
   const selectTime = useMatchCandidateStore((e) => e.selectTime);
   return (
     <Select value={time} onValueChange={(e) => selectTime(e)}>
-      <SelectTrigger className="w-[180px] !h-[52px] text-base text-secondary-foreground font-medium px-[16px]">
+      <SelectTrigger className="!h-[48px]  w-[150px] text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="매칭 시간" />
       </SelectTrigger>
       <SelectContent>
@@ -146,16 +146,11 @@ function MatchingFormDialog({ userIndex }: { userIndex: 0 | 1 }) {
       <DialogTrigger asChild>
         <Button
           variant={"secondary"}
-          className="overflow-hidden w-full max-w-full !h-[52px] text-base text-secondary-foreground font-medium px-[16px] justify-between "
+          className="overflow-hidden w-full max-w-full !h-[48px] text-secondary-foreground font-medium px-[16px] justify-between "
         >
-          {!user ? (
-            "닉네임을 선택해 주세요"
-          ) : (
-            <span>
-              [{user.id}]{` `}
-              {user.nickname}
-            </span>
-          )}
+          <div className="flex-1 text-left w-full overflow-hidden">
+            {!user ? "닉네임을 선택해 주세요" : `[${user.id}] ${user.nickname}`}
+          </div>
           <ChevronDownIcon className="size-4 opacity-50" />
         </Button>
       </DialogTrigger>

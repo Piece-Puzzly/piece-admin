@@ -25,7 +25,7 @@ export default async function TablePage({
   const sort = searchParams_?.sort || undefined;
   const order = searchParams_?.order === "desc" ? "desc" : "asc";
   const page = Number(searchParams_?.page || "1");
-  const pageSize = 10;
+  const pageSize = 20;
 
   const { data, total } = await fetchTableData({
     table: tableName,

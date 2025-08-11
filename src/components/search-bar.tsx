@@ -40,7 +40,7 @@ export default function SearchBar({
         value={`${selectValue}`}
         onValueChange={(e) => setSelectValue(parseInt(e))}
       >
-        <SelectTrigger className="w-[148px]">
+        <SelectTrigger className="w-[150px] font-medium">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -57,8 +57,8 @@ export default function SearchBar({
       </Select>
       <div className="relative">
         <Input
-          placeholder="검색어를 입력해주세요"
-          className="w-[260px]"
+          placeholder="검색어 입력"
+          className="w-[220px] pr-12"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {
@@ -73,7 +73,7 @@ export default function SearchBar({
           size="icon"
           variant="ghost"
           onClick={onSearch}
-          className="absolute top-1/2 -translate-y-1/2 right-[16px] z-50"
+          className="absolute top-1/2 -translate-y-1/2 right-[12px] z-50"
         >
           <Image
             src={"/icons/Question.svg"}

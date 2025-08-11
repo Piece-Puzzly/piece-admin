@@ -90,6 +90,7 @@ export default function MainGroup() {
                   asChild
                   tooltip={item.title}
                   className={isSingleActive ? "bg-accent text-foreground" : ""}
+                  onClick={() => setOpenMobile(false)}
                 >
                   <Link href={item.url}>
                     <span className="text-base font-medium">{item.title}</span>
