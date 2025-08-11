@@ -39,7 +39,7 @@ export default function RootLayout({
         className={`${pretendard.className} antialiased h-screen flex flex-col`}
       >
         <AuthProvider>
-          <SidebarProvider className="flex flex-col [--header-height:calc(--spacing(12))] md:[--header-height:calc(--spacing(20))]">
+          <SidebarProvider className="flex flex-col [--header-height:calc(--spacing(12))] md:[--header-height:calc(--spacing(16))]">
             <Toaster />
             <Header />
             <div className="flex-1">{children}</div>
