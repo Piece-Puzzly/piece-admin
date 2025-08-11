@@ -11,16 +11,12 @@ export default function LogoButton() {
 
   if (!isMount) return null;
   return (
-    <Button
-      variant="ghost"
-      className="h-12 md:h-16 px-2"
-      onClick={() => location.reload()}
-    >
+    <Button variant="ghost" className="px-2" onClick={() => location.reload()}>
       <Image
         src={isDesktop ? "/logo1.png" : "/small-logo.png"}
         height={500}
         width={500}
-        className={cn("w-auto", { "size-8": !isDesktop })}
+        className={cn("h-6 md:h-8 w-auto")}
         alt="Piece"
       />
     </Button>

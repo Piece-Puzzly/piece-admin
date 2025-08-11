@@ -94,7 +94,7 @@ function ReportDetailButton({
         )
       }
       variant="outline"
-      className="w-full flex justify-between h-[42px]"
+      className="w-full flex justify-between"
     >
       {latestReportedReason}
       <ChevronRight />

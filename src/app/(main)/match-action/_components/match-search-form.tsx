@@ -88,7 +88,7 @@ export function MatchSearchForm({
           >
             <Button
               variant="secondary"
-              className="text-left py-[14px] px-4 h-auto w-[150px] justify-between"
+              className="text-left py-3 px-4 h-auto w-[150px] justify-between"
             >
               {user1Id || (
                 <div className="flex justify-between w-full items-center">
@@ -120,7 +120,7 @@ export function MatchSearchForm({
           >
             <Button
               variant="secondary"
-              className="text-left py-[14px] px-4 h-auto w-[150px] justify-between"
+              className="text-left py-3 px-4 h-auto w-[150px] justify-between"
             >
               {user2Id || (
                 <div className="flex justify-between w-full items-center">

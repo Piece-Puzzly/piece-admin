@@ -63,7 +63,7 @@ export default function MatchInfoRow({
             setUser1Status(value as match_info_user_1_match_status)
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-[36px]!">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>
@@ -93,7 +93,7 @@ export default function MatchInfoRow({
             setUser2Status(value as match_info_user_2_match_status)
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-[36px]!">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>

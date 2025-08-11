@@ -58,7 +58,7 @@ export default function SearchBar({
       <div className="relative">
         <Input
           placeholder="검색어 입력"
-          className="w-[220px] pr-12"
+          className="w-[220px] pr-12 h-full"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {

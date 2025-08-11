@@ -32,11 +32,11 @@ export default function TableCollapsible({
       <SidebarMenuButton
         asChild
         tooltip={item.title}
-        className={`text-base font-medium justify-between ${
+        className={` font-medium justify-between ${
           isParentActive ? "bg-accent text-foreground" : ""
         }`}
       >
-        <span className="text-base">{item.title}</span>
+        <span className="">{item.title}</span>
       </SidebarMenuButton>
 
       <SidebarMenuSub>
@@ -50,7 +50,7 @@ export default function TableCollapsible({
               onClick={() => setOpenMobile(false)}
             >
               <Link href={subItem.url}>
-                <span className="text-base font-medium">
+                <span className=" font-medium">
                   {subItem.title}{" "}
                   <span className="text-muted-foreground font-normal">
                     ({subItem.count.toLocaleString()})

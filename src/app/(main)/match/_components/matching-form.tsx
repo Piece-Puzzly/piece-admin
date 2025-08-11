@@ -52,7 +52,7 @@ export default function MatchingForm() {
       </div>
       <Button
         disabled={loading}
-        className="!h-[48px] min-w-[100px]"
+        className="h-[40px]! min-w-[100px]"
         onClick={async () => {
           setLoading(true);
           await match();
@@ -76,7 +76,7 @@ function DateSelect() {
         <Button
           variant={"secondary"}
           className={cn(
-            " !h-[48px] w-[180px] text-secondary-foreground font-medium px-[16px] flex justify-between "
+            " !h-[40px] w-[180px] text-secondary-foreground font-medium px-[16px] flex justify-between "
           )}
         >
           {date ? format(date, "yyyy년 MM월 dd일") : <span>매칭 날짜</span>}
@@ -105,7 +105,7 @@ function TimeSelect() {
   const selectTime = useMatchCandidateStore((e) => e.selectTime);
   return (
     <Select value={time} onValueChange={(e) => selectTime(e)}>
-      <SelectTrigger className="!h-[48px]  w-[150px] text-secondary-foreground font-medium px-[16px]">
+      <SelectTrigger className="!h-[40px]  w-[150px] text-secondary-foreground font-medium px-[16px]">
         <SelectValue placeholder="매칭 시간" />
       </SelectTrigger>
       <SelectContent>
@@ -146,7 +146,7 @@ function MatchingFormDialog({ userIndex }: { userIndex: 0 | 1 }) {
       <DialogTrigger asChild>
         <Button
           variant={"secondary"}
-          className="overflow-hidden w-full max-w-full !h-[48px] text-secondary-foreground font-medium px-[16px] justify-between "
+          className="overflow-hidden w-full max-w-full !h-[40px] text-secondary-foreground font-medium px-[16px] justify-between "
         >
           <div className="flex-1 text-left w-full overflow-hidden">
             {!user ? "닉네임을 선택해 주세요" : `[${user.id}] ${user.nickname}`}

@@ -19,7 +19,7 @@ export default function UserInfoButton({
       <Button
         variant="outline"
         disabled={userId == null}
-        className={cn("w-full flex justify-between  h-[42px] ", className)}
+        className={cn("w-full flex justify-between  ", className)}
         {...props}
       >
         <div className="flex items-center gap-1">

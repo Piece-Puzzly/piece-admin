@@ -124,7 +124,7 @@ function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
                   onPressedChange={field.onChange}
                   pressed={field.value}
                   disabled={!debug && row.original.profileStatus === "통과"}
-                  className="h-[40px] px-3 leading-6 min-w-[80px]"
+                  className=" px-3 leading-6 min-w-[80px]"
                 >
                   {label}
                 </Toggle>
@@ -164,7 +164,7 @@ function SubmitButton({ row }: { row: Row<Profile> }) {
       }}
       disabled={loading || (!debug && row.original.profileStatus === "통과")}
       variant={"submit"}
-      className="h-[40px] w-full min-w-[80px]"
+      className=" w-full min-w-[80px]"
     >
       {loading ? <Loader className="animate-spin" /> : "제출"}
     </Button>
