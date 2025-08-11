@@ -10,8 +10,14 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 
 export const navMain = [
   {
@@ -48,44 +54,55 @@ export default function MainGroup() {
           const isSingleActive =
             pathname === item.url || pathname.startsWith(item.url + "/");
 
-          return (
-            <SidebarMenuItem key={item.url}>
-              {item.items?.length ? (
-                <>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    className={`font-medium ${
-                      isParentActive ? "bg-accent text-foreground " : ""
-                    }`}
-                  >
-                    <span className="">{item.title}</span>
-                  </SidebarMenuButton>
+          if (item.items?.length) {
+            return (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={isParentActive}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className={`font-medium `}
+                    >
+                      <span className="">{item.title}</span>
 
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => {
-                      const isActive = pathname === subItem.url;
-                      return (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            className={
-                              isActive ? "bg-accent text-foreground" : ""
-                            }
-                            onClick={() => setOpenMobile(false)}
-                          >
-                            <Link href={subItem.url}>
-                              <span className="font-medium">
-                                {subItem.title}
-                              </span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      );
-                    })}
-                  </SidebarMenuSub>
-                </>
-              ) : (
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => {
+                        const isActive = pathname === subItem.url;
+                        return (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              className={
+                                isActive ? "bg-accent text-foreground" : ""
+                              }
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Link href={subItem.url}>
+                                <span className="font-medium">
+                                  {subItem.title}
+                                </span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            );
+          } else {
+            return (
+              <SidebarMenuItem key={item.url}>
                 <SidebarMenuButton
                   asChild
                   tooltip={item.title}
@@ -96,9 +113,9 @@ export default function MainGroup() {
                     <span className="font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          );
+              </SidebarMenuItem>
+            );
+          }
         })}
       </SidebarMenu>
     </SidebarGroup>
