@@ -7,7 +7,7 @@ import LogoButton from "./logo-button";
 export default async function Header() {
   const session = await getServerSession();
   return (
-    <div className="shrink-0 h-20 md:h-20 flex w-full items-center justify-center border-b">
+    <div className="shrink-0 h-20 flex w-full items-center justify-center border-b">
       <div className="w-full max-w-screen-2xl flex justify-between pl-[10px] md:pl-[40px] pr-2 md:pr-4 items-center">
         <span className="flex flex-row gap-2 items-center">
           <div className="flex gap-2 items-center lg:-mx-4">

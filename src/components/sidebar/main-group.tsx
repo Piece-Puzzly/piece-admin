@@ -55,11 +55,11 @@ export default function MainGroup() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.title}
-                    className={`text-base font-medium ${
+                    className={`font-medium ${
                       isParentActive ? "bg-accent text-foreground " : ""
                     }`}
                   >
-                    <span className="text-base">{item.title}</span>
+                    <span className="">{item.title}</span>
                   </SidebarMenuButton>
 
                   <SidebarMenuSub>
@@ -75,7 +75,7 @@ export default function MainGroup() {
                             onClick={() => setOpenMobile(false)}
                           >
                             <Link href={subItem.url}>
-                              <span className="text-base font-medium">
+                              <span className="font-medium">
                                 {subItem.title}
                               </span>
                             </Link>
@@ -93,7 +93,7 @@ export default function MainGroup() {
                   onClick={() => setOpenMobile(false)}
                 >
                   <Link href={item.url}>
-                    <span className="text-base font-medium">{item.title}</span>
+                    <span className="font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               )}
