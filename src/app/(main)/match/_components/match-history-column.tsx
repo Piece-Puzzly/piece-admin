@@ -20,14 +20,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
       const id = row.original.user1Id;
       const nickname = row.original.user1Nickname;
 
-      return (
-        <div className="items-center gap-[10px] flex ">
-          <div className="w-[60px] text-right">{id}</div>
-          <div className="flex-1">
-            <UserInfoButton userId={id} nickname={nickname} />
-          </div>
-        </div>
-      );
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
   {
@@ -36,14 +29,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
       const id = row.original.user2Id;
       const nickname = row.original.user2Nickname;
 
-      return (
-        <div className="items-center gap-[10px] flex ">
-          <div className="w-[60px] text-right">{id}</div>
-          <div className="flex-1">
-            <UserInfoButton userId={id} nickname={nickname} />
-          </div>
-        </div>
-      );
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
   {
