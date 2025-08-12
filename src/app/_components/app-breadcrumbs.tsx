@@ -24,6 +24,7 @@ const segmentNameMap: Record<string, string> = {
   match: "수동 매칭",
   "match-action": "매치 수락/거절",
   tables: "테이블",
+  "user-list": "유저 목록",
   // 필요한 경로명 추가
 };
 
