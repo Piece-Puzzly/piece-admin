@@ -106,7 +106,11 @@ export default function MatchInfoRow({
         </Select>
       </TableCell>
       <TableCell>
-        {match.date ? new Date(match.date).toLocaleString() : "-"}
+        {match.date
+          ? new Date(match.date).toLocaleString("ko-KR", {
+              timeZone: "Asia/Seoul",
+            })
+          : "-"}
       </TableCell>
       <TableCell>
         <Button
