@@ -38,7 +38,16 @@ export const navMain = [
   },
   { url: "/match", title: "수동 매칭" },
   { url: "/match-action", title: "매치 수락/거절" },
-  { url: "/user-list", title: "유저 목록" },
+  {
+    url: "/user-list",
+    title: "유저 조회",
+    items: [
+      { url: "/user-list/role-none", title: "미인증 유저" },
+      { url: "/user-list/role-register", title: "프로필 미작성 유저" },
+      { url: "/user-list/role-pending", title: "심사 미완료 유저" },
+      { url: "/user-list/role-user", title: "정상 유저" },
+    ],
+  },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
