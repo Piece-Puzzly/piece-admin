@@ -1,6 +1,6 @@
+import { checkAuth } from "@/lib/actions/auth";
 import prisma from "@/lib/prisma";
 import UserTableWithPagination from "../_components/user-table-with-pagination";
-import { checkAuth } from "@/lib/actions/auth";
 
 const USERS_PER_PAGE = 20;
 
@@ -18,6 +18,7 @@ export default async function UserPage({
       where: whereClause,
       skip: (currentPage - 1) * USERS_PER_PAGE,
       take: USERS_PER_PAGE,
+      include: { profile: { select: { nickname: true } } },
       orderBy: { created_at: "desc" },
     }),
     prisma.user_table.count({ where: whereClause }),

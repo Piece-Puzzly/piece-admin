@@ -1,12 +1,12 @@
 "use client";
 
 import { PaginationDisplay2 } from "@/components/pagination-display";
-import { profile, user_table } from "@prisma/client";
+import { user_table } from "@prisma/client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import UserTable from "./user-table";
 
 type UserWithProfile = user_table & {
-  profile?: profile | null;
+  profile?: { nickname?: string } | null;
 };
 
 interface Props {
