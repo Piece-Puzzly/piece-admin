@@ -14,8 +14,8 @@ export default function UserInfoTrigger({
   userId,
   ...props
 }: {
-  userId: number | null;
-  nickname: string;
+  userId: number | null | bigint;
+  nickname: string | undefined;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <Dialog>

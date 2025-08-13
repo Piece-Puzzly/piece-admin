@@ -25,6 +25,10 @@ const segmentNameMap: Record<string, string> = {
   "match-action": "매치 수락/거절",
   tables: "테이블",
   "user-list": "유저 목록",
+  "role-none": "미인증 유저",
+  "role-register": "프로필 미작성 유저",
+  "role-pending": "심사 미완료 유저",
+  "role-user": "정상 유저",
   // 필요한 경로명 추가
 };
 
