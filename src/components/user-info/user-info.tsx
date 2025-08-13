@@ -86,13 +86,17 @@ function UserCard({
             <p>
               <span className="font-medium">생성:</span>{" "}
               {user.created_at
-                ? new Date(user.created_at).toLocaleString()
+                ? new Date(user.created_at).toLocaleString("ko-KR", {
+                    timeZone: "UTC",
+                  })
                 : "없음"}
             </p>
             <p>
               <span className="font-medium">업데이트:</span>{" "}
               {user.updated_at
-                ? new Date(user.updated_at).toLocaleString()
+                ? new Date(user.updated_at).toLocaleString("ko-KR", {
+                    timeZone: "UTC",
+                  })
                 : "없음"}
             </p>
             <p>
@@ -116,7 +120,11 @@ function UserCard({
             {user.term_agreement.map(
               ({ term_id, agreed_at, term: { title } }) => (
                 <div key={term_id}>
-                  {title}({agreed_at.toLocaleString()})
+                  {title}(
+                  {agreed_at.toLocaleString("ko-KR", {
+                    timeZone: "UTC",
+                  })}
+                  )
                 </div>
               )
             )}
@@ -156,13 +164,19 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
           <div>
             <span className="font-medium">생성: </span>
             <span>
-              {profile.created_at && profile.created_at.toLocaleString()}
+              {profile.created_at &&
+                profile.created_at.toLocaleString("ko-KR", {
+                  timeZone: "UTC",
+                })}
             </span>
           </div>
           <div>
             <span className="font-medium">업데이트: </span>
             <span>
-              {profile.updated_at && profile.updated_at.toLocaleString()}
+              {profile.updated_at &&
+                profile.updated_at.toLocaleString("ko-KR", {
+                  timeZone: "UTC",
+                })}
             </span>
           </div>
           <div className="flex items-center gap-[6px]">
