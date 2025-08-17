@@ -29,6 +29,7 @@ const segmentNameMap: Record<string, string> = {
   "role-register": "프로필 미작성 유저",
   "role-pending": "심사 미완료 유저",
   "role-user": "정상 유저",
+  "profile-stats": "프로필 통계",
   // 필요한 경로명 추가
 };
 

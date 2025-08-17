@@ -1,59 +1,39 @@
-"use client";
+import prisma from "@/lib/prisma"; // Prisma 클라이언트 import
+import UserTabs from "./_components/user-tabs";
 
-import { usePathname } from "next/navigation";
+// DB에서 각 역할별 사용자 수를 조회하는 비동기 함수
+async function getUserCounts() {
+  // $transaction과 Promise.all을 사용해 모든 count 쿼리를 병렬로 실행하여 성능을 최적화합니다.
+  const counts = await prisma.$transaction([
+    prisma.user_table.count({ where: { role: "NONE" } }),
+    prisma.user_table.count({ where: { role: "REGISTER" } }),
+    prisma.user_table.count({ where: { role: "PENDING" } }),
+    prisma.user_table.count({ where: { role: "USER" } }),
+  ]);
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"; // 1단계에서 저장한 파일 경로
-import { roleNameMap } from "@/lib/constants";
-import { useRouter } from "next/navigation";
+  return {
+    NONE: counts[0],
+    REGISTER: counts[1],
+    PENDING: counts[2],
+    USER: counts[3],
+  };
+}
 
-const roles = [
-  { href: "/user-list/role-none", role: "NONE" },
-  {
-    href: "/user-list/role-register",
-    role: "REGISTER",
-  },
-  { href: "/user-list/role-pending", role: "PENDING" },
-  { href: "/user-list/role-user", role: "USER" },
-];
-
-export default function UsersLayout({
+// layout.tsx는 이제 async 함수인 서버 컴포넌트입니다.
+export default async function UsersLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  // 현재 URL 경로(pathname)를 기반으로 활성화된 탭의 'value'를 찾습니다.
-  // ex: pathname이 '/admin/users/pending'이면 'pending'을 반환
-  const activeTabValue =
-    roles.find((tab) => pathname.startsWith(tab.href))?.role || roles[0].role;
-
-  // 탭을 클릭했을 때 해당 URL로 이동시키는 함수
-  const handleTabClick = (href: string) => {
-    router.push(href);
-  };
+  // 서버에서 사용자 수를 조회합니다.
+  const userCounts = await getUserCounts();
 
   return (
     <div>
-      {/* value prop에 현재 활성화된 탭의 값을 전달하여 UI 상태를 동기화합니다. */}
-      <Tabs value={activeTabValue}>
-        <TabsList>
-          {roles.map((tab) => (
-            <TabsTrigger
-              key={tab.role}
-              value={tab.role}
-              onClick={() => handleTabClick(tab.href)}
-            >
-              {roleNameMap[tab.role]}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/* 조회한 데이터를 UserTabs 컴포넌트에 prop으로 전달 */}
+      <UserTabs userCounts={userCounts} />
 
-      {/* 각 페이지의 실제 컨텐츠(children)는 TabsContent가 아닌
-        별도의 div에 렌더링됩니다. 
-      */}
+      {/* 페이지의 실제 컨텐츠가 렌더링되는 부분 */}
       <main className="mt-6">{children}</main>
     </div>
   );

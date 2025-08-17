@@ -11,7 +11,7 @@ export default function UserInfoButton({
   className,
   ...props
 }: {
-  userId: number | null | bigint;
+  userId: number | bigint | null | undefined;
   nickname: string | undefined;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
@@ -23,7 +23,7 @@ export default function UserInfoButton({
         {...props}
       >
         <div className="flex items-center gap-1">
-          <div className="text-muted-foreground">[{userId}]</div>
+          <div className="text-muted-foreground">[{userId ?? "X"}]</div>
           <div>
             {nickname ?? (
               <span className="text-muted-foreground italic">닉네임 없음</span>
