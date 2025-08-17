@@ -48,6 +48,10 @@ export const navMain = [
       { url: "/user-list/role-user", title: "정상 유저" },
     ],
   },
+  {
+    url: "/profile-stats",
+    title: "프로필 통계",
+  },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
