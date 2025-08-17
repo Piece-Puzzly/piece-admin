@@ -52,7 +52,9 @@ export default function UserTable({ users }: UserTableProps) {
 
             <TableCell>
               {user.created_at
-                ? new Date(user.created_at).toLocaleDateString()
+                ? new Date(user.created_at).toLocaleString("ko-KR", {
+                    timeZone: "UTC",
+                  })
                 : "N/A"}
             </TableCell>
           </TableRow>

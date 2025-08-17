@@ -269,7 +269,9 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
               <InfoCardTitle>생년월일</InfoCardTitle>
             </InfoCardHeader>
             <InfoCardContent>
-              {profile.birthdate?.toLocaleDateString("ko-KR")}
+              {profile.birthdate?.toLocaleDateString("ko-KR", {
+                timeZone: "UTC",
+              })}
             </InfoCardContent>
           </InfoCard>
         </div>
