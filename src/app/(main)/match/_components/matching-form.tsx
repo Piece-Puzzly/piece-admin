@@ -1,5 +1,6 @@
 "use client";
 
+import { TimePickerInput } from "@/components/time-picker-input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -15,19 +16,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useMatchCandidateStore } from "@/providers/match-candidate-provider";
 import { useMatchHistoryTableStore } from "@/providers/match-history-table-provider";
 import { format } from "date-fns";
 import { Check, ChevronDownIcon, Loader } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import MatchCandidatePagination from "./match-candidate-pagination";
 
 export default function MatchingForm() {
@@ -38,14 +32,16 @@ export default function MatchingForm() {
   // const onSubmit: SubmitHandler<FieldValues> = async (data) => {};
 
   return (
-    <div className="flex flex-col @3xl:flex-row items-center gap-4">
+    <div className="flex @3xl:flex-row @3xl:items-center flex-col items-start gap-4">
       <div className="flex flex-col @3xl:flex-row gap-4 flex-1">
         <div className="flex-1 items-center grid grid-cols-2 gap-[8px] w-auto ">
           {[0, 1].map((e) => (
             <MatchingFormDialog userIndex={e as 0 | 1} key={e} />
           ))}
         </div>
-        <div className="items-center flex gap-[8px]">
+      </div>
+      <div className="flex flex-col @3xl:flex-row gap-4 flex-1">
+        <div className="@2xl:items-center flex gap-[8px] flex-col @2xl:flex-row items-start">
           <DateSelect />
           <TimeSelect />
         </div>
@@ -103,23 +99,38 @@ function DateSelect() {
 function TimeSelect() {
   const time = useMatchCandidateStore((e) => e.selectedTime);
   const selectTime = useMatchCandidateStore((e) => e.selectTime);
+  const minuteRef = useRef<HTMLInputElement>(null);
+  const hourRef = useRef<HTMLInputElement>(null);
+  const secondRef = useRef<HTMLInputElement>(null);
+
   return (
-    <Select value={time} onValueChange={(e) => selectTime(e)}>
-      <SelectTrigger className="!h-[40px]  w-[150px] text-secondary-foreground font-medium px-[16px]">
-        <SelectValue placeholder="매칭 시간" />
-      </SelectTrigger>
-      <SelectContent>
-        {[...Array(12)]
-          .map((_, i) => {
-            return i + 12;
-          })
-          .map((i) => (
-            <SelectItem key={i} value={`${i}`}>
-              <div>{i}시</div>
-            </SelectItem>
-          ))}
-      </SelectContent>
-    </Select>
+    <div className="flex items-end gap-2">
+      <TimePickerInput
+        picker="hours"
+        date={time}
+        setDate={selectTime}
+        ref={hourRef}
+        onRightFocus={() => minuteRef.current?.focus()}
+      />
+      시
+      <TimePickerInput
+        picker="minutes"
+        date={time}
+        setDate={selectTime}
+        ref={minuteRef}
+        onLeftFocus={() => hourRef.current?.focus()}
+        onRightFocus={() => secondRef.current?.focus()}
+      />
+      분
+      <TimePickerInput
+        picker="seconds"
+        date={time}
+        setDate={selectTime}
+        ref={secondRef}
+        onLeftFocus={() => minuteRef.current?.focus()}
+      />
+      초
+    </div>
   );
 }
 
