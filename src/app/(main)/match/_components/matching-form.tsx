@@ -84,11 +84,6 @@ function DateSelect() {
           mode="single"
           selected={date}
           onSelect={(e) => selectDate(e)}
-          disabled={(date) => {
-            const now = new Date();
-            const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-            return date < startOfDay;
-          }}
           initialFocus
         />
       </PopoverContent>
