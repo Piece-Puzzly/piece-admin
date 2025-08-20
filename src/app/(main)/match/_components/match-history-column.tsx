@@ -36,7 +36,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
     accessorKey: "date",
     header: "매칭 날짜",
     cell: ({ row }) => {
-      const date = row.original.matchDateTime.split("T")[0].replace("-", ".");
+      const date = row.original.matchDateTime.split("T")[0];
 
       return <div>{date}</div>;
     },

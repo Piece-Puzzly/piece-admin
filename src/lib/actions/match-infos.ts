@@ -1,7 +1,8 @@
 "use server";
 
 import { match_info, user_table } from "@prisma/client";
-import prisma from "./prisma";
+import { revalidatePath } from "next/cache";
+import prisma from "../prisma";
 
 // lib/actions/match-info.ts
 export type MatchHistoryPagination = {
@@ -133,4 +134,15 @@ export async function updateMatchInfoStatus(params: {
   });
 
   return updated;
+}
+
+// match id 받고 그 match id에 해당하는 행 삭제하는 함수
+export async function deleteMatchInfo(matchId: bigint | number) {
+  if (!matchId) throw new Error("matchId is required");
+
+  const deleted = await prisma.match_info.delete({
+    where: { id: matchId },
+  });
+  revalidatePath("/match-action");
+  return deleted;
 }
