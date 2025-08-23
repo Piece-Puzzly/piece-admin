@@ -10,7 +10,7 @@ export type MatchCandidateState = {
     { id: number; nickname: string } | undefined,
   ];
   selectedDate?: Date;
-  selectedTime?: string; //
+  selectedTime?: Date; //
   data: undefined | MatchCandidate[];
   page: number;
 };
@@ -18,7 +18,7 @@ export type MatchCandidateState = {
 export type MatchCandidateActions = {
   selectUser: (num: 0 | 1, info: { id: number; nickname: string }) => void;
   selectDate: (date: Date | undefined) => void;
-  selectTime: (time: string) => void;
+  selectTime: (time: Date | undefined) => void;
   update: (page: number) => Promise<void>;
   clear: () => void;
   match: () => Promise<void>;
@@ -29,6 +29,8 @@ export type MatchCandidateStore = MatchCandidateState & MatchCandidateActions;
 export const createMatchCandidateStore = (initState: MatchCandidateState) => {
   return createStore<MatchCandidateStore>()((set, get) => ({
     ...initState,
+    selectedDate: new Date(),
+    selectedTime: new Date(),
     selectUser: (num: 0 | 1, info: { id: number; nickname: string }) => {
       const { selectedUsers } = get();
       const result = cloneDeep(selectedUsers);
@@ -36,7 +38,7 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
       set({ selectedUsers: result });
     },
     selectDate: (date: Date | undefined) => set({ selectedDate: date }),
-    selectTime: (time: string) => {
+    selectTime: (time: Date | undefined) => {
       set({ selectedTime: time });
     },
 
@@ -74,11 +76,14 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
   }));
 };
 
-function makeDateTimeString(baseDate: Date, hourStr: string): string {
+function makeDateTimeString(baseDate: Date, hourStr: Date): string {
   const yyyy = baseDate.getFullYear();
   const mm = String(baseDate.getMonth() + 1).padStart(2, "0"); // getMonth()는 0~11
   const dd = String(baseDate.getDate()).padStart(2, "0");
-  const hour = hourStr.padStart(2, "0");
+  // 시,분,초
+  const hour = String(hourStr.getHours()).padStart(2, "0");
+  const minute = String(hourStr.getMinutes()).padStart(2, "0");
+  const second = String(hourStr.getSeconds()).padStart(2, "0");
 
-  return `${yyyy}-${mm}-${dd}T${hour}:00:00`;
+  return `${yyyy}-${mm}-${dd}T${hour}:${minute}:${second}`;
 }

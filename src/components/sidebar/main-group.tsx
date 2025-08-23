@@ -10,8 +10,14 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 
 export const navMain = [
   {
@@ -31,7 +37,21 @@ export const navMain = [
     ],
   },
   { url: "/match", title: "수동 매칭" },
-  { url: "/match-action", title: "매치 수락/거절" },
+  { url: "/match-action", title: "매치 수락/거절/삭제" },
+  {
+    url: "/user-list",
+    title: "유저 조회",
+    items: [
+      { url: "/user-list/role-none", title: "미인증 유저" },
+      { url: "/user-list/role-register", title: "프로필 미작성 유저" },
+      { url: "/user-list/role-pending", title: "심사 미완료 유저" },
+      { url: "/user-list/role-user", title: "정상 유저" },
+    ],
+  },
+  {
+    url: "/profile-stats",
+    title: "프로필 통계",
+  },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
@@ -48,56 +68,68 @@ export default function MainGroup() {
           const isSingleActive =
             pathname === item.url || pathname.startsWith(item.url + "/");
 
-          return (
-            <SidebarMenuItem key={item.url}>
-              {item.items?.length ? (
-                <>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    className={`text-base font-medium ${
-                      isParentActive ? "bg-accent text-foreground " : ""
-                    }`}
-                  >
-                    <span className="text-base">{item.title}</span>
-                  </SidebarMenuButton>
+          if (item.items?.length) {
+            return (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={isParentActive}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className={`font-medium `}
+                    >
+                      <span className="">{item.title}</span>
 
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => {
-                      const isActive = pathname === subItem.url;
-                      return (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            className={
-                              isActive ? "bg-accent text-foreground" : ""
-                            }
-                            onClick={() => setOpenMobile(false)}
-                          >
-                            <Link href={subItem.url}>
-                              <span className="text-base font-medium">
-                                {subItem.title}
-                              </span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      );
-                    })}
-                  </SidebarMenuSub>
-                </>
-              ) : (
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => {
+                        const isActive = pathname === subItem.url;
+                        return (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              className={
+                                isActive ? "bg-accent text-foreground" : ""
+                              }
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Link href={subItem.url}>
+                                <span className="font-medium">
+                                  {subItem.title}
+                                </span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            );
+          } else {
+            return (
+              <SidebarMenuItem key={item.url}>
                 <SidebarMenuButton
                   asChild
                   tooltip={item.title}
                   className={isSingleActive ? "bg-accent text-foreground" : ""}
+                  onClick={() => setOpenMobile(false)}
                 >
                   <Link href={item.url}>
-                    <span className="text-base font-medium">{item.title}</span>
+                    <span className="font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          );
+              </SidebarMenuItem>
+            );
+          }
         })}
       </SidebarMenu>
     </SidebarGroup>

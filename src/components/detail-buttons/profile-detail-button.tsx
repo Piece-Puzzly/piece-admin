@@ -84,10 +84,7 @@ export default function ProfileDetailButton({
         <Button
           variant="outline"
           disabled={!debug && userId == null}
-          className={cn(
-            "w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px]",
-            className
-          )}
+          className={cn("w-full flex justify-between  ", className)}
           {...props}
         >
           <div className="flex items-center gap-1">

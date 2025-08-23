@@ -111,7 +111,7 @@ function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
   const debug = useDebug((e) => e.debug);
   const form = useProfileTableStore((e) => e.form);
   return (
-    <div className="grid grid-cols-2 gap-x-2 h-[46px] min-w-[180px] items-center">
+    <div className="grid grid-cols-2 gap-x-2 min-w-[180px] items-center">
       {rejectionStatusInfo.map(({ label, key }) => (
         <FormField
           key={key}
@@ -124,7 +124,7 @@ function RejectStatusToggleGroup({ row }: { row: Row<Profile> }) {
                   onPressedChange={field.onChange}
                   pressed={field.value}
                   disabled={!debug && row.original.profileStatus === "통과"}
-                  className="h-[40px] md:h-[44px] px-3 py-[10px] leading-6 min-w-[80px]"
+                  className=" px-3 leading-6 min-w-[80px]"
                 >
                   {label}
                 </Toggle>
@@ -164,7 +164,7 @@ function SubmitButton({ row }: { row: Row<Profile> }) {
       }}
       disabled={loading || (!debug && row.original.profileStatus === "통과")}
       variant={"submit"}
-      className="h-[40px] md:h-[44px] w-full min-w-[80px]"
+      className=" w-full min-w-[80px]"
     >
       {loading ? <Loader className="animate-spin" /> : "제출"}
     </Button>

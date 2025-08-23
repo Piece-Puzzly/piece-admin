@@ -14,8 +14,8 @@ export default function UserInfoTrigger({
   userId,
   ...props
 }: {
-  userId: number | null;
-  nickname: string;
+  userId: number | bigint | null | undefined;
+  nickname: string | undefined;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <Dialog>
@@ -25,7 +25,8 @@ export default function UserInfoTrigger({
           <DialogTitle />
           <DialogDescription />
         </DialogHeader>
-        <div className="">{userId !== null && <UserInfo id={userId} />}</div>
+
+        <div className="">{userId && <UserInfo id={userId} />}</div>
       </DialogContent>
     </Dialog>
   );

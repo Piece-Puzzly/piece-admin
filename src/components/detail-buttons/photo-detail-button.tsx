@@ -57,7 +57,7 @@ export default function PhotoDetailButton({
         <Button
           variant="outline"
           disabled={!debug && id == null}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
+          className="w-full flex justify-between  "
         >
           <div>{nickname}</div>
           <ChevronRight />

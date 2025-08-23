@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { MatchHistoryResult } from "@/lib/match-infos";
+import { MatchHistoryResult } from "@/lib/actions/match-infos";
 import MatchInfoRow from "./match-info-row";
 import MatchPagination from "./match-pagination";
 
@@ -37,6 +37,7 @@ export function MatchInfoTable({
             <TableHead>상태 2</TableHead>
             <TableHead>날짜</TableHead>
             <TableHead>제출</TableHead>
+            <TableHead>삭제</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

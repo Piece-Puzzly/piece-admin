@@ -8,13 +8,18 @@ import {
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
-import { MatchHistoryRow, updateMatchInfoStatus } from "@/lib/match-infos";
+import {
+  MatchHistoryRow,
+  updateMatchInfoStatus,
+} from "@/lib/actions/match-infos";
 
 import {
   match_info_user_1_match_status,
   match_info_user_2_match_status,
 } from "@prisma/client";
+import { Loader } from "lucide-react";
 import { useState } from "react";
+import DeleteMatchButton from "./delete-match-button";
 
 const matchStatusOptions = [
   "UNCHECKED",
@@ -63,7 +68,7 @@ export default function MatchInfoRow({
             setUser1Status(value as match_info_user_1_match_status)
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-[36px]!">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>
@@ -93,7 +98,7 @@ export default function MatchInfoRow({
             setUser2Status(value as match_info_user_2_match_status)
           }
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-[36px]!">
             <SelectValue placeholder="상태 선택" />
           </SelectTrigger>
           <SelectContent>
@@ -106,7 +111,12 @@ export default function MatchInfoRow({
         </Select>
       </TableCell>
       <TableCell>
-        {match.date ? new Date(match.date).toLocaleString() : "-"}
+        {match.date
+          ? new Date(match.date).toLocaleString("ko-KR", {
+              timeZone: "UTC",
+              hour12: false,
+            })
+          : "-"}
       </TableCell>
       <TableCell>
         <Button
@@ -125,8 +135,11 @@ export default function MatchInfoRow({
           }}
           disabled={loading}
         >
-          {loading ? "제출 중..." : "제출"}
+          {loading ? <Loader className="animate-spin" /> : "제출"}
         </Button>
+      </TableCell>
+      <TableCell>
+        <DeleteMatchButton matchId={match.id} />
       </TableCell>
     </TableRow>
   );
