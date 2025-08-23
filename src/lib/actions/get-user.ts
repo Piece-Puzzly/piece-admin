@@ -53,11 +53,6 @@ export async function getUserAllInfo(user_id: bigint | number) {
           },
         },
       },
-      // blocked_contacts: true,
-      // match_info_match_info_user_1Touser_table: true,
-      // match_info_match_info_user_2Touser_table: true,
-      // report_report_reporter_user_idTouser_table: true,
-      // report_report_reported_user_idTouser_table: true,
       term_agreement: {
         include: {
           term: true,
