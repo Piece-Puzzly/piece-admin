@@ -58,7 +58,6 @@ export async function getUserAllInfo(user_id: bigint | number) {
           term: true,
         },
       },
-      // user_reject_history: true,
     },
   });
 
