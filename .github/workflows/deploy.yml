@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - dev # main 브랜치 푸시 시 실행
+      - prod # main 브랜치 푸시 시 실행
 
 concurrency:
   group: deploy-to-ec2
@@ -41,7 +41,7 @@ jobs:
             pm2 stop all
             pm2 delete all
             rm -rf piece-admin
-            git clone -b dev --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
+            git clone -b prod --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
             cp config/.env piece-admin/.env
             cd piece-admin
             npm install
