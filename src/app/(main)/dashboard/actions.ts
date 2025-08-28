@@ -1,78 +1,10 @@
 "use server";
 
+import { checkAuth } from "@/lib/actions/auth";
 import prisma from "@/lib/prisma";
 import { profile_profile_status } from "@prisma/client";
 
 // 데이터 객체 타입을 두 종류의 데이터를 포함하도록 확장합니다.
-export type DailyStat = {
-  date: string;
-  signups: number;
-  profiles: number;
-};
-
-export async function getDailyStats(): Promise<{
-  data: DailyStat[] | null;
-  error: string | null;
-}> {
-  try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const [userSignups, profileRegistrations] = await Promise.all([
-      // 1. First query (total signups) remains the same.
-      prisma.$queryRaw<{ date: Date; count: bigint }[]>`
-        SELECT DATE(created_at) as date, CAST(COUNT(*) AS UNSIGNED) as count 
-        FROM user_table 
-        WHERE created_at >= ${thirtyDaysAgo}
-        GROUP BY DATE(created_at)
-      `,
-
-      // ## 2. This is the modified query ##
-      // It now targets 'user_table' and filters for role = 'user'.
-      prisma.$queryRaw<{ date: Date; count: bigint }[]>`
-        SELECT DATE(created_at) as date, CAST(COUNT(*) AS UNSIGNED) as count 
-        FROM user_table
-        WHERE created_at >= ${thirtyDaysAgo} AND role = ${"user"}
-        GROUP BY DATE(created_at)
-      `,
-    ]);
-
-    const signupCounts = new Map<string, number>();
-    userSignups.forEach((item) =>
-      signupCounts.set(
-        item.date.toISOString().split("T")[0],
-        Number(item.count)
-      )
-    );
-
-    const profileCounts = new Map<string, number>();
-    profileRegistrations.forEach((item) =>
-      profileCounts.set(
-        item.date.toISOString().split("T")[0],
-        Number(item.count)
-      )
-    );
-
-    const allDates = Array.from({ length: 30 }).map((_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      return date.toISOString().split("T")[0];
-    });
-
-    const fullStats = allDates.map((dateStr) => ({
-      date: dateStr,
-      signups: signupCounts.get(dateStr) || 0,
-      profiles: profileCounts.get(dateStr) || 0,
-    }));
-
-    return { data: fullStats, error: null };
-  } catch (error) {
-    console.error("Failed to fetch daily stats:", error);
-    return { data: null, error: "데이터를 가져오는 데 실패했습니다." };
-  } finally {
-    await prisma.$disconnect();
-  }
-}
 
 export type RecentReport = {
   id: number;
@@ -88,6 +20,7 @@ export async function getRecentReports(): Promise<{
   data: RecentReport[] | null;
   error: string | null;
 }> {
+  await checkAuth();
   try {
     const reports = await prisma.report.findMany({
       orderBy: { created_at: "desc" },
@@ -126,6 +59,7 @@ export async function getIncompleteProfiles(): Promise<{
   data: IncompleteProfile[] | null;
   error: string | null;
 }> {
+  await checkAuth();
   try {
     const profiles = await prisma.profile.findMany({
       where: {
