@@ -20,6 +20,7 @@ import {
 } from "../ui/collapsible";
 
 export const navMain = [
+  { url: "/dashboard", title: "대시보드" },
   {
     url: "/profiles",
     title: "회원 프로필 심사",
