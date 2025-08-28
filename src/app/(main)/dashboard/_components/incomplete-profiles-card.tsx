@@ -51,6 +51,7 @@ export function IncompleteProfilesCard({
                           ?.name || ""
                       }
                     />
+                    
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {profile.createdAt
