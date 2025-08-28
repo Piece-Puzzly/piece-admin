@@ -1,6 +1,6 @@
 // app/match-info/page.tsx
 
-import { getMatchHistory } from "@/lib/match-infos";
+import { getMatchHistory } from "@/lib/actions/match-infos";
 import { MatchInfoTable } from "./_components/match-info-table";
 import { MatchSearchForm } from "./_components/match-search-form";
 export default async function MatchInfoPage({

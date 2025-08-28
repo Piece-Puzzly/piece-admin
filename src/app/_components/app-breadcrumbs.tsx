@@ -22,7 +22,7 @@ const segmentNameMap: Record<string, string> = {
   blocked: "차단",
   reported: "신고",
   match: "수동 매칭",
-  "match-action": "매치 수락/거절",
+  "match-action": "매치 수락/거절/삭제",
   tables: "테이블",
   "user-list": "유저 목록",
   "role-none": "미인증 유저",
@@ -30,6 +30,7 @@ const segmentNameMap: Record<string, string> = {
   "role-pending": "심사 미완료 유저",
   "role-user": "정상 유저",
   "profile-stats": "프로필 통계",
+  dashboard: "대시보드",
   // 필요한 경로명 추가
 };
 

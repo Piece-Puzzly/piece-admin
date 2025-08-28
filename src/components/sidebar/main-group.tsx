@@ -20,6 +20,7 @@ import {
 } from "../ui/collapsible";
 
 export const navMain = [
+  { url: "/dashboard", title: "대시보드" },
   {
     url: "/profiles",
     title: "회원 프로필 심사",
@@ -37,7 +38,7 @@ export const navMain = [
     ],
   },
   { url: "/match", title: "수동 매칭" },
-  { url: "/match-action", title: "매치 수락/거절" },
+  { url: "/match-action", title: "매치 수락/거절/삭제" },
   {
     url: "/user-list",
     title: "유저 조회",
