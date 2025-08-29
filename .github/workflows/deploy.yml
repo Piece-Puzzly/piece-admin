@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - prod # main 브랜치 푸시 시 실행
+      - prod
 
 concurrency:
   group: deploy-to-ec2
@@ -24,27 +24,27 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "[CLEANUP] Removing npm logs and temp files..."
-            rm -rf ~/.npm/_logs/*
-            rm -rf /tmp/*
+            echo "[CLEANUP] Cleaning old deployment..."
+            pm2 stop next-app || true
+            pm2 delete next-app || true
+            rm -rf ~/piece-admin
 
-            echo "[CLEANUP] Cleaning apt cache..."
-            sudo apt-get clean
-            sudo rm -rf /var/cache/apt/archives/*
+            echo "[DEPLOY] Cloning repo..."
+            git clone -b prod --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git ~/piece-admin
 
-            echo "[CLEANUP] Cleaning npm cache..."
-            npm cache clean --force
+            echo "[DEPLOY] Copying environment variables..."
+            cp ~/config/.env ~/piece-admin/.env
 
-            echo "[CLEANUP] Clearing pm2 logs..."
-            pm2 flush || true
+            cd ~/piece-admin
 
-            pm2 stop all
-            pm2 delete all
-            rm -rf piece-admin
-            git clone -b prod --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git
-            cp config/.env piece-admin/.env
-            cd piece-admin
-            npm install
+            echo "[DEPLOY] Installing dependencies..."
+            npm install --legacy-peer-deps
+
+            echo "[DEPLOY] Building Next.js..."
             npm run build
+
+            echo "[DEPLOY] Starting app with PM2..."
             pm2 start npm --name "next-app" -- start
             pm2 save
+
+            echo "[DEPLOY] Deployment completed!"
