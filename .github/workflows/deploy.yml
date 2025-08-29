@@ -25,7 +25,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e  # 오류 발생 시 즉시 종료
-
             echo "[CLEANUP] Cleaning old deployment..."
             pm2 stop next-app || true
             pm2 delete next-app || true
