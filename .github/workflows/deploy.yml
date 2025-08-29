@@ -24,13 +24,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e  # 오류 발생 시 즉시 종료
+
             echo "[CLEANUP] Cleaning old deployment..."
             pm2 stop next-app || true
             pm2 delete next-app || true
-            rm -rf ~/piece-admin
+            rm -rf ~/piece-admin || true
 
             echo "[DEPLOY] Cloning repo..."
-            git clone -b prod --single-branch https://singrum2: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@github.com/singrum2/piece-admin.git ~/piece-admin
+            git clone -b prod --single-branch https://${{ secrets.MY_GITHUB_PAT }}@github.com/singrum2/piece-admin.git ~/piece-admin
 
             echo "[DEPLOY] Copying environment variables..."
             cp ~/config/.env ~/piece-admin/.env
