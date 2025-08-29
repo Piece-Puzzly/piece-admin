@@ -30,6 +30,7 @@ jobs:
             pm2 delete next-app || true
             rm -rf ~/piece-admin || true
 
+
             echo "[DEPLOY] Cloning repo..."
             git clone -b prod --single-branch https://${{ secrets.MY_GITHUB_PAT }}@github.com/singrum2/piece-admin.git ~/piece-admin
 
