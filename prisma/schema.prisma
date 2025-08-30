@@ -228,14 +228,17 @@ model user_table {
   role                                       String?               @db.VarChar(255)
   profile_id                                 BigInt?               @unique(map: "UK6lo9rjcyf73jl027y72b32ya2")
   is_admin                                   Boolean?              @db.Bit(1)
+  puzzle_wallet_id                           BigInt?               @unique(map: "UK2kra4jh2hfhe04vwvaolcin47")
   blocked_contacts                           blocked_contacts[]
   match_info_match_info_user_2Touser_table   match_info[]          @relation("match_info_user_2Touser_table")
   match_info_match_info_user_1Touser_table   match_info[]          @relation("match_info_user_1Touser_table")
+  payments                                   payments[]
   report_report_reporter_user_idTouser_table report[]              @relation("report_reporter_user_idTouser_table")
   report_report_reported_user_idTouser_table report[]              @relation("report_reported_user_idTouser_table")
   term_agreement                             term_agreement[]
   user_reject_history                        user_reject_history[]
   profile                                    profile?              @relation(fields: [profile_id], references: [profile_id], onDelete: NoAction, onUpdate: NoAction, map: "FK9onylk6purvx1i2lxyemux6hx")
+  puzzle_wallet                              puzzle_wallet?        @relation(fields: [puzzle_wallet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKqwmyr779540a0euita0wq377u")
 }
 
 model value_pick {
@@ -255,6 +258,70 @@ model value_talk {
   placeholder        String?              @db.VarChar(255)
   title              String               @db.VarChar(255)
   profile_value_talk profile_value_talk[]
+}
+
+model cash_products {
+  cash_product_id     BigInt    @id @default(autoincrement())
+  created_at          DateTime? @db.DateTime(6)
+  updated_at          DateTime? @db.DateTime(6)
+  discount_rate       Decimal   @db.Decimal(5, 2)
+  is_active           Boolean   @db.Bit(1)
+  name                String    @db.VarChar(255)
+  amount              Decimal?  @db.Decimal(38, 2)
+  currency            String?   @db.VarChar(3)
+  reward_puzzle_count BigInt?
+  uuid                String    @unique(map: "UK2lknwh9due4qexkqwwam5j9ua") @db.VarChar(255)
+}
+
+model daily_kpi {
+  id                            BigInt    @id @default(autoincrement())
+  created_at                    DateTime? @db.DateTime(6)
+  updated_at                    DateTime? @db.DateTime(6)
+  accepted_match_user_count     BigInt?
+  blocked_match_user_count      BigInt?
+  checked_match_user_count      BigInt?
+  created_match_count           BigInt?
+  mutually_accepted_match_count BigInt?
+  refused_match_user_count      BigInt?
+  unchecked_match_user_count    BigInt?
+  target_date                   DateTime  @unique(map: "UKbvceqvfxx2oaf32ah1f62t2w5") @db.Date
+  active_user_count             BigInt?
+  approved_profile_user_count   BigInt?
+  created_profile_user_count    BigInt?
+  new_user_count                BigInt?
+  register_status_user_count    BigInt?
+}
+
+model in_app_payments {
+  in_app_store        in_app_payments_in_app_store
+  product_uuid        String                       @db.VarChar(255)
+  purchase_credential String                       @db.TinyText
+  purchase_id         String                       @unique(map: "UKnaj9ak54diks5basxqakh05ka") @db.VarChar(255)
+  payment_id          BigInt                       @id
+  payments            payments                     @relation(fields: [payment_id], references: [payment_id], onDelete: NoAction, onUpdate: NoAction, map: "FKrg7wlvv67gr1vaws6chdc7qu1")
+}
+
+model payments {
+  payment_type    String                   @db.VarChar(31)
+  payment_id      BigInt                   @id @default(autoincrement())
+  created_at      DateTime?                @db.DateTime(6)
+  updated_at      DateTime?                @db.DateTime(6)
+  amount          Decimal?                 @db.Decimal(38, 2)
+  currency        String?                  @db.VarChar(3)
+  payment_status  payments_payment_status?
+  type            payments_type?
+  user_user_id    BigInt?
+  in_app_payments in_app_payments?
+  user_table      user_table?              @relation(fields: [user_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "FK67qqct2gcrajr7cphc3rpdj01")
+
+  @@index([user_user_id], map: "FK67qqct2gcrajr7cphc3rpdj01")
+}
+
+model puzzle_wallet {
+  id           BigInt      @id @default(autoincrement())
+  puzzle_count BigInt      @default(0)
+  version      BigInt?
+  user_table   user_table?
 }
 
 enum match_info_user_1_match_status {
@@ -296,3 +363,17 @@ enum profile_profile_status {
   REVISED
 }
 
+enum in_app_payments_in_app_store {
+  APP_STORE
+  PLAY_STORE
+}
+
+enum payments_payment_status {
+  COMPLETED
+  PENDING
+  REFUNDED
+}
+
+enum payments_type {
+  IN_APP
+}
