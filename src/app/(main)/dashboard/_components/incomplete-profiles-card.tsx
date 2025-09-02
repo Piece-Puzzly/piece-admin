@@ -28,7 +28,7 @@ export function IncompleteProfilesCard({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>사용자</TableHead>
+              <TableHead>유저</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="text-right">프로필 생성일</TableHead>
             </TableRow>
@@ -51,7 +51,6 @@ export function IncompleteProfilesCard({
                           ?.name || ""
                       }
                     />
-                    
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {profile.createdAt

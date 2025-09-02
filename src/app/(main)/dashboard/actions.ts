@@ -98,6 +98,7 @@ export async function getIncompleteProfiles(): Promise<{
   }
 }
 export async function getProfilesWithPendingImages() {
+  await checkAuth();
   try {
     const profiles = await prisma.profile.findMany({
       where: {
