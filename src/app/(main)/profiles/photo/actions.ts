@@ -1,5 +1,6 @@
 "use server";
 
+import { checkAuth } from "@/lib/actions/auth";
 import prisma from "@/lib/prisma";
 import { Prisma, profile_image_status } from "@prisma/client";
 
@@ -21,6 +22,7 @@ function isImageStatus(value: string): value is profile_image_status {
 }
 
 export async function getProfileImages(params: GetProfileImagesParams) {
+  await checkAuth();
   try {
     const {
       page = 1,

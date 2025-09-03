@@ -1,5 +1,6 @@
 "use server";
 
+import { checkAuth } from "@/lib/actions/auth";
 import prisma from "@/lib/prisma"; // prisma 클라이언트 경로는 프로젝트에 맞게 수정해주세요.
 import { Prisma, profile_profile_status } from "@prisma/client";
 import { InitialData } from "./types";
@@ -24,6 +25,7 @@ function isUserTableSortableKey(key: string): key is UserTableSortableKeys {
 }
 
 export async function getUsers(params: GetUsersParams): Promise<InitialData> {
+  await checkAuth();
   try {
     const {
       page = 1,
