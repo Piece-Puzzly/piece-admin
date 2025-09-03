@@ -1,5 +1,3 @@
-import { user_table } from "@prisma/client";
-
 export const profileStatusInfo = [
   { key: "REJECTED", value: "보류", name: "반려", color: "#FF3059" },
   { key: "INCOMPLETE", value: "미완료", name: "미완료", color: "#6F00FB" },
@@ -20,6 +18,9 @@ export const roleNameMap: Record<string, string> = {
   PENDING: "심사 미완료",
   USER: "정상",
 };
-export const ruleColumnsMap: Record<string, keyof user_table | "nickname"> = {
-  
-};
+
+export const imageStatusOptions = [
+  { key: "PENDING", label: "심사 필요", color: "#6F00FB" },
+  { key: "ACCEPTED", label: "승인됨", color: "#CBD1D9" },
+  { key: "REJECTED", label: "거절됨", color: "#FF3059" },
+] as const;
