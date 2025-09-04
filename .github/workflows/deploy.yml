@@ -32,7 +32,7 @@ jobs:
 
 
             echo "[DEPLOY] Cloning repo..."
-            git clone -b prod --single-branch https://${{ secrets.MY_GITHUB_PAT }}@github.com/singrum2/piece-admin.git ~/piece-admin
+            git clone -b prod --single-branch https://git:${{ secrets.MY_GITHUB_PAT }}@github.com/singrum2/piece-admin.git ~/piece-admin
 
             echo "[DEPLOY] Copying environment variables..."
             cp ~/config/.env ~/piece-admin/.env
