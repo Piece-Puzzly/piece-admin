@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "./auth-options";
 
+import { revalidatePath } from "next/cache";
 import {
   BlockedUsersResponses,
   MatchCandidateResponse,
@@ -92,7 +93,7 @@ export async function updateProfileStatus(
   );
 
   const response_json = await response.json();
-
+  revalidatePath("/profiles/profile");
   return response_json;
 }
 
@@ -261,6 +262,7 @@ export async function UpdateProfileImageStatus(
   );
 
   const response_json = await response.json();
+  revalidatePath("/profiles/photo");
 
   return response_json;
 }

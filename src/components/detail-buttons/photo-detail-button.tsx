@@ -1,6 +1,5 @@
 "use client";
 
-import UpdateProfileImageToggle from "@/app/(main)/profiles/photo/_components/update-profile-image-toggle";
 import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +16,9 @@ import {
   UpdateProfileImageStatus,
 } from "@/lib/server";
 
+import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
 import { Photo } from "@/lib/types";
+import { profile_image_status } from "@prisma/client";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
@@ -35,6 +36,8 @@ export default function PhotoDetailButton({
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
+  const [reviewDecision, setReviewDecision] =
+    useState<profile_image_status>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
 
@@ -54,12 +57,11 @@ export default function PhotoDetailButton({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          disabled={!debug && id == null}
-          className="w-full flex justify-between  "
-        >
-          <div>{nickname}</div>
+        <Button variant="outline" className="w-full flex justify-between ">
+          <div className="flex gap-2">
+            <div className="text-muted-foreground">[{id}]</div>
+            <div>{nickname}</div>
+          </div>
           <ChevronRight />
         </Button>
       </DialogTrigger>
@@ -98,9 +100,13 @@ export default function PhotoDetailButton({
                 </div>
 
                 <div className="flex gap-[24px] w-full md:w-auto items-center">
-                  <UpdateProfileImageToggle
-                    profileImageStatus={profileImageStatus!}
-                    rawData={content}
+                  <UpdateProfileImageToggles
+                    currentStatus={reviewDecision}
+                    onStatusChange={setReviewDecision}
+                    disabled={
+                      content.pendingProfileImage.profileImageStatus !==
+                        "PENDING" && !debug
+                    }
                   />
                   <Button
                     variant="submit"

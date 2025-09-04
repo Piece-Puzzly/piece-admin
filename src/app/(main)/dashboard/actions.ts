@@ -97,3 +97,61 @@ export async function getIncompleteProfiles(): Promise<{
     };
   }
 }
+export async function getProfilesWithPendingImages() {
+  await checkAuth();
+  try {
+    const profiles = await prisma.profile.findMany({
+      where: {
+        profile_image: {
+          some: {
+            status: "PENDING",
+          },
+        },
+        user_table: {
+          isNot: null,
+        },
+      },
+      select: {
+        nickname: true,
+        user_table: {
+          select: {
+            user_id: true,
+          },
+        },
+        profile_image: {
+          select: {
+            image_url: true,
+            status: true,
+            created_at: true,
+          },
+          orderBy: {
+            created_at: "asc",
+          },
+        },
+      },
+    });
+
+    const result = profiles.map((profile) => {
+      const userId = profile.user_table!.user_id;
+      const pendingImages = profile.profile_image.filter(
+        (img) => img.status === "PENDING" && img.image_url
+      );
+
+      const changeTimestamp =
+        pendingImages.length > 0 ? pendingImages[0].created_at : null;
+      return {
+        userId: userId,
+        nickname: profile.nickname,
+        changeTimestamp: changeTimestamp,
+        newImages: profile.profile_image
+          .filter((img) => img.status === "PENDING" && img.image_url)
+          .map((img) => img.image_url!),
+      };
+    });
+
+    return { data: result };
+  } catch (error) {
+    console.error("Failed to fetch profiles with pending images:", error);
+    return { data: [], error: "데이터를 불러오는 데 실패했습니다." };
+  }
+}
