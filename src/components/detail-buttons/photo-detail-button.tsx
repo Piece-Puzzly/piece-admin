@@ -40,7 +40,7 @@ export default function PhotoDetailButton({
     useState<profile_image_status>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
-
+    console.log(res);
     if (!res.data) {
       toast.error(JSON.stringify(res));
     }
@@ -112,16 +112,12 @@ export default function PhotoDetailButton({
                     variant="submit"
                     className=" py-[10px] px-[12px] h-[40px] md:h-[44px] w-[76px]"
                     disabled={
-                      loading || (!debug && profileImageStatus !== "PENDING")
+                      loading ||
+                      (!debug &&
+                        (profileImageStatus !== "PENDING" ||
+                          reviewDecision === "PENDING"))
                     }
                     onClick={async () => {
-                      if (
-                        content.pendingProfileImage!.profileImageStatus ===
-                        "PENDING"
-                      ) {
-                        toast.error("반려/통과 여부를 체크해주세요!");
-                        return;
-                      }
                       setLoading(true);
                       const profileImageId =
                         content.pendingProfileImage!.profileImageId;
