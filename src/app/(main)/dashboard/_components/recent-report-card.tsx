@@ -8,6 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
+import { toLocaleDateString } from "@/lib/utils";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import type { RecentReport } from "../actions";
 // 1. UserInfoButton을 import 합니다.
 
@@ -19,7 +22,12 @@ export function RecentReportsCard({ reports }: RecentReportsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>최근 신고 내역(5개)</CardTitle>
+        <CardTitle>
+          최근 신고 내역(5개)
+          <Link href="/report/reported" className="inline-flex">
+            <ArrowUpRight className="size-4 ml-2" />
+          </Link>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
@@ -37,10 +45,7 @@ export function RecentReportsCard({ reports }: RecentReportsCardProps) {
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">
                     {report.createdAt
-                      ? new Date(report.createdAt).toLocaleDateString("ko-KR", {
-                          timeZone: "UTC",
-                          hour12: false,
-                        })
+                      ? toLocaleDateString(report.createdAt)
                       : "-"}
                   </TableCell>
 

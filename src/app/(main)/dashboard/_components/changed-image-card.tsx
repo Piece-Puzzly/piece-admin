@@ -10,7 +10,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 // 컴포넌트가 받을 props의 데이터 타입 정의
 type ChangedImageData = {
@@ -29,7 +31,12 @@ export function ChangedImageCard({ profiles }: ChangedImageCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>이미지 변경 요청</CardTitle>
+        <CardTitle>
+          이미지 변경 요청
+          <Link href="/profiles/photo?status=PENDING" className="inline-flex">
+            <ArrowUpRight className="size-4 ml-2" />
+          </Link>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

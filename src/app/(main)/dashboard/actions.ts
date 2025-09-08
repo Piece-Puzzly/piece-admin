@@ -2,6 +2,7 @@
 
 import { checkAuth } from "@/lib/actions/auth";
 import prisma from "@/lib/prisma";
+import type { daily_kpi as DailyKpi } from "@prisma/client";
 import { profile_profile_status } from "@prisma/client";
 
 // 데이터 객체 타입을 두 종류의 데이터를 포함하도록 확장합니다.
@@ -153,5 +154,61 @@ export async function getProfilesWithPendingImages() {
   } catch (error) {
     console.error("Failed to fetch profiles with pending images:", error);
     return { data: [], error: "데이터를 불러오는 데 실패했습니다." };
+  }
+}
+
+/**
+ * DailyKpi 모델에서 BigInt 필드를 number로 변환한 타입입니다.
+ * 서버에서 클라이언트로 데이터를 전달할 때 JSON 직렬화를 위해 사용됩니다.
+ */
+export type KpiData = {
+  [K in keyof DailyKpi]: DailyKpi[K] extends bigint | bigint | null
+    ? number
+    : DailyKpi[K];
+};
+
+// BigInt를 number로 변환하는 헬퍼 함수
+const convertBigInts = (data: DailyKpi | null): KpiData | null => {
+  if (!data) return null;
+
+  const result: { [key: string]: unknown } = {};
+  for (const key in data) {
+    const value = data[key as keyof DailyKpi];
+    if (typeof value === "bigint") {
+      result[key] = Number(value);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result as KpiData;
+};
+
+// getDailyKpi 함수의 반환 타입을 명시적으로 지정합니다.
+export async function getRecentKpiHistory(): Promise<{
+  data: KpiData[] | null;
+  error: string | null;
+}> {
+  try {
+    const historyData: DailyKpi[] = await prisma.daily_kpi.findMany({
+      orderBy: {
+        target_date: "desc", // 최신 날짜부터 정렬
+      },
+      take: 5, // 5개만 가져오기
+    });
+
+    // 각 데이터를 BigInt에서 number로 변환
+    const convertedHistory = historyData.map(convertBigInts);
+
+    return {
+      // convertBigInts가 null을 반환할 수 있으므로, filter로 null 값을 제거합니다.
+      data: convertedHistory.filter((item): item is KpiData => item !== null),
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error fetching recent KPI history:", error);
+    return {
+      data: null,
+      error: "최근 KPI 기록을 가져오는 데 실패했습니다.",
+    };
   }
 }
