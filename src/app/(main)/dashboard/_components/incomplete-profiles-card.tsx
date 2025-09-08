@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
 import { profileStatusInfo } from "@/lib/constants";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import type { IncompleteProfile } from "../actions";
 
 interface IncompleteProfilesCardProps {
@@ -22,7 +24,15 @@ export function IncompleteProfilesCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>심사가 필요한 프로필</CardTitle>
+        <CardTitle>
+          심사가 필요한 프로필
+          <Link
+            href="/profiles/profile?status=NEEDS_REVIEW"
+            className="inline-flex"
+          >
+            <ArrowUpRight className="size-4 ml-2" />
+          </Link>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
