@@ -25,12 +25,13 @@ export async function getRecentReports(): Promise<{
   try {
     const reports = await prisma.report.findMany({
       orderBy: { created_at: "desc" },
-      take: 10,
+      take: 5,
       include: {
         user_table_report_reporter_user_idTouser_table: true,
         user_table_report_reported_user_idTouser_table: true,
       },
     });
+    
 
     const formattedData: RecentReport[] = reports.map((report) => ({
       // 2. 반환되는 객체에 ID들을 추가하고, BigInt를 Number로 변환합니다.
