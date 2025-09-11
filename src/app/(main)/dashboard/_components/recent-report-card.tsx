@@ -16,9 +16,13 @@ import type { RecentReport } from "../actions";
 
 interface RecentReportsCardProps {
   reports: RecentReport[] | null;
+  reportsError: string | null;
 }
 
-export function RecentReportsCard({ reports }: RecentReportsCardProps) {
+export function RecentReportsCard({
+  reports,
+  reportsError,
+}: RecentReportsCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -40,42 +44,46 @@ export function RecentReportsCard({ reports }: RecentReportsCardProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reports && reports.length > 0 ? (
-              reports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell className="font-medium">
-                    {report.createdAt
-                      ? toLocaleDateString(report.createdAt)
-                      : "-"}
-                  </TableCell>
+            {reports ? (
+              reports.length > 0 ? (
+                reports.map((report) => (
+                  <TableRow key={report.id}>
+                    <TableCell className="font-medium">
+                      {report.createdAt
+                        ? toLocaleDateString(report.createdAt)
+                        : "-"}
+                    </TableCell>
 
-                  {/* 2. '신고자' 셀의 내용을 UserInfoButton으로 교체합니다. */}
-                  <TableCell>
-                    <UserInfoButton
-                      userId={report.reporterId}
-                      nickname={report.reporter || undefined}
-                    />
-                  </TableCell>
+                    {/* 2. '신고자' 셀의 내용을 UserInfoButton으로 교체합니다. */}
+                    <TableCell>
+                      <UserInfoButton
+                        userId={report.reporterId}
+                        nickname={report.reporter || undefined}
+                      />
+                    </TableCell>
 
-                  {/* 3. '신고 대상' 셀의 내용을 UserInfoButton으로 교체합니다. */}
-                  <TableCell>
-                    <UserInfoButton
-                      userId={report.reportedUserId}
-                      nickname={report.reportedUser || undefined}
-                    />
-                  </TableCell>
+                    {/* 3. '신고 대상' 셀의 내용을 UserInfoButton으로 교체합니다. */}
+                    <TableCell>
+                      <UserInfoButton
+                        userId={report.reportedUserId}
+                        nickname={report.reportedUser || undefined}
+                      />
+                    </TableCell>
 
-                  <TableCell className="text-right truncate max-w-xs">
-                    {report.reason || "사유 없음"}
+                    <TableCell className="text-right truncate max-w-xs">
+                      {report.reason || "사유 없음"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    최근 신고 내역이 없습니다.
                   </TableCell>
                 </TableRow>
-              ))
+              )
             ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  최근 신고 내역이 없습니다.
-                </TableCell>
-              </TableRow>
+              reportsError
             )}
           </TableBody>
         </Table>

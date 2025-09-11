@@ -16,7 +16,6 @@ export type RecentReport = {
   reportedUser: string | null;
   reportedUserId: number; // 신고 대상 ID 추가
 };
-
 export async function getRecentReports(): Promise<{
   data: RecentReport[] | null;
   error: string | null;
@@ -27,22 +26,39 @@ export async function getRecentReports(): Promise<{
       orderBy: { created_at: "desc" },
       take: 5,
       include: {
-        user_table_report_reporter_user_idTouser_table: true,
-        user_table_report_reported_user_idTouser_table: true,
+        // user_table과 함께 관련된 profile 정보까지 포함시킵니다.
+        user_table_report_reporter_user_idTouser_table: {
+          include: {
+            profile: { select: { nickname: true } },
+          },
+        },
+        user_table_report_reported_user_idTouser_table: {
+          include: {
+            profile: { select: { nickname: true } },
+          },
+        },
       },
     });
-    
 
-    const formattedData: RecentReport[] = reports.map((report) => ({
-      // 2. 반환되는 객체에 ID들을 추가하고, BigInt를 Number로 변환합니다.
-      id: Number(report.report_id),
-      reason: report.reason,
-      createdAt: report.created_at,
-      reporter: report.user_table_report_reporter_user_idTouser_table.name,
-      reporterId: Number(report.reporter_user_id), // 신고자 ID 추가
-      reportedUser: report.user_table_report_reported_user_idTouser_table.name,
-      reportedUserId: Number(report.reported_user_id), // 신고 대상 ID 추가
-    }));
+    const formattedData: RecentReport[] = reports.map((report) => {
+      // 신고자(reporter)의 닉네임을 가져옵니다. profile이나 nickname이 없을 경우를 대비해 user_table의 name을 fallback으로 사용합니다.
+      const reporterNickname =
+        report.user_table_report_reporter_user_idTouser_table.profile?.nickname;
+
+      // 신고된 사용자(reportedUser)의 닉네임을 가져옵니다.
+      const reportedUserNickname =
+        report.user_table_report_reported_user_idTouser_table.profile?.nickname;
+
+      return {
+        id: Number(report.report_id),
+        reason: report.reason,
+        createdAt: report.created_at,
+        reporter: reporterNickname || null, // 수정된 부분
+        reporterId: Number(report.reporter_user_id),
+        reportedUser: reportedUserNickname || null, // 수정된 부분
+        reportedUserId: Number(report.reported_user_id),
+      };
+    });
 
     return { data: formattedData, error: null };
   } catch (error) {

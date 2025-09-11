@@ -16,7 +16,7 @@ import {
 export default async function DashboardPage() {
   // Promise.all에 새로운 액션 호출을 추가합니다.
   const [
-    { data: reports },
+    { data: reports, error: reportsError },
     { data: incompleteProfiles },
     { data: changedImageProfiles }, // 결과를 받을 변수 추가
     { data: kpiData }, // 결과를 받을 변수 추가
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       <KpiHistoryTable history={kpiData} />
       <IncompleteProfilesCard profiles={incompleteProfiles} />
       <ChangedImageCard profiles={changedImageProfiles} />
-      <RecentReportsCard reports={reports} />
+      <RecentReportsCard reports={reports} reportsError={reportsError} />
     </div>
   );
 }
