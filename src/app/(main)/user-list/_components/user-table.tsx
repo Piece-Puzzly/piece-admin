@@ -7,12 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table"; // shadcn/ui Table 컴포넌트 import
 import UserInfoButton from "@/components/user-info/user-info-button";
-import { user_table } from "@prisma/client";
-
-// 기존과 동일한 타입 정의
-type UserWithProfile = user_table & {
-  profile?: { nickname?: string } | null;
-};
+import { UserWithProfile } from "./user-table-with-pagination";
 
 interface UserTableProps {
   users: UserWithProfile[];
@@ -44,7 +39,7 @@ export default function UserTable({ users }: UserTableProps) {
             <TableCell className="font-medium">
               <UserInfoButton
                 userId={user.user_id}
-                nickname={user.profile?.nickname}
+                nickname={user.profile?.nickname || undefined}
               />
             </TableCell>
 
