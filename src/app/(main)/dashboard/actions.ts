@@ -5,17 +5,16 @@ import prisma from "@/lib/prisma";
 import type { daily_kpi as DailyKpi } from "@prisma/client";
 import { profile_profile_status } from "@prisma/client";
 
-// 데이터 객체 타입을 두 종류의 데이터를 포함하도록 확장합니다.
-
 export type RecentReport = {
   id: number;
   reason: string | null;
   createdAt: Date | null;
   reporter: string | null;
-  reporterId: number; // 신고자 ID 추가
+  reporterId: number;
   reportedUser: string | null;
-  reportedUserId: number; // 신고 대상 ID 추가
+  reportedUserId: number;
 };
+
 export async function getRecentReports(): Promise<{
   data: RecentReport[] | null;
   error: string | null;
@@ -25,15 +24,19 @@ export async function getRecentReports(): Promise<{
     const reports = await prisma.report.findMany({
       orderBy: { created_at: "desc" },
       take: 5,
-      include: {
-        // user_table과 함께 관련된 profile 정보까지 포함시킵니다.
+      select: {
+        report_id: true,
+        reason: true,
+        created_at: true,
+        reporter_user_id: true,
+        reported_user_id: true,
         user_table_report_reporter_user_idTouser_table: {
-          include: {
+          select: {
             profile: { select: { nickname: true } },
           },
         },
         user_table_report_reported_user_idTouser_table: {
-          include: {
+          select: {
             profile: { select: { nickname: true } },
           },
         },
@@ -41,21 +44,20 @@ export async function getRecentReports(): Promise<{
     });
 
     const formattedData: RecentReport[] = reports.map((report) => {
-      // 신고자(reporter)의 닉네임을 가져옵니다. profile이나 nickname이 없을 경우를 대비해 user_table의 name을 fallback으로 사용합니다.
       const reporterNickname =
-        report.user_table_report_reporter_user_idTouser_table.profile?.nickname;
-
-      // 신고된 사용자(reportedUser)의 닉네임을 가져옵니다.
+        report.user_table_report_reporter_user_idTouser_table?.profile
+          ?.nickname;
       const reportedUserNickname =
-        report.user_table_report_reported_user_idTouser_table.profile?.nickname;
+        report.user_table_report_reported_user_idTouser_table?.profile
+          ?.nickname;
 
       return {
         id: Number(report.report_id),
         reason: report.reason,
         createdAt: report.created_at,
-        reporter: reporterNickname || null, // 수정된 부분
+        reporter: reporterNickname || null,
         reporterId: Number(report.reporter_user_id),
-        reportedUser: reportedUserNickname || null, // 수정된 부분
+        reportedUser: reportedUserNickname || null,
         reportedUserId: Number(report.reported_user_id),
       };
     });
@@ -66,6 +68,7 @@ export async function getRecentReports(): Promise<{
     return { data: null, error: "신고 내역을 불러오는 데 실패했습니다." };
   }
 }
+
 export type IncompleteProfile = {
   profileId: number;
   createdAt: Date | null;
@@ -73,6 +76,7 @@ export type IncompleteProfile = {
   nickname: string | null;
   status: profile_profile_status | null;
 };
+
 export async function getIncompleteProfiles(): Promise<{
   data: IncompleteProfile[] | null;
   error: string | null;
@@ -81,7 +85,6 @@ export async function getIncompleteProfiles(): Promise<{
   try {
     const profiles = await prisma.profile.findMany({
       where: {
-        // 2. Use the 'in' operator to filter for both statuses.
         profile_status: {
           in: ["INCOMPLETE", "REVISED"],
         },
@@ -89,11 +92,15 @@ export async function getIncompleteProfiles(): Promise<{
           isNot: null,
         },
       },
-      orderBy: {
-        created_at: "asc",
-      },
-      include: {
-        user_table: true,
+      orderBy: { created_at: "asc" },
+      select: {
+        profile_id: true,
+        created_at: true,
+        nickname: true,
+        profile_status: true,
+        user_table: {
+          select: { user_id: true },
+        },
       },
     });
 
@@ -102,7 +109,6 @@ export async function getIncompleteProfiles(): Promise<{
       createdAt: profile.created_at,
       userId: Number(profile.user_table!.user_id),
       nickname: profile.nickname,
-      // 3. Pass the status in the formatted data.
       status: profile.profile_status,
     }));
 
@@ -115,15 +121,14 @@ export async function getIncompleteProfiles(): Promise<{
     };
   }
 }
+
 export async function getProfilesWithPendingImages() {
   await checkAuth();
   try {
     const profiles = await prisma.profile.findMany({
       where: {
         profile_image: {
-          some: {
-            status: "PENDING",
-          },
+          some: { status: "PENDING" },
         },
         user_table: {
           isNot: null,
@@ -132,9 +137,7 @@ export async function getProfilesWithPendingImages() {
       select: {
         nickname: true,
         user_table: {
-          select: {
-            user_id: true,
-          },
+          select: { user_id: true },
         },
         profile_image: {
           select: {
@@ -142,9 +145,7 @@ export async function getProfilesWithPendingImages() {
             status: true,
             created_at: true,
           },
-          orderBy: {
-            created_at: "asc",
-          },
+          orderBy: { created_at: "asc" },
         },
       },
     });
@@ -157,13 +158,12 @@ export async function getProfilesWithPendingImages() {
 
       const changeTimestamp =
         pendingImages.length > 0 ? pendingImages[0].created_at : null;
+
       return {
-        userId: userId,
+        userId,
         nickname: profile.nickname,
-        changeTimestamp: changeTimestamp,
-        newImages: profile.profile_image
-          .filter((img) => img.status === "PENDING" && img.image_url)
-          .map((img) => img.image_url!),
+        changeTimestamp,
+        newImages: pendingImages.map((img) => img.image_url!),
       };
     });
 
@@ -174,20 +174,14 @@ export async function getProfilesWithPendingImages() {
   }
 }
 
-/**
- * DailyKpi 모델에서 BigInt 필드를 number로 변환한 타입입니다.
- * 서버에서 클라이언트로 데이터를 전달할 때 JSON 직렬화를 위해 사용됩니다.
- */
 export type KpiData = {
   [K in keyof DailyKpi]: DailyKpi[K] extends bigint | bigint | null
     ? number
     : DailyKpi[K];
 };
 
-// BigInt를 number로 변환하는 헬퍼 함수
 const convertBigInts = (data: DailyKpi | null): KpiData | null => {
   if (!data) return null;
-
   const result: { [key: string]: unknown } = {};
   for (const key in data) {
     const value = data[key as keyof DailyKpi];
@@ -200,24 +194,19 @@ const convertBigInts = (data: DailyKpi | null): KpiData | null => {
   return result as KpiData;
 };
 
-// getDailyKpi 함수의 반환 타입을 명시적으로 지정합니다.
 export async function getRecentKpiHistory(): Promise<{
   data: KpiData[] | null;
   error: string | null;
 }> {
   try {
     const historyData: DailyKpi[] = await prisma.daily_kpi.findMany({
-      orderBy: {
-        target_date: "desc", // 최신 날짜부터 정렬
-      },
-      take: 5, // 5개만 가져오기
+      orderBy: { target_date: "desc" },
+      take: 5,
     });
 
-    // 각 데이터를 BigInt에서 number로 변환
     const convertedHistory = historyData.map(convertBigInts);
 
     return {
-      // convertBigInts가 null을 반환할 수 있으므로, filter로 null 값을 제거합니다.
       data: convertedHistory.filter((item): item is KpiData => item !== null),
       error: null,
     };
