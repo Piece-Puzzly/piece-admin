@@ -18,8 +18,18 @@ export default async function UserPage({
       where: whereClause,
       skip: (currentPage - 1) * USERS_PER_PAGE,
       take: USERS_PER_PAGE,
-      include: { profile: { select: { nickname: true } } },
+
       orderBy: { created_at: "desc" },
+      select: {
+        user_id: true,
+        phone: true,
+        created_at: true,
+        profile: {
+          select: {
+            nickname: true,
+          },
+        },
+      },
     }),
     prisma.user_table.count({ where: whereClause }),
   ]);

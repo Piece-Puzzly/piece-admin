@@ -1,13 +1,18 @@
 "use client";
 
-import { PaginationDisplay2 } from "@/components/pagination-display";
-import { user_table } from "@prisma/client";
+import { CustomPagination } from "@/components/custom-pagination";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import UserTable from "./user-table";
 
-type UserWithProfile = user_table & {
-  profile?: { nickname?: string } | null;
-};
+// 서버에서 select 해온 필드만 반영
+export interface UserWithProfile {
+  user_id: bigint;
+  phone: string | null;
+  created_at: Date | null;
+  profile?: {
+    nickname?: string | null;
+  } | null;
+}
 
 interface Props {
   users: UserWithProfile[];
@@ -37,7 +42,7 @@ export default function UserTableWithPagination({
   return (
     <div>
       <UserTable users={users} roleName={roleName} />
-      <PaginationDisplay2
+      <CustomPagination
         num={totalCount}
         onChangePage={handlePageChange}
         currPage={currentPage}
