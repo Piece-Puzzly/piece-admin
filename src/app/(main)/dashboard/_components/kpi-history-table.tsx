@@ -27,6 +27,7 @@ export function KpiHistoryTable({ history }: KpiHistoryTableProps) {
     <Card className="col-span-1 md:col-span-2">
       <CardHeader>
         <CardTitle>
+          
           KPI 최근 5일 기록
           <Link href="/tables/daily_kpi" className="inline-flex">
             <ArrowUpRight className="size-4 ml-2" />
