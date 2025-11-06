@@ -15,7 +15,7 @@ export default async function Page() {
     return JSON.stringify(res);
   } else
     return (
-      <div className="flex justify-center mt-[40px]">
+      <div className="flex justify-center ">
         <div className="space-y-[40px] mb-[86px] max-w-[1100px] w-full">
           <MatchHistoryTableStoreProvider data={res.data}>
             <MatchCandidateStoreProvider>

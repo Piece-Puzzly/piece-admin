@@ -1,6 +1,6 @@
 "use client";
 
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { BlockedUser } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -14,7 +14,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     cell: ({ row }) => {
       const nickname = row.original.BlockedUserNickname as string;
       const id = row.original.blockedUserId as number;
-      return <ProfileDetailButton userId={id} nickname={nickname} />;
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
 
@@ -34,7 +34,7 @@ export const columns: ColumnDef<BlockedUser>[] = [
     cell: ({ row }) => {
       const nickname = row.original.blockingUserNickname as string;
       const id = row.original.blockingUserId as number;
-      return <ProfileDetailButton userId={id} nickname={nickname} />;
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
   {

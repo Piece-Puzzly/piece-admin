@@ -1,6 +1,6 @@
 "use client";
 
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { ReportDetail } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -38,11 +38,7 @@ export const columns: ColumnDef<ReportDetail>[] = [
       const reporterUserId = row.original.reporterUserId;
 
       return (
-        <ProfileDetailButton
-          nickname={reporterNickName}
-          userId={reporterUserId}
-          disabled={true}
-        />
+        <UserInfoButton nickname={reporterNickName} userId={reporterUserId} />
       );
     },
   },

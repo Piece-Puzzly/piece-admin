@@ -166,3 +166,11 @@ export type MatchCandidateResponse = {
   status: string;
   data: { candidateList: MatchCandidate[] };
 };
+
+export type User = {
+  user_id: number;
+  profile: {
+    nickname: string;
+    image_url: string | null;
+  } | null;
+};
