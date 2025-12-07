@@ -41,18 +41,18 @@ export default function LoginForm() {
             <Input
               id="id"
               type="text"
-              className="w-full md:w-[432px]"
+              className="w-full md:w-[432px] h-12"
               placeholder="아이디를 입력하세요."
               {...register("id")}
             />
           </div>
-          <div className="space-y-[8px]">
+          <div className="space-y-[8px] ">
             <Label htmlFor="pw">비밀번호</Label>
             <Input
               id="pw"
               type="password"
               {...register("password")}
-              className="w-full md:w-[432px]"
+              className="w-full md:w-[432px] h-12"
               placeholder="비밀번호를 입력하세요."
             />
           </div>

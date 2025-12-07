@@ -38,10 +38,7 @@ export default function BanButton({
       <DialogTrigger asChild>
         <Button
           variant="submit"
-          className={cn(
-            "px-[12px] py-[10px] leading-[24px] h-[44px]",
-            className
-          )}
+          className={cn("px-[12px] leading-[24px] ", className)}
           {...props}
         >
           영구 정지
@@ -96,3 +93,4 @@ export default function BanButton({
     </Dialog>
   );
 }
+

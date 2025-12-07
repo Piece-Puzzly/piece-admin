@@ -1,12 +1,12 @@
 "use client";
 
-import UpdateProfileImageToggle from "@/app/(main)/profiles/photo/_components/update-profile-image-toggle";
 import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -16,11 +16,14 @@ import {
   UpdateProfileImageStatus,
 } from "@/lib/server";
 
+import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
 import { Photo } from "@/lib/types";
+import { profile_image_status } from "@prisma/client";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import UserInfoTrigger from "../user-info/user-info-trigger";
 
 export default function PhotoDetailButton({
   id,
@@ -33,9 +36,11 @@ export default function PhotoDetailButton({
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
+  const [reviewDecision, setReviewDecision] =
+    useState<profile_image_status>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
-
+    console.log(res);
     if (!res.data) {
       toast.error(JSON.stringify(res));
     }
@@ -52,12 +57,11 @@ export default function PhotoDetailButton({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          disabled={!debug && id == null}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
-        >
-          <div>{nickname}</div>
+        <Button variant="outline" className="w-full flex justify-between ">
+          <div className="flex gap-2">
+            <div className="text-muted-foreground">[{id}]</div>
+            <div>{nickname}</div>
+          </div>
           <ChevronRight />
         </Button>
       </DialogTrigger>
@@ -96,24 +100,24 @@ export default function PhotoDetailButton({
                 </div>
 
                 <div className="flex gap-[24px] w-full md:w-auto items-center">
-                  <UpdateProfileImageToggle
-                    profileImageStatus={profileImageStatus!}
-                    rawData={content}
+                  <UpdateProfileImageToggles
+                    currentStatus={reviewDecision}
+                    onStatusChange={setReviewDecision}
+                    disabled={
+                      content.pendingProfileImage.profileImageStatus !==
+                        "PENDING" && !debug
+                    }
                   />
                   <Button
                     variant="submit"
                     className=" py-[10px] px-[12px] h-[40px] md:h-[44px] w-[76px]"
                     disabled={
-                      loading || (!debug && profileImageStatus !== "PENDING")
+                      loading ||
+                      (!debug &&
+                        (profileImageStatus !== "PENDING" ||
+                          reviewDecision === "PENDING"))
                     }
                     onClick={async () => {
-                      if (
-                        content.pendingProfileImage!.profileImageStatus ===
-                        "PENDING"
-                      ) {
-                        toast.error("반려/통과 여부를 체크해주세요!");
-                        return;
-                      }
                       setLoading(true);
                       const profileImageId =
                         content.pendingProfileImage!.profileImageId;
@@ -152,6 +156,11 @@ export default function PhotoDetailButton({
         ) : (
           <div>loading</div>
         )}
+        <DialogFooter>
+          <UserInfoTrigger asChild userId={id} nickname={nickname}>
+            <Button variant={"outline"}>자세히 보기</Button>
+          </UserInfoTrigger>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

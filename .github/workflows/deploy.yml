@@ -1,0 +1,52 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - prod
+
+concurrency:
+  group: deploy-to-ec2
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e  # 오류 발생 시 즉시 종료
+            echo "[CLEANUP] Cleaning old deployment..."
+            pm2 stop next-app || true
+            pm2 delete next-app || true
+            rm -rf ~/piece-admin || true
+
+
+            echo "[DEPLOY] Cloning repo..."
+            git clone -b prod --single-branch https://git:${{ secrets.MY_GITHUB_PAT }}@github.com/singrum2/piece-admin.git ~/piece-admin
+
+            echo "[DEPLOY] Copying environment variables..."
+            cp ~/config/.env ~/piece-admin/.env
+
+            cd ~/piece-admin
+
+            echo "[DEPLOY] Installing dependencies..."
+            npm install --legacy-peer-deps
+
+            echo "[DEPLOY] Building Next.js..."
+            npm run build
+
+            echo "[DEPLOY] Starting app with PM2..."
+            pm2 start npm --name "next-app" -- start
+            pm2 save
+
+            echo "[DEPLOY] Deployment completed!"

@@ -10,7 +10,7 @@ import { Question } from "@/lib/types";
 
 export default function QuestionCard({ data }: { data: Question }) {
   return (
-    <Card className="px-[20px] py-[24px] gap-[20px] md:w-[375px] ">
+    <Card className="px-[20px] py-[24px] gap-[20px] md:w-[375px] break-all ">
       <CardHeader className="p-0">
         <CardTitle className="text-primary text-[14px]">{data.title}</CardTitle>
         <CardDescription className="text-lg text-gray-dark-1 font-medium">

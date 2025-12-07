@@ -75,6 +75,24 @@ export const createQueryString = (
       params.set(key, value);
     }
   }
-  
+
   return params.toString();
 };
+
+export function toLocaleString(date: Date | string | number): string {
+  if (typeof date === "string" || typeof date === "number") {
+    date = new Date(date);
+  }
+  return date.toLocaleString("ko-KR", {
+    timeZone: "UTC",
+  });
+}
+
+export function toLocaleDateString(date: Date | string | number): string {
+  if (typeof date === "string" || typeof date === "number") {
+    date = new Date(date);
+  }
+  return date.toLocaleDateString("ko-KR", {
+    timeZone: "UTC",
+  });
+}
