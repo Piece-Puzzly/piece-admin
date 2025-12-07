@@ -28,7 +28,7 @@ jobs:
             echo "[CLEANUP] Cleaning old deployment..."
             pm2 stop next-app || true
             pm2 delete next-app || true
-            rm -rf ~/piece-admin || true
+            sudo rm -rf ~/piece-admin || true
 
 
             echo "[DEPLOY] Cloning repo..."
