@@ -33,6 +33,14 @@ export const columns: ColumnDef<MatchHistory>[] = [
     },
   },
   {
+    accessorKey: "matchType",
+    header: "매칭 타입",
+    cell: ({ row }) => {
+      const matchType = row.original.matchType;
+      return <div className="capitalize">{matchType}</div>;
+    },
+  },
+  {
     accessorKey: "date",
     header: "매칭 날짜",
     cell: ({ row }) => {

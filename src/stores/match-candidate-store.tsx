@@ -10,7 +10,8 @@ export type MatchCandidateState = {
     { id: number; nickname: string } | undefined,
   ];
   selectedDate?: Date;
-  selectedTime?: Date; //
+  selectedTime?: Date;
+  matchType: string;
   data: undefined | MatchCandidate[];
   page: number;
 };
@@ -19,6 +20,7 @@ export type MatchCandidateActions = {
   selectUser: (num: 0 | 1, info: { id: number; nickname: string }) => void;
   selectDate: (date: Date | undefined) => void;
   selectTime: (time: Date | undefined) => void;
+  setMatchType: (type: string) => void;
   update: (page: number) => Promise<void>;
   clear: () => void;
   match: () => Promise<void>;
@@ -31,6 +33,7 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
     ...initState,
     selectedDate: new Date(),
     selectedTime: new Date(),
+    matchType: "basic",
     selectUser: (num: 0 | 1, info: { id: number; nickname: string }) => {
       const { selectedUsers } = get();
       const result = cloneDeep(selectedUsers);
@@ -38,9 +41,8 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
       set({ selectedUsers: result });
     },
     selectDate: (date: Date | undefined) => set({ selectedDate: date }),
-    selectTime: (time: Date | undefined) => {
-      set({ selectedTime: time });
-    },
+    selectTime: (time: Date | undefined) => set({ selectedTime: time }),
+    setMatchType: (type: string) => set({ matchType: type }),
 
     update: async (page: number) => {
       const res = await getMatchCandidate(page - 1);
@@ -55,7 +57,7 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
       set({ data: undefined, page: 1 });
     },
     match: async () => {
-      const { selectedUsers, selectedDate, selectedTime } = get();
+      const { selectedUsers, selectedDate, selectedTime, matchType } = get();
       if (!selectedUsers[0]) {
         toast("프로필A를 선택해주세요");
         return;
@@ -70,7 +72,7 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
         return;
       } else {
         const dateTime = makeDateTimeString(selectedDate, selectedTime);
-        await reserveMatch(selectedUsers[0].id, selectedUsers[1].id, dateTime);
+        await reserveMatch(selectedUsers[0].id, selectedUsers[1].id, dateTime, matchType);
       }
     },
   }));
