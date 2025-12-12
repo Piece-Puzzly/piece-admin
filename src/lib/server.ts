@@ -323,7 +323,8 @@ export async function getMatchCandidate(
 export async function reserveMatch(
   user1Id: number,
   user2Id: number,
-  dateTime: string
+  dateTime: string,
+  matchType: string
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -338,7 +339,7 @@ export async function reserveMatch(
         Authorization: `Bearer ${session?.accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user1Id, user2Id, dateTime }),
+      body: JSON.stringify({ user1Id, user2Id, dateTime, matchType }),
 
       cache: "no-store",
     }
