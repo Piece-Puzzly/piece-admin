@@ -111,9 +111,11 @@ export default function MatchInfoRow({
         </Select>
       </TableCell>
       <TableCell>
-        {match.date
-          ? new Date(match.date).toLocaleString("ko-KR", {
-              timeZone: "UTC",
+        <span className="capitalize">{match.match_type ?? "-"}</span>
+      </TableCell>
+      <TableCell>
+        {match.created_at
+          ? new Date(match.created_at).toLocaleString("ko-KR", {
               hour12: false,
             })
           : "-"}
