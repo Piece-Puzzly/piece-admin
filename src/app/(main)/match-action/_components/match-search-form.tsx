@@ -26,10 +26,12 @@ export function MatchSearchForm({
   defaultUser1Id = "",
   defaultUser2Id = "",
   defaultPageSize = "10",
+  basePath = "/match-action",
 }: {
   defaultUser1Id?: string;
   defaultUser2Id?: string;
   defaultPageSize?: string;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [user1Id, setUser1Id] = useState(defaultUser1Id);
@@ -49,7 +51,7 @@ export function MatchSearchForm({
     params.set("page", "1");
     params.set("pageSize", pageSize);
 
-    router.push(`/match-action?${params.toString()}`, { scroll });
+    router.push(`${basePath}?${params.toString()}`, { scroll });
   };
 
   const handlePageSizeChange = (value: string) => {
