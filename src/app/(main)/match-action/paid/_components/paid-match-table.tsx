@@ -35,11 +35,12 @@ export default function PaidMatchTable({
             <TableHead>매칭</TableHead>
             <TableHead>이미지</TableHead>
             <TableHead>연락처</TableHead>
-            <TableHead>제출</TableHead>
+            <TableHead>상태</TableHead>
             <TableHead>프로필 B</TableHead>
             <TableHead>매칭</TableHead>
             <TableHead>이미지</TableHead>
             <TableHead>연락처</TableHead>
+            <TableHead>상태</TableHead>
             <TableHead>제출</TableHead>
             <TableHead>타입</TableHead>
             <TableHead>날짜</TableHead>
@@ -49,7 +50,7 @@ export default function PaidMatchTable({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <td colSpan={14} className="text-center py-8 text-muted-foreground">
+              <td colSpan={15} className="text-center py-8 text-muted-foreground">
                 유료 매칭 데이터가 없습니다.
               </td>
             </TableRow>
