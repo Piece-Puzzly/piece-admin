@@ -7,6 +7,7 @@ import { MatchHistoryRow } from "@/lib/actions/match-infos";
 import { Loader } from "lucide-react";
 import { useState } from "react";
 import DeleteMatchButton from "../../_components/delete-match-button";
+import StatusPillSelect, { StatusValue } from "./status-pill-select";
 import StatusToggle from "./status-toggle";
 
 interface PaidMatchRowProps {
@@ -15,6 +16,7 @@ interface PaidMatchRowProps {
 
 export default function PaidMatchRow({ data: match }: PaidMatchRowProps) {
   const isTrial = match.match_type?.toUpperCase() === "TRIAL";
+  const isPremium = match.match_type?.toUpperCase() === "PREMIUM";
 
   // 유저 1 상태
   const [user1Match, setUser1Match] = useState(true);
@@ -26,37 +28,26 @@ export default function PaidMatchRow({ data: match }: PaidMatchRowProps) {
   const [user2Image, setUser2Image] = useState(false);
   const [user2Contact, setUser2Contact] = useState(false);
 
-  // 각 프로필별 로딩/제출 상태
-  const [loadingA, setLoadingA] = useState(false);
-  const [loadingB, setLoadingB] = useState(false);
-  const [submittedA, setSubmittedA] = useState(false);
-  const [submittedB, setSubmittedB] = useState(false);
+  // 유저별 상태 (드롭다운)
+  const [user1Status, setUser1Status] = useState<StatusValue>("UNCHECKED");
+  const [user2Status, setUser2Status] = useState<StatusValue>("ACCEPTED"); // B는 기본 그린라이트
 
-  const handleSubmitA = async () => {
-    setLoadingA(true);
+  // 로딩/제출 상태
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    setLoading(true);
     try {
       // TODO: 실제 업데이트 로직 구현
-      console.log("Submit A:", {
+      console.log("Submit:", {
         matchId: match.id,
-        user1: { match: user1Match, image: user1Image, contact: user1Contact },
+        user1: { match: user1Match, image: user1Image, contact: user1Contact, status: user1Status },
+        user2: { match: user2Match, image: user2Image, contact: user2Contact, status: user2Status },
       });
-      setSubmittedA(true);
+      setSubmitted(true);
     } finally {
-      setLoadingA(false);
-    }
-  };
-
-  const handleSubmitB = async () => {
-    setLoadingB(true);
-    try {
-      // TODO: 실제 업데이트 로직 구현
-      console.log("Submit B:", {
-        matchId: match.id,
-        user2: { match: user2Match, image: user2Image, contact: user2Contact },
-      });
-      setSubmittedB(true);
-    } finally {
-      setLoadingB(false);
+      setLoading(false);
     }
   };
 
@@ -78,23 +69,23 @@ export default function PaidMatchRow({ data: match }: PaidMatchRowProps) {
       {/* 유저 1 토글들 */}
       <TableCell>
         {isTrial ? (
-          <span className={submittedA ? "text-gray-400 font-medium" : "text-green-600 font-medium"}>무료</span>
+          <span className={submitted ? "text-gray-400 font-medium" : "font-medium"}>무료</span>
+        ) : isPremium ? (
+          <StatusToggle value={true} disabled={true} />
         ) : (
-          <StatusToggle value={user1Match} onChange={setUser1Match} disabled={submittedA} />
+          <StatusToggle value={user1Match} onChange={setUser1Match} disabled={submitted} />
         )}
       </TableCell>
       <TableCell>
-        <StatusToggle value={user1Image} onChange={setUser1Image} disabled={submittedA} />
+        <StatusToggle value={user1Image} onChange={setUser1Image} disabled={submitted} />
       </TableCell>
       <TableCell>
-        <StatusToggle value={user1Contact} onChange={setUser1Contact} disabled={submittedA} />
+        <StatusToggle value={user1Contact} onChange={setUser1Contact} disabled={submitted} />
       </TableCell>
 
-      {/* 제출 A */}
+      {/* 상태 A */}
       <TableCell>
-        <Button size="sm" onClick={handleSubmitA} disabled={loadingA || submittedA}>
-          {loadingA ? <Loader className="w-4 h-4 animate-spin" /> : submittedA ? "완료" : "제출"}
-        </Button>
+        <StatusPillSelect value={user1Status} onChange={setUser1Status} disabled={submitted} />
       </TableCell>
 
       {/* 프로필 B */}
@@ -111,22 +102,29 @@ export default function PaidMatchRow({ data: match }: PaidMatchRowProps) {
       {/* 유저 2 토글들 */}
       <TableCell>
         {isTrial ? (
-          <span className={submittedB ? "text-gray-400 font-medium" : "text-green-600 font-medium"}>무료</span>
+          <span className={submitted ? "text-gray-400 font-medium" : "font-medium"}>무료</span>
+        ) : isPremium ? (
+          <StatusToggle value={true} disabled={true} />
         ) : (
-          <StatusToggle value={user2Match} onChange={setUser2Match} disabled={submittedB} />
+          <StatusToggle value={user2Match} onChange={setUser2Match} disabled={submitted} />
         )}
       </TableCell>
       <TableCell>
-        <StatusToggle value={user2Image} onChange={setUser2Image} disabled={submittedB} />
+        <StatusToggle value={user2Image} onChange={setUser2Image} disabled={submitted} />
       </TableCell>
       <TableCell>
-        <StatusToggle value={user2Contact} onChange={setUser2Contact} disabled={submittedB} />
+        <StatusToggle value={user2Contact} onChange={setUser2Contact} disabled={submitted} />
       </TableCell>
 
-      {/* 제출 B */}
+      {/* 상태 B */}
       <TableCell>
-        <Button size="sm" onClick={handleSubmitB} disabled={loadingB || submittedB}>
-          {loadingB ? <Loader className="w-4 h-4 animate-spin" /> : submittedB ? "완료" : "제출"}
+        <StatusPillSelect value={user2Status} onChange={setUser2Status} disabled={submitted} variant="B" />
+      </TableCell>
+
+      {/* 제출 */}
+      <TableCell>
+        <Button size="sm" onClick={handleSubmit} disabled={loading || submitted}>
+          {loading ? <Loader className="w-4 h-4 animate-spin" /> : submitted ? "완료" : "제출"}
         </Button>
       </TableCell>
 
