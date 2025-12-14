@@ -374,3 +374,99 @@ export async function cancelMatch(matchId: number) {
 
   return response_json;
 }
+
+export async function setPaidMatchStatus(params: {
+  matchId: number;
+  user1Id: number;
+  user2Id: number;
+  user1Status: string;
+  user2Status: string;
+  user1AcceptPaid: boolean;
+  user1ImagePaid: boolean;
+  user1ContactPaid: boolean;
+  user2AcceptPaid: boolean;
+  user2ImagePaid: boolean;
+  user2ContactPaid: boolean;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    console.error("No session found");
+    return;
+  }
+
+  console.log("Request URL:", process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/paid`);
+  console.log("Request body:", params);
+
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/paid`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("API Error:", response.status, errorText);
+    let errorMessage = "요청 처리 중 오류가 발생했습니다.";
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = errorJson.message || errorMessage;
+    } catch {
+      // JSON 파싱 실패 시 기본 메시지 사용
+    }
+    throw new Error(errorMessage);
+  }
+
+  const responseText = await response.text();
+  console.log("Response:", response.status, responseText);
+
+  if (!responseText) {
+    return { success: true };
+  }
+
+  return JSON.parse(responseText);
+}
+
+export async function setFreeMatchStatus(params: {
+  matchId: number;
+  user1Id: number;
+  user2Id: number;
+  user1Status: string;
+  user2Status: string;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    console.error("No session found");
+    return;
+  }
+
+  console.log("Request URL:", process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/free`);
+  console.log("Request body:", params);
+
+  const response = await fetch(
+    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/free`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("API Error:", response.status, errorText);
+    throw new Error(`Failed: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+}

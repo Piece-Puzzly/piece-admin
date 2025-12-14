@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
 import { MatchHistoryRow } from "@/lib/actions/match-infos";
+import { setPaidMatchStatus } from "@/lib/server";
 import { Loader } from "lucide-react";
 import { useState } from "react";
 import DeleteMatchButton from "../../_components/delete-match-button";
@@ -39,13 +40,23 @@ export default function PaidMatchRow({ data: match }: PaidMatchRowProps) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      // TODO: 실제 업데이트 로직 구현
-      console.log("Submit:", {
-        matchId: match.id,
-        user1: { match: user1Match, image: user1Image, contact: user1Contact, status: user1Status },
-        user2: { match: user2Match, image: user2Image, contact: user2Contact, status: user2Status },
+      await setPaidMatchStatus({
+        matchId: Number(match.id),
+        user1Id: Number(match.user_1),
+        user2Id: Number(match.user_2),
+        user1Status: user1Status,
+        user2Status: user2Status,
+        user1AcceptPaid: isTrial ? false : isPremium ? true : user1Match,
+        user1ImagePaid: user1Image,
+        user1ContactPaid: user1Contact,
+        user2AcceptPaid: isTrial ? false : isPremium ? true : user2Match,
+        user2ImagePaid: user2Image,
+        user2ContactPaid: user2Contact,
       });
       setSubmitted(true);
+    } catch (error) {
+      console.error("API Error:", error);
+      alert(error instanceof Error ? error.message : "요청 처리 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
