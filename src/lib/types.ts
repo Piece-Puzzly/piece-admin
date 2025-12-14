@@ -153,6 +153,7 @@ export type MatchHistory = {
   user2Nickname: string; // 두 번째 유저 닉네임
   matchDateTime: string; // 예약된 매칭 시간 (ISO8601 문자열)
   isMatched: boolean; // 실제 매칭 여부
+  matchType: string; // 매칭 타입 (basic, trial, premium)
 };
 
 export type MatchCandidate = {

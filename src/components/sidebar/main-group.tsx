@@ -38,7 +38,14 @@ export const navMain = [
     ],
   },
   { url: "/match", title: "수동 매칭" },
-  { url: "/match-action", title: "매치 수락/거절/삭제" },
+  {
+    url: "/match-action",
+    title: "매치 상태 관리",
+    items: [
+      { url: "/match-action/free", title: "무료 매칭" },
+      { url: "/match-action/paid", title: "유료 매칭" },
+    ],
+  },
   {
     url: "/user-list",
     title: "유저 조회",

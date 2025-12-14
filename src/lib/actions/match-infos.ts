@@ -39,16 +39,18 @@ export async function getMatchHistory({
   user2Id,
   page = 1,
   pageSize = 10,
+  matchType,
 }: {
   user1Id?: bigint | number | string;
   user2Id?: bigint | number | string;
   page?: number;
   pageSize?: number;
+  matchType?: "basic" | "paid";
 }): Promise<MatchHistoryResult> {
   const skip = (page - 1) * pageSize;
 
-  // 공통 where 조건 설정
-  const where =
+  // 유저 필터 조건
+  const userFilter =
     user1Id && user2Id
       ? {
           OR: [
@@ -64,7 +66,26 @@ export async function getMatchHistory({
           ? {
               OR: [{ user_1: BigInt(user2Id) }, { user_2: BigInt(user2Id) }],
             }
-          : {}; // 전체 매치
+          : null;
+
+  // matchType 필터 조건
+  const typeFilter =
+    matchType === "basic"
+      ? { OR: [{ match_type: "BASIC" }, { match_type: null }] }
+      : matchType === "paid"
+        ? { match_type: { in: ["TRIAL", "PREMIUM"] } }
+        : null;
+
+  // where 조건 조합
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let where: any = {};
+  if (userFilter && typeFilter) {
+    where = { AND: [userFilter, typeFilter] };
+  } else if (userFilter) {
+    where = userFilter;
+  } else if (typeFilter) {
+    where = typeFilter;
+  }
 
   const result = await prisma.match_info.findMany({
     where,

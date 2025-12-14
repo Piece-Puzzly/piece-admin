@@ -8,10 +8,8 @@ import {
 } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
-import {
-  MatchHistoryRow,
-  updateMatchInfoStatus,
-} from "@/lib/actions/match-infos";
+import { MatchHistoryRow } from "@/lib/actions/match-infos";
+import { setFreeMatchStatus } from "@/lib/server";
 
 import {
   match_info_user_1_match_status,
@@ -111,9 +109,11 @@ export default function MatchInfoRow({
         </Select>
       </TableCell>
       <TableCell>
-        {match.date
-          ? new Date(match.date).toLocaleString("ko-KR", {
-              timeZone: "UTC",
+        <span className="capitalize">{match.match_type ?? "-"}</span>
+      </TableCell>
+      <TableCell>
+        {match.created_at
+          ? new Date(match.created_at).toLocaleString("ko-KR", {
               hour12: false,
             })
           : "-"}
@@ -124,11 +124,15 @@ export default function MatchInfoRow({
           onClick={async () => {
             setLoading(true);
             try {
-              await updateMatchInfoStatus({
-                id: match.id,
-                user_1_match_status: user1Status,
-                user_2_match_status: user2Status,
+              await setFreeMatchStatus({
+                matchId: Number(match.id),
+                user1Id: Number(match.user_1),
+                user2Id: Number(match.user_2),
+                user1Status: user1Status ?? "UNCHECKED",
+                user2Status: user2Status ?? "UNCHECKED",
               });
+            } catch (error) {
+              console.error("API Error:", error);
             } finally {
               setLoading(false);
             }

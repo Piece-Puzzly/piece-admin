@@ -35,6 +35,7 @@ export function MatchInfoTable({
             <TableHead>유저 2</TableHead>
 
             <TableHead>상태 2</TableHead>
+            <TableHead>타입</TableHead>
             <TableHead>날짜</TableHead>
             <TableHead>제출</TableHead>
             <TableHead>삭제</TableHead>
