@@ -4,18 +4,17 @@ import { TimePickerInput } from "@/components/time-picker-input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useMatchCandidateStore } from "@/providers/match-candidate-provider";
 import { useMatchHistoryTableStore } from "@/providers/match-history-table-provider";
@@ -26,10 +25,10 @@ import MatchCandidatePagination from "./match-candidate-pagination";
 
 export default function MatchingForm() {
   const match = useMatchCandidateStore((e) => e.match);
+  const matchType = useMatchCandidateStore((e) => e.matchType);
+  const setMatchType = useMatchCandidateStore((e) => e.setMatchType);
   const [loading, setLoading] = useState<boolean>(false);
   const reload = useMatchHistoryTableStore((e) => e.reload);
-
-  // const onSubmit: SubmitHandler<FieldValues> = async (data) => {};
 
   return (
     <div className="flex @3xl:flex-row @3xl:items-center flex-col items-start gap-4">
@@ -46,6 +45,16 @@ export default function MatchingForm() {
           <TimeSelect />
         </div>
       </div>
+      <Select value={matchType} onValueChange={setMatchType}>
+        <SelectTrigger className="h-[40px] w-[120px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="basic">Basic</SelectItem>
+          <SelectItem value="trial">Trial</SelectItem>
+          <SelectItem value="premium">Premium</SelectItem>
+        </SelectContent>
+      </Select>
       <Button
         disabled={loading}
         className="h-[40px]! min-w-[100px]"
@@ -130,69 +139,74 @@ function TimeSelect() {
 }
 
 function MatchingFormDialog({ userIndex }: { userIndex: 0 | 1 }) {
+  const [open, setOpen] = useState(false);
   const users = useMatchCandidateStore((e) => e.selectedUsers);
   const data = useMatchCandidateStore((e) => e.data);
   const clear = useMatchCandidateStore((e) => e.clear);
-
   const update = useMatchCandidateStore((e) => e.update);
-  const user = users[userIndex];
-
-  const opponent = users[1 - userIndex];
   const selectUser = useMatchCandidateStore((e) => e.selectUser);
+
+  const user = users[userIndex];
+  const opponent = users[1 - userIndex];
+
   return (
-    <Dialog
-      onOpenChange={(open) => {
-        if (!open) {
-          clear();
-        } else {
-          update(1);
-        }
+    <Popover
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) update(1);
+        else clear();
       }}
     >
-      <DialogTrigger asChild>
+      <PopoverTrigger asChild>
         <Button
-          variant={"secondary"}
-          className="overflow-hidden w-full max-w-full !h-[40px] text-secondary-foreground font-medium px-[16px] justify-between "
+          variant="secondary"
+          className="overflow-hidden w-full max-w-full !h-[40px] text-secondary-foreground font-medium px-[16px] justify-between"
         >
           <div className="flex-1 text-left w-full overflow-hidden">
             {!user ? "닉네임을 선택해 주세요" : `[${user.id}] ${user.nickname}`}
           </div>
           <ChevronDownIcon className="size-4 opacity-50" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-sm md:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{`프로필${userIndex === 0 ? "A" : "B"} 선택`}</DialogTitle>
-        </DialogHeader>
+      </PopoverTrigger>
+      <PopoverContent className="w-[280px] p-0" align="start">
+        <div className="p-2 border-b">
+          <span className="text-sm font-medium">
+            프로필{userIndex === 0 ? "A" : "B"} 선택
+          </span>
+        </div>
         {data ? (
-          <div>
+          <div className="max-h-[300px] overflow-y-auto p-1">
             {data.map((e) => (
-              <DialogClose asChild key={e.userId}>
-                <Button
-                  variant="ghost"
-                  className="w-full -mx-2 justify-between px-2 has-[>svg]:px-2"
-                  disabled={!e.canBeMatched || opponent?.id === e.userId}
-                  onClick={() =>
-                    selectUser(userIndex, {
-                      id: e.userId,
-                      nickname: e.nickName,
-                    })
-                  }
-                >
-                  <div>
-                    [{e.userId}]{` `}
-                    {e.nickName}
-                  </div>
-                  {e.userId === user?.id && <Check />}
-                </Button>
-              </DialogClose>
+              <Button
+                key={e.userId}
+                variant="ghost"
+                className="w-full justify-between px-2 h-9"
+                disabled={!e.canBeMatched || opponent?.id === e.userId}
+                onClick={() => {
+                  selectUser(userIndex, {
+                    id: e.userId,
+                    nickname: e.nickName,
+                  });
+                  setOpen(false);
+                }}
+              >
+                <span>
+                  [{e.userId}] {e.nickName}
+                </span>
+                {e.userId === user?.id && <Check className="size-4" />}
+              </Button>
             ))}
           </div>
         ) : (
-          <div className="text-muted-foreground">loading</div>
+          <div className="p-4 text-center text-muted-foreground text-sm">
+            loading...
+          </div>
         )}
-        <MatchCandidatePagination />
-      </DialogContent>
-    </Dialog>
+        <div className="border-t p-2">
+          <MatchCandidatePagination />
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

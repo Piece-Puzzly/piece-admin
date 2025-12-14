@@ -29,6 +29,7 @@ export const MatchCandidateStoreProvider = ({
       selectedUsers: [undefined, undefined],
       data: undefined,
       page: 1,
+      matchType: "basic",
     });
   }
 
