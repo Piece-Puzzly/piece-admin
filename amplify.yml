@@ -5,7 +5,17 @@ frontend:
       commands:
         - |
           curl -H "Content-Type: application/json" \
-            -d "{\"content\": \"🫠 **Amplify 배포 시작**\n앱: piece-admin-web-dev\n브랜치: $AWS_BRANCH\"}" \
+            -d '{
+              "embeds": [{
+                "title": "🫠 Amplify 배포 시작",
+                "color": 3447003,
+                "fields": [
+                  {"name": "앱", "value": "piece-admin-web-dev", "inline": true},
+                  {"name": "브랜치", "value": "'"$AWS_BRANCH"'", "inline": true}
+                ],
+                "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+              }]
+            }' \
             "$DISCORD_WEBHOOK_URL"
         - nvm install 22
         - nvm use 22
@@ -18,11 +28,31 @@ frontend:
         - |
           if [ "$AMPLIFY_JOB_STATUS" = "SUCCEED" ]; then
             curl -H "Content-Type: application/json" \
-              -d "{\"content\": \"✅ **Amplify 배포 성공**\n앱: piece-admin-web-dev\n브랜치: $AWS_BRANCH\"}" \
+              -d '{
+                "embeds": [{
+                  "title": "✅ Amplify 배포 성공",
+                  "color": 5763719,
+                  "fields": [
+                    {"name": "앱", "value": "piece-admin-web-dev", "inline": true},
+                    {"name": "브랜치", "value": "'"$AWS_BRANCH"'", "inline": true}
+                  ],
+                  "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+                }]
+              }' \
               "$DISCORD_WEBHOOK_URL"
           else
             curl -H "Content-Type: application/json" \
-              -d "{\"content\": \"❌ **Amplify 배포 실패**\n앱: piece-admin-web-dev\n브랜치: $AWS_BRANCH\"}" \
+              -d '{
+                "embeds": [{
+                  "title": "❌ Amplify 배포 실패",
+                  "color": 15548997,
+                  "fields": [
+                    {"name": "앱", "value": "piece-admin-web-dev", "inline": true},
+                    {"name": "브랜치", "value": "'"$AWS_BRANCH"'", "inline": true}
+                  ],
+                  "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+                }]
+              }' \
               "$DISCORD_WEBHOOK_URL"
           fi
   artifacts:
