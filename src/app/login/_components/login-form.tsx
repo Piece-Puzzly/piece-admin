@@ -21,8 +21,8 @@ export default function LoginForm() {
       callbackUrl: "/",
     });
 
-    if (res?.ok && res.url) {
-      router.push(res.url); // 수동 이동
+    if (res?.ok) {
+      router.push("/"); // 상대 경로로 이동 (현재 도메인 유지)
       router.refresh();
     } else {
       toast.error(JSON.stringify(res));
