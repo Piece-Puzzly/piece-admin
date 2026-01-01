@@ -11,13 +11,11 @@ import UserInfoButton from "@/components/user-info/user-info-button";
 import { MatchHistoryRow } from "@/lib/actions/match-infos";
 import { setFreeMatchStatus } from "@/lib/server";
 
-import {
-  match_info_user_1_match_status,
-  match_info_user_2_match_status,
-} from "@prisma/client";
 import { Loader } from "lucide-react";
 import { useState } from "react";
 import DeleteMatchButton from "./delete-match-button";
+
+type MatchStatus = "UNCHECKED" | "CHECKED" | "ACCEPTED" | "REFUSED" | "BLOCKED";
 
 const matchStatusOptions = [
   "UNCHECKED",
@@ -41,9 +39,9 @@ export default function MatchInfoRow({
   data: MatchHistoryRow;
 }) {
   const [user1Status, setUser1Status] =
-    useState<match_info_user_1_match_status | null>(match.user_1_match_status);
+    useState<MatchStatus | null>(match.user_1_match_status as MatchStatus | null);
   const [user2Status, setUser2Status] =
-    useState<match_info_user_1_match_status | null>(match.user_2_match_status);
+    useState<MatchStatus | null>(match.user_2_match_status as MatchStatus | null);
 
   const [loading, setLoading] = useState(false);
   return (
@@ -52,9 +50,9 @@ export default function MatchInfoRow({
       <TableCell>
         <div className="flex items-center gap-2">
           <UserInfoButton
-            userId={Number(match.user_1!)}
+            userId={Number(match.user_table_match_info_user_1Touser_table?.user_id ?? 0)}
             nickname={
-              match.user_table_match_info_user_1Touser_table!.profile!.nickname!
+              match.user_table_match_info_user_1Touser_table?.profile?.nickname ?? "-"
             }
           />
         </div>
@@ -63,7 +61,7 @@ export default function MatchInfoRow({
         <Select
           value={user1Status ?? undefined}
           onValueChange={(value) =>
-            setUser1Status(value as match_info_user_1_match_status)
+            setUser1Status(value as MatchStatus)
           }
         >
           <SelectTrigger className="w-full h-[36px]!">
@@ -81,9 +79,9 @@ export default function MatchInfoRow({
       <TableCell>
         <div className="flex items-center gap-2">
           <UserInfoButton
-            userId={Number(match.user_2!)}
+            userId={Number(match.user_table_match_info_user_2Touser_table?.user_id ?? 0)}
             nickname={
-              match.user_table_match_info_user_2Touser_table!.profile!.nickname!
+              match.user_table_match_info_user_2Touser_table?.profile?.nickname ?? "-"
             }
           />
         </div>
@@ -93,7 +91,7 @@ export default function MatchInfoRow({
         <Select
           value={user2Status ?? undefined}
           onValueChange={(value) =>
-            setUser2Status(value as match_info_user_2_match_status)
+            setUser2Status(value as MatchStatus)
           }
         >
           <SelectTrigger className="w-full h-[36px]!">
@@ -111,7 +109,7 @@ export default function MatchInfoRow({
       <TableCell>
         <span className="capitalize">{match.match_type ?? "-"}</span>
       </TableCell>
-      <TableCell>
+      <TableCell suppressHydrationWarning>
         {match.created_at
           ? new Date(match.created_at).toLocaleString("ko-KR", {
               hour12: false,
@@ -126,8 +124,8 @@ export default function MatchInfoRow({
             try {
               await setFreeMatchStatus({
                 matchId: Number(match.id),
-                user1Id: Number(match.user_1),
-                user2Id: Number(match.user_2),
+                user1Id: Number(match.user_table_match_info_user_1Touser_table?.user_id ?? 0),
+                user2Id: Number(match.user_table_match_info_user_2Touser_table?.user_id ?? 0),
                 user1Status: user1Status ?? "UNCHECKED",
                 user2Status: user2Status ?? "UNCHECKED",
               });

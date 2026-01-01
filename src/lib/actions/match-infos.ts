@@ -1,10 +1,47 @@
 "use server";
 
-import { match_info, user_table } from "@prisma/client";
+import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
-import prisma from "../prisma";
+import { authOptions } from "../auth-options";
+import { checkAuth } from "./auth";
 
-// lib/actions/match-info.ts
+// API 응답 타입 정의
+interface PaymentInfoApi {
+  imagePaid: boolean;
+  acceptPaid: boolean;
+  contactPaid: boolean;
+}
+
+interface MatchInfoApiResponse {
+  id: number;
+  date: string | null;
+  matchType: string | null;
+  user1MatchStatus: string | null;
+  user2MatchStatus: string | null;
+  createdAt: string | null;
+  user1: {
+    userId: number;
+    nickname: string | null;
+  } | null;
+  user2: {
+    userId: number;
+    nickname: string | null;
+  } | null;
+  user1Payment: PaymentInfoApi | null;
+  user2Payment: PaymentInfoApi | null;
+}
+
+interface PageApiResponse {
+  content: MatchInfoApiResponse[];
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+}
+
+// 반환 타입 정의
 export type MatchHistoryPagination = {
   total: number;
   page: number;
@@ -12,27 +49,71 @@ export type MatchHistoryPagination = {
   totalPages: number;
 };
 
-export type MatchHistoryRow = match_info & {
-  user_table_match_info_user_1Touser_table:
-    | (user_table & {
-        profile: {
-          nickname: string | null;
-        } | null;
-      })
-    | null;
-  user_table_match_info_user_2Touser_table:
-    | (user_table & {
-        profile: {
-          nickname: string | null;
-        } | null;
-      })
-    | null;
+export type PaymentInfo = {
+  imagePaid: boolean;
+  acceptPaid: boolean;
+  contactPaid: boolean;
+};
+
+export type MatchHistoryRow = {
+  id: bigint;
+  date: Date | null;
+  match_type: string | null;
+  user_1_match_status: string | null;
+  user_2_match_status: string | null;
+  created_at: Date | null;
+  user_table_match_info_user_1Touser_table: {
+    user_id: bigint;
+    profile: {
+      nickname: string | null;
+    } | null;
+  } | null;
+  user_table_match_info_user_2Touser_table: {
+    user_id: bigint;
+    profile: {
+      nickname: string | null;
+    } | null;
+  } | null;
+  // Payment 정보 추가
+  user1Payment: PaymentInfo;
+  user2Payment: PaymentInfo;
 };
 
 export type MatchHistoryResult = {
   data: MatchHistoryRow[];
   pagination: MatchHistoryPagination;
 };
+
+const defaultPayment: PaymentInfo = {
+  imagePaid: false,
+  acceptPaid: false,
+  contactPaid: false,
+};
+
+function convertApiResponseToMatchHistoryRow(apiResponse: MatchInfoApiResponse): MatchHistoryRow {
+  return {
+    id: BigInt(apiResponse.id),
+    date: apiResponse.date ? new Date(apiResponse.date) : null,
+    match_type: apiResponse.matchType,
+    user_1_match_status: apiResponse.user1MatchStatus,
+    user_2_match_status: apiResponse.user2MatchStatus,
+    created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
+    user_table_match_info_user_1Touser_table: apiResponse.user1 ? {
+      user_id: BigInt(apiResponse.user1.userId),
+      profile: {
+        nickname: apiResponse.user1.nickname,
+      },
+    } : null,
+    user_table_match_info_user_2Touser_table: apiResponse.user2 ? {
+      user_id: BigInt(apiResponse.user2.userId),
+      profile: {
+        nickname: apiResponse.user2.nickname,
+      },
+    } : null,
+    user1Payment: apiResponse.user1Payment ?? defaultPayment,
+    user2Payment: apiResponse.user2Payment ?? defaultPayment,
+  };
+}
 
 export async function getMatchHistory({
   user1Id,
@@ -47,81 +128,62 @@ export async function getMatchHistory({
   pageSize?: number;
   matchType?: "basic" | "paid";
 }): Promise<MatchHistoryResult> {
-  const skip = (page - 1) * pageSize;
+  await checkAuth();
 
-  // 유저 필터 조건
-  const userFilter =
-    user1Id && user2Id
-      ? {
-          OR: [
-            { user_1: BigInt(user1Id), user_2: BigInt(user2Id) },
-            { user_1: BigInt(user2Id), user_2: BigInt(user1Id) },
-          ],
-        }
-      : user1Id
-        ? {
-            OR: [{ user_1: BigInt(user1Id) }, { user_2: BigInt(user1Id) }],
-          }
-        : user2Id
-          ? {
-              OR: [{ user_1: BigInt(user2Id) }, { user_2: BigInt(user2Id) }],
-            }
-          : null;
-
-  // matchType 필터 조건
-  const typeFilter =
-    matchType === "basic"
-      ? { OR: [{ match_type: "BASIC" }, { match_type: null }] }
-      : matchType === "paid"
-        ? { match_type: { in: ["TRIAL", "PREMIUM"] } }
-        : null;
-
-  // where 조건 조합
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let where: any = {};
-  if (userFilter && typeFilter) {
-    where = { AND: [userFilter, typeFilter] };
-  } else if (userFilter) {
-    where = userFilter;
-  } else if (typeFilter) {
-    where = typeFilter;
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return {
+      data: [],
+      pagination: { total: 0, page: 1, pageSize, totalPages: 1 },
+    };
   }
 
-  const result = await prisma.match_info.findMany({
-    where,
-    orderBy: {
-      date: "desc",
-    },
-    skip,
-    take: pageSize,
-    include: {
-      user_table_match_info_user_1Touser_table: {
-        include: {
-          profile: {
-            select: { nickname: true },
-          },
-        },
-      },
-      user_table_match_info_user_2Touser_table: {
-        include: {
-          profile: {
-            select: { nickname: true },
-          },
-        },
-      },
-    },
-  });
-  const totalCount = await prisma.match_info.count({ where });
+  try {
+    const params = new URLSearchParams();
+    params.append("page", String(page - 1)); // API는 0-based
+    params.append("size", String(pageSize));
+    if (user1Id) params.append("user1Id", String(user1Id));
+    if (user2Id) params.append("user2Id", String(user2Id));
+    if (matchType) params.append("matchType", matchType);
 
-  return {
-    data: result,
-    pagination: {
-      total: totalCount,
-      page,
-      pageSize,
-      totalPages: Math.ceil(totalCount / pageSize),
-    },
-  };
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error("getMatchHistory API error:", response.status);
+      return {
+        data: [],
+        pagination: { total: 0, page, pageSize, totalPages: 1 },
+      };
+    }
+
+    const { data } = await response.json();
+    const pageData = data as PageApiResponse;
+
+    return {
+      data: pageData.content.map(convertApiResponseToMatchHistoryRow),
+      pagination: {
+        total: pageData.totalElements,
+        page: pageData.currentPage + 1, // 1-based로 변환
+        pageSize: pageData.pageSize,
+        totalPages: Math.max(1, pageData.totalPages),
+      },
+    };
+  } catch (err) {
+    console.error("getMatchHistory error:", err);
+    return {
+      data: [],
+      pagination: { total: 0, page, pageSize, totalPages: 1 },
+    };
+  }
 }
 
 export async function updateMatchInfoStatus(params: {
@@ -141,29 +203,76 @@ export async function updateMatchInfoStatus(params: {
     | "UNCHECKED"
     | null;
 }) {
+  await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
   const { id, user_1_match_status, user_2_match_status } = params;
-
   if (!id) throw new Error("id is required");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateData: any = {};
-  if (user_1_match_status) updateData.user_1_match_status = user_1_match_status;
-  if (user_2_match_status) updateData.user_2_match_status = user_2_match_status;
 
-  const updated = await prisma.match_info.update({
-    where: { id },
-    data: updateData,
-  });
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${id}/status`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user1MatchStatus: user_1_match_status,
+          user2MatchStatus: user_2_match_status,
+        }),
+      }
+    );
 
-  return updated;
+    if (!response.ok) {
+      console.error("updateMatchInfoStatus API error:", response.status);
+      throw new Error("Failed to update match status");
+    }
+
+    const { data } = await response.json();
+    return convertApiResponseToMatchHistoryRow(data);
+  } catch (err) {
+    console.error("updateMatchInfoStatus error:", err);
+    throw err;
+  }
 }
 
 // match id 받고 그 match id에 해당하는 행 삭제하는 함수
 export async function deleteMatchInfo(matchId: bigint | number) {
+  await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
   if (!matchId) throw new Error("matchId is required");
 
-  const deleted = await prisma.match_info.delete({
-    where: { id: matchId },
-  });
-  revalidatePath("/match-action");
-  return deleted;
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${matchId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error("deleteMatchInfo API error:", response.status);
+      throw new Error("Failed to delete match");
+    }
+
+    revalidatePath("/match-action");
+    return { success: true };
+  } catch (err) {
+    console.error("deleteMatchInfo error:", err);
+    throw err;
+  }
 }
