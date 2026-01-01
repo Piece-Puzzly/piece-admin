@@ -96,3 +96,43 @@ export async function getUsersByRole(
     return { users: [], totalPages: 1, totalCount: 0 };
   }
 }
+
+export type UserCountsByRole = {
+  NONE: number;
+  REGISTER: number;
+  PENDING: number;
+  USER: number;
+};
+
+export async function getUserCountsByRole(): Promise<UserCountsByRole> {
+  await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { NONE: 0, REGISTER: 0, PENDING: 0, USER: 0 };
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/counts-by-role`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error("getUserCountsByRole API error:", response.status);
+      return { NONE: 0, REGISTER: 0, PENDING: 0, USER: 0 };
+    }
+
+    const { data } = await response.json();
+    return data as UserCountsByRole;
+  } catch (err) {
+    console.error("getUserCountsByRole error:", err);
+    return { NONE: 0, REGISTER: 0, PENDING: 0, USER: 0 };
+  }
+}
