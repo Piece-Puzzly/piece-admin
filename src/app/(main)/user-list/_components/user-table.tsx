@@ -45,7 +45,7 @@ export default function UserTable({ users }: UserTableProps) {
 
             <TableCell>{user.phone ?? "-"}</TableCell>
 
-            <TableCell>
+            <TableCell suppressHydrationWarning>
               {user.created_at
                 ? new Date(user.created_at).toLocaleString("ko-KR", {
                     timeZone: "UTC",
