@@ -3,6 +3,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth-options";
+import { apiFetch, logger } from "../logger";
 import { checkAuth } from "./auth";
 
 // API 응답 타입 정의
@@ -73,7 +74,7 @@ export async function getUserInfo(userId: string | number | bigint): Promise<Use
   }
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/${userId}`,
       {
         method: "GET",
@@ -85,7 +86,6 @@ export async function getUserInfo(userId: string | number | bigint): Promise<Use
     );
 
     if (!response.ok) {
-      console.error("getUserInfo API error:", response.status);
       return null;
     }
 
@@ -106,7 +106,7 @@ export async function getUserInfo(userId: string | number | bigint): Promise<Use
       } : null,
     };
   } catch (err) {
-    console.error("getUserInfo error:", err);
+    logger.error("getUserInfo", err);
     return null;
   }
 }
@@ -122,7 +122,7 @@ export async function getUserAllInfo(user_id: bigint | number): Promise<UserFull
   const userId = typeof user_id === "bigint" ? Number(user_id) : user_id;
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/${userId}/full`,
       {
         method: "GET",
@@ -134,14 +134,13 @@ export async function getUserAllInfo(user_id: bigint | number): Promise<UserFull
     );
 
     if (!response.ok) {
-      console.error("getUserAllInfo API error:", response.status);
       return null;
     }
 
     const { data } = await response.json();
     return data as UserFullInfoResponse;
   } catch (err) {
-    console.error("getUserAllInfo error:", err);
+    logger.error("getUserAllInfo", err);
     return null;
   }
 }

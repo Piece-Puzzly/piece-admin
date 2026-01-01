@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { authOptions } from "../auth-options";
+import { apiFetch, logger } from "../logger";
 import { checkAuth } from "./auth";
 
 // API 응답 타입 정의
@@ -146,7 +147,7 @@ export async function getMatchHistory({
     if (user2Id) params.append("user2Id", String(user2Id));
     if (matchType) params.append("matchType", matchType);
 
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info?${params.toString()}`,
       {
         method: "GET",
@@ -158,7 +159,6 @@ export async function getMatchHistory({
     );
 
     if (!response.ok) {
-      console.error("getMatchHistory API error:", response.status);
       return {
         data: [],
         pagination: { total: 0, page, pageSize, totalPages: 1 },
@@ -178,7 +178,7 @@ export async function getMatchHistory({
       },
     };
   } catch (err) {
-    console.error("getMatchHistory error:", err);
+    logger.error("getMatchHistory", err);
     return {
       data: [],
       pagination: { total: 0, page, pageSize, totalPages: 1 },
@@ -214,7 +214,7 @@ export async function updateMatchInfoStatus(params: {
   if (!id) throw new Error("id is required");
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${id}/status`,
       {
         method: "PATCH",
@@ -230,14 +230,13 @@ export async function updateMatchInfoStatus(params: {
     );
 
     if (!response.ok) {
-      console.error("updateMatchInfoStatus API error:", response.status);
       throw new Error("Failed to update match status");
     }
 
     const { data } = await response.json();
     return convertApiResponseToMatchHistoryRow(data);
   } catch (err) {
-    console.error("updateMatchInfoStatus error:", err);
+    logger.error("updateMatchInfoStatus", err);
     throw err;
   }
 }
@@ -254,7 +253,7 @@ export async function deleteMatchInfo(matchId: bigint | number) {
   if (!matchId) throw new Error("matchId is required");
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${matchId}`,
       {
         method: "DELETE",
@@ -265,14 +264,13 @@ export async function deleteMatchInfo(matchId: bigint | number) {
     );
 
     if (!response.ok) {
-      console.error("deleteMatchInfo API error:", response.status);
       throw new Error("Failed to delete match");
     }
 
     revalidatePath("/match-action");
     return { success: true };
   } catch (err) {
-    console.error("deleteMatchInfo error:", err);
+    logger.error("deleteMatchInfo", err);
     throw err;
   }
 }

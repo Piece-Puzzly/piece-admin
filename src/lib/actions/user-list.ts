@@ -3,6 +3,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth-options";
+import { apiFetch, logger } from "../logger";
 import { checkAuth } from "./auth";
 
 // API 응답 타입
@@ -58,7 +59,7 @@ export async function getUsersByRole(
   }
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/by-role/${role}?page=${page - 1}&size=${limit}`,
       {
         method: "GET",
@@ -70,7 +71,6 @@ export async function getUsersByRole(
     );
 
     if (!response.ok) {
-      console.error("getUsersByRole API error:", response.status);
       return { users: [], totalPages: 1, totalCount: 0 };
     }
 
@@ -92,7 +92,7 @@ export async function getUsersByRole(
       totalCount: pageData.totalElements,
     };
   } catch (err) {
-    console.error("getUsersByRole error:", err);
+    logger.error("getUsersByRole", err);
     return { users: [], totalPages: 1, totalCount: 0 };
   }
 }
@@ -113,7 +113,7 @@ export async function getUserCountsByRole(): Promise<UserCountsByRole> {
   }
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/counts-by-role`,
       {
         method: "GET",
@@ -125,14 +125,13 @@ export async function getUserCountsByRole(): Promise<UserCountsByRole> {
     );
 
     if (!response.ok) {
-      console.error("getUserCountsByRole API error:", response.status);
       return { NONE: 0, REGISTER: 0, PENDING: 0, USER: 0 };
     }
 
     const { data } = await response.json();
     return data as UserCountsByRole;
   } catch (err) {
-    console.error("getUserCountsByRole error:", err);
+    logger.error("getUserCountsByRole", err);
     return { NONE: 0, REGISTER: 0, PENDING: 0, USER: 0 };
   }
 }
