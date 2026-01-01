@@ -1,9 +1,8 @@
 "use server";
 
 import { checkAuth } from "@/lib/actions/auth";
-import prisma from "@/lib/prisma";
-import type { daily_kpi as DailyKpi } from "@prisma/client";
-import { profile_profile_status } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 
 export type RecentReport = {
   id: number;
@@ -15,52 +14,56 @@ export type RecentReport = {
   reportedUserId: number;
 };
 
+interface RecentReportApiResponse {
+  id: number;
+  reason: string | null;
+  createdAt: string | null;
+  reporter: string | null;
+  reporterId: number | null;
+  reportedUser: string | null;
+  reportedUserId: number | null;
+}
+
 export async function getRecentReports(): Promise<{
   data: RecentReport[] | null;
   error: string | null;
 }> {
   await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { data: null, error: "Unauthorized" };
+  }
+
   try {
-    const reports = await prisma.report.findMany({
-      orderBy: { created_at: "desc" },
-      take: 5,
-      select: {
-        report_id: true,
-        reason: true,
-        created_at: true,
-        reporter_user_id: true,
-        reported_user_id: true,
-        user_table_report_reporter_user_idTouser_table: {
-          select: {
-            profile: { select: { nickname: true } },
-          },
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/recent-reports?limit=5`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
         },
-        user_table_report_reported_user_idTouser_table: {
-          select: {
-            profile: { select: { nickname: true } },
-          },
-        },
-      },
-    });
+        cache: "no-store",
+      }
+    );
 
-    const formattedData: RecentReport[] = reports.map((report) => {
-      const reporterNickname =
-        report.user_table_report_reporter_user_idTouser_table?.profile
-          ?.nickname;
-      const reportedUserNickname =
-        report.user_table_report_reported_user_idTouser_table?.profile
-          ?.nickname;
+    if (!response.ok) {
+      console.error("getRecentReports API error:", response.status);
+      return { data: null, error: "신고 내역을 불러오는 데 실패했습니다." };
+    }
 
-      return {
-        id: Number(report.report_id),
-        reason: report.reason,
-        createdAt: report.created_at,
-        reporter: reporterNickname || null,
-        reporterId: Number(report.reporter_user_id),
-        reportedUser: reportedUserNickname || null,
-        reportedUserId: Number(report.reported_user_id),
-      };
-    });
+    const { data } = await response.json();
+    const reports = data as RecentReportApiResponse[];
+
+    const formattedData: RecentReport[] = reports.map((report) => ({
+      id: report.id,
+      reason: report.reason,
+      createdAt: report.createdAt ? new Date(report.createdAt) : null,
+      reporter: report.reporter,
+      reporterId: report.reporterId ?? 0,
+      reportedUser: report.reportedUser,
+      reportedUserId: report.reportedUserId ?? 0,
+    }));
 
     return { data: formattedData, error: null };
   } catch (error) {
@@ -69,47 +72,61 @@ export async function getRecentReports(): Promise<{
   }
 }
 
+export type ProfileStatus = "INCOMPLETE" | "REVISED" | "APPROVED" | "REJECTED" | null;
+
 export type IncompleteProfile = {
   profileId: number;
   createdAt: Date | null;
   userId: number;
   nickname: string | null;
-  status: profile_profile_status | null;
+  status: ProfileStatus;
 };
+
+interface IncompleteProfileApiResponse {
+  profileId: number;
+  createdAt: string | null;
+  userId: number | null;
+  nickname: string | null;
+  status: string | null;
+}
 
 export async function getIncompleteProfiles(): Promise<{
   data: IncompleteProfile[] | null;
   error: string | null;
 }> {
   await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { data: null, error: "Unauthorized" };
+  }
+
   try {
-    const profiles = await prisma.profile.findMany({
-      where: {
-        profile_status: {
-          in: ["INCOMPLETE", "REVISED"],
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/pending-profiles`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
         },
-        user_table: {
-          isNot: null,
-        },
-      },
-      orderBy: { created_at: "asc" },
-      select: {
-        profile_id: true,
-        created_at: true,
-        nickname: true,
-        profile_status: true,
-        user_table: {
-          select: { user_id: true },
-        },
-      },
-    });
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error("getIncompleteProfiles API error:", response.status);
+      return { data: null, error: "처리 대기중인 프로필을 불러오는 데 실패했습니다." };
+    }
+
+    const { data } = await response.json();
+    const profiles = data as IncompleteProfileApiResponse[];
 
     const formattedData: IncompleteProfile[] = profiles.map((profile) => ({
-      profileId: Number(profile.profile_id),
-      createdAt: profile.created_at,
-      userId: Number(profile.user_table!.user_id),
+      profileId: profile.profileId,
+      createdAt: profile.createdAt ? new Date(profile.createdAt) : null,
+      userId: profile.userId ?? 0,
       nickname: profile.nickname,
-      status: profile.profile_status,
+      status: profile.status as ProfileStatus,
     }));
 
     return { data: formattedData, error: null };
@@ -122,50 +139,47 @@ export async function getIncompleteProfiles(): Promise<{
   }
 }
 
+interface PendingImageProfileApiResponse {
+  userId: number;
+  nickname: string | null;
+  changeTimestamp: string | null;
+  newImages: string[];
+}
+
 export async function getProfilesWithPendingImages() {
   await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { data: [], error: "Unauthorized" };
+  }
+
   try {
-    const profiles = await prisma.profile.findMany({
-      where: {
-        profile_image: {
-          some: { status: "PENDING" },
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/pending-images`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
         },
-        user_table: {
-          isNot: null,
-        },
-      },
-      select: {
-        nickname: true,
-        user_table: {
-          select: { user_id: true },
-        },
-        profile_image: {
-          select: {
-            image_url: true,
-            status: true,
-            created_at: true,
-          },
-          orderBy: { created_at: "asc" },
-        },
-      },
-    });
+        cache: "no-store",
+      }
+    );
 
-    const result = profiles.map((profile) => {
-      const userId = profile.user_table!.user_id;
-      const pendingImages = profile.profile_image.filter(
-        (img) => img.status === "PENDING" && img.image_url
-      );
+    if (!response.ok) {
+      console.error("getProfilesWithPendingImages API error:", response.status);
+      return { data: [], error: "데이터를 불러오는 데 실패했습니다." };
+    }
 
-      const changeTimestamp =
-        pendingImages.length > 0 ? pendingImages[0].created_at : null;
+    const { data } = await response.json();
+    const profiles = data as PendingImageProfileApiResponse[];
 
-      return {
-        userId,
-        nickname: profile.nickname,
-        changeTimestamp,
-        newImages: pendingImages.map((img) => img.image_url!),
-      };
-    });
+    const result = profiles.map((profile) => ({
+      userId: BigInt(profile.userId),
+      nickname: profile.nickname,
+      changeTimestamp: profile.changeTimestamp ? new Date(profile.changeTimestamp) : null,
+      newImages: profile.newImages,
+    }));
 
     return { data: result };
   } catch (error) {
@@ -175,39 +189,75 @@ export async function getProfilesWithPendingImages() {
 }
 
 export type KpiData = {
-  [K in keyof DailyKpi]: DailyKpi[K] extends bigint | bigint | null
-    ? number
-    : DailyKpi[K];
+  id: number;
+  targetDate: string | null;
+  // Matching KPI
+  createdMatchCount: number | null;
+  uncheckedMatchUserCount: number | null;
+  checkedMatchUserCount: number | null;
+  acceptedMatchUserCount: number | null;
+  refusedMatchUserCount: number | null;
+  blockedMatchUserCount: number | null;
+  mutuallyAcceptedMatchCount: number | null;
+  // User Growth KPI
+  newUserCount: number | null;
+  registerStatusUserCount: number | null;
+  createdProfileUserCount: number | null;
+  approvedProfileUserCount: number | null;
+  // User Activity KPI
+  activeUserCount: number | null;
 };
 
-const convertBigInts = (data: DailyKpi | null): KpiData | null => {
-  if (!data) return null;
-  const result: { [key: string]: unknown } = {};
-  for (const key in data) {
-    const value = data[key as keyof DailyKpi];
-    if (typeof value === "bigint") {
-      result[key] = Number(value);
-    } else {
-      result[key] = value;
-    }
-  }
-  return result as KpiData;
-};
+interface KpiApiResponse {
+  id: number;
+  targetDate: string | null;
+  createdMatchCount: number | null;
+  uncheckedMatchUserCount: number | null;
+  checkedMatchUserCount: number | null;
+  acceptedMatchUserCount: number | null;
+  refusedMatchUserCount: number | null;
+  blockedMatchUserCount: number | null;
+  mutuallyAcceptedMatchCount: number | null;
+  newUserCount: number | null;
+  registerStatusUserCount: number | null;
+  createdProfileUserCount: number | null;
+  approvedProfileUserCount: number | null;
+  activeUserCount: number | null;
+}
 
 export async function getRecentKpiHistory(): Promise<{
   data: KpiData[] | null;
   error: string | null;
 }> {
-  try {
-    const historyData: DailyKpi[] = await prisma.daily_kpi.findMany({
-      orderBy: { target_date: "desc" },
-      take: 5,
-    });
+  await checkAuth();
 
-    const convertedHistory = historyData.map(convertBigInts);
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { data: null, error: "Unauthorized" };
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/kpi-history?days=5`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error("getRecentKpiHistory API error:", response.status);
+      return { data: null, error: "최근 KPI 기록을 가져오는 데 실패했습니다." };
+    }
+
+    const { data } = await response.json();
+    const kpiList = data as KpiApiResponse[];
 
     return {
-      data: convertedHistory.filter((item): item is KpiData => item !== null),
+      data: kpiList,
       error: null,
     };
   } catch (error) {
