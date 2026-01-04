@@ -12,7 +12,7 @@ export default function UserInfoButton({
   ...props
 }: {
   userId: number | bigint | null | undefined;
-  nickname: string | undefined;
+  nickname: string | null | undefined;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <UserInfoTrigger userId={userId} nickname={nickname} asChild>

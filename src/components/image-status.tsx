@@ -3,7 +3,7 @@ import { imageStatusOptions } from "@/lib/constants";
 export default function ImageStatus({
   status,
 }: {
-  status: "ACCEPTED" | "PENDING" | "REJECTED" | null;
+  status: string | null;
 }) {
   const detail = imageStatusOptions.find((option) => option.key === status);
   return (

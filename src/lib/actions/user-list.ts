@@ -34,7 +34,8 @@ interface PageResponse<T> {
 
 // 반환 타입 정의
 interface UserWithProfile {
-  user_id: number;
+  user_id: bigint;
+  phone: string | null;
   created_at: Date | null;
   profile: {
     nickname: string | null;
@@ -78,7 +79,8 @@ export async function getUsersByRole(
     const pageData = data as PageResponse<ApiUserResponse>;
 
     const users: UserWithProfile[] = pageData.content.map((apiUser) => ({
-      user_id: apiUser.userId,
+      user_id: BigInt(apiUser.userId),
+      phone: apiUser.phoneNumber,
       created_at: apiUser.joinDate ? new Date(apiUser.joinDate) : null,
       profile: apiUser.profileId ? {
         nickname: apiUser.nickname,

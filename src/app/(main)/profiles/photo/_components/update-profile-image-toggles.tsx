@@ -12,9 +12,9 @@ const reviewTypes = [
 
 interface ReviewStatusTogglesProps {
   // 현재 선택된 상태 (부모 컴포넌트로부터 받음)
-  currentStatus: ProfileImageStatus | null;
+  currentStatus: string | null;
   // 상태 변경 시 부모 컴포넌트에 알릴 콜백 함수
-  onStatusChange: (newStatus: ProfileImageStatus) => void;
+  onStatusChange: (newStatus: string) => void;
   // 비활성화 여부
   disabled?: boolean;
 }
