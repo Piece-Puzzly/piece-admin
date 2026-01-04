@@ -60,7 +60,7 @@ export function KpiHistoryTable({ history }: KpiHistoryTableProps) {
                     history.map((kpi) => (
                       <TableRow key={`user-${kpi.id}`}>
                         <TableCell className="font-medium">
-                          {toLocaleDateString(kpi.targetDate)}
+                          {kpi.targetDate ? toLocaleDateString(kpi.targetDate) : "-"}
                         </TableCell>
 
                         <TableCell className="text-right">
@@ -116,7 +116,7 @@ export function KpiHistoryTable({ history }: KpiHistoryTableProps) {
                     history.map((kpi) => (
                       <TableRow key={`match-${kpi.id}`}>
                         <TableCell className="font-medium">
-                          {toLocaleDateString(kpi.targetDate)}
+                          {kpi.targetDate ? toLocaleDateString(kpi.targetDate) : "-"}
                         </TableCell>
 
                         <TableCell className="text-right">
