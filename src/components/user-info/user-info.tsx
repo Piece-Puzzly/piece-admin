@@ -7,14 +7,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUserAllInfo } from "@/lib/actions/get-user";
-import { contactsMap, profileStatusInfo } from "@/lib/constants";
+import { getUserAllInfo, UserFullInfoResponse } from "@/lib/actions/get-user";
+import { profileStatusInfo } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Prisma } from "@prisma/client";
 import { Circle, CircleCheck } from "lucide-react";
 import Image from "next/image";
-
 import { useEffect, useState } from "react";
+
+const DEFAULT_PROFILE_IMAGE = "/default-profile.svg";
+
+function getImageSrc(url: string | null | undefined): string {
+  if (!url || typeof url !== "string") return DEFAULT_PROFILE_IMAGE;
+  const trimmed = url.trim();
+  if (trimmed === "" || trimmed === "null") return DEFAULT_PROFILE_IMAGE;
+  if (trimmed.startsWith("https://")) return trimmed;
+  return DEFAULT_PROFILE_IMAGE;
+}
 import {
   InfoCard,
   InfoCardContent,
@@ -23,9 +31,7 @@ import {
 } from "./info-card";
 
 export default function UserInfo({ id }: { id: number | bigint }) {
-  const [user, setUser] = useState<Awaited<
-    ReturnType<typeof getUserAllInfo>
-  > | null>(null);
+  const [user, setUser] = useState<UserFullInfoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +45,6 @@ export default function UserInfo({ id }: { id: number | bigint }) {
     const fetchData = async () => {
       try {
         const data = await getUserAllInfo(id);
-
         setUser(data);
       } finally {
         setLoading(false);
@@ -58,9 +63,9 @@ export default function UserInfo({ id }: { id: number | bigint }) {
       <UserCard user={user} />
       {user.profile ? (
         <>
-          <ProfileCard profile={user.profile} />
-          <ValuePickCard valuePick={user.profile.profile_value_pick} />
-          <ValueTalkCard valueTalk={user.profile.profile_value_talk} />
+          <ProfileCard profile={user.profile} profileImages={user.profileImages} />
+          <ValuePickCard valuePicks={user.valuePicks} />
+          <ValueTalkCard valueTalks={user.valueTalks} />
         </>
       ) : (
         "프로필 등록 안 됨"
@@ -69,88 +74,59 @@ export default function UserInfo({ id }: { id: number | bigint }) {
   );
 }
 
-function UserCard({
-  user,
-}: {
-  user: Awaited<ReturnType<typeof getUserAllInfo>>;
-}) {
+function UserCard({ user }: { user: UserFullInfoResponse }) {
   return (
-    user && (
-      <Card>
-        <CardHeader>
-          <CardTitle>유저 정보</CardTitle>
-          <CardDescription>user_table</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            <p>
-              <span className="font-medium">생성:</span>{" "}
-              {user.created_at
-                ? new Date(user.created_at).toLocaleString("ko-KR", {
-                    timeZone: "UTC",
-                  })
-                : "없음"}
-            </p>
-            <p>
-              <span className="font-medium">업데이트:</span>{" "}
-              {user.updated_at
-                ? new Date(user.updated_at).toLocaleString("ko-KR", {
-                    timeZone: "UTC",
-                  })
-                : "없음"}
-            </p>
-            <p>
-              <span className="font-medium">유저 ID:</span>{" "}
-              {user.user_id.toString()}
-            </p>
-            <p>
-              <span className="font-medium">전화번호:</span>{" "}
-              {user.phone ?? "없음"}
-            </p>
-            <p>
-              <span className="font-medium">역할:</span> {user.role ?? "없음"}
-            </p>
-            <p>
-              <span className="font-medium">어드민 여부:</span>{" "}
-              {user.is_admin ? "예" : "아니요"}
-            </p>
-          </div>
-          <div>
-            <div className="font-medium">약관 동의</div>
-            {user.term_agreement.map(
-              ({ term_id, agreed_at, term: { title } }) => (
-                <div key={term_id}>
-                  {title}(
-                  {agreed_at.toLocaleString("ko-KR", {
-                    timeZone: "UTC",
-                  })}
-                  )
-                </div>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    )
+    <Card>
+      <CardHeader>
+        <CardTitle>유저 정보</CardTitle>
+        <CardDescription>user_table</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <p suppressHydrationWarning>
+            <span className="font-medium">생성:</span>{" "}
+            {user.createdAt
+              ? new Date(user.createdAt).toLocaleString("ko-KR", {
+                  timeZone: "UTC",
+                })
+              : "없음"}
+          </p>
+          <p>
+            <span className="font-medium">유저 ID:</span>{" "}
+            {user.userId.toString()}
+          </p>
+          <p>
+            <span className="font-medium">전화번호:</span>{" "}
+            {user.phoneNumber ?? "없음"}
+          </p>
+          <p>
+            <span className="font-medium">역할:</span> {user.role ?? "없음"}
+          </p>
+          <p>
+            <span className="font-medium">어드민 여부:</span>{" "}
+            {user.isAdmin ? "예" : "아니요"}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-type ProfileWithAll = Prisma.profileGetPayload<{
-  include: {
-    profile_image: true;
-    profile_value_pick: {
-      include: { value_pick: true };
-    };
-    profile_value_talk: {
-      include: { value_talk: true };
-    };
-  };
-}>;
+type ProfileInfo = NonNullable<UserFullInfoResponse["profile"]>;
+type ProfileImageInfo = UserFullInfoResponse["profileImages"][number];
 
-function ProfileCard({ profile }: { profile: ProfileWithAll }) {
+function ProfileCard({
+  profile,
+  profileImages,
+}: {
+  profile: ProfileInfo;
+  profileImages: ProfileImageInfo[];
+}) {
   const profileStatusDetail = profileStatusInfo.find(
-    (e) => e.key === profile.profile_status
+    (e) => e.key === profile.profileStatus
   );
+
+  const birthdate = profile.birthdate ? new Date(profile.birthdate) : null;
 
   return (
     <Card>
@@ -161,20 +137,11 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
 
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div>
+          <div suppressHydrationWarning>
             <span className="font-medium">생성: </span>
             <span>
-              {profile.created_at &&
-                profile.created_at.toLocaleString("ko-KR", {
-                  timeZone: "UTC",
-                })}
-            </span>
-          </div>
-          <div>
-            <span className="font-medium">업데이트: </span>
-            <span>
-              {profile.updated_at &&
-                profile.updated_at.toLocaleString("ko-KR", {
+              {profile.createdAt &&
+                new Date(profile.createdAt).toLocaleString("ko-KR", {
                   timeZone: "UTC",
                 })}
             </span>
@@ -191,15 +158,13 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
           </div>
         </div>
         <div className="flex gap-4 items-center">
-          {profile.image_url && (
-            <Image
-              width={128}
-              height={128}
-              src={profile.image_url}
-              alt="Profile Image"
-              className="w-24 h-auto"
-            />
-          )}
+          <Image
+            width={128}
+            height={128}
+            src={getImageSrc(profile.imageUrl)}
+            alt="Profile Image"
+            className="w-24 h-auto"
+          />
           <div>
             <p>
               <span>{profile.description}</span>
@@ -217,8 +182,7 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
 
             <InfoCardContent>
               <div>
-                만{" "}
-                {profile.birthdate && getKoreanAgeFromDate(profile.birthdate)}세
+                만 {birthdate && getKoreanAgeFromDate(birthdate)}세
               </div>
             </InfoCardContent>
           </InfoCard>
@@ -256,50 +220,56 @@ function ProfileCard({ profile }: { profile: ProfileWithAll }) {
             <InfoCardHeader>
               <InfoCardTitle>흡연</InfoCardTitle>
             </InfoCardHeader>
-            <InfoCardContent>{profile.smoking_status}</InfoCardContent>
+            <InfoCardContent>{profile.smokingStatus}</InfoCardContent>
           </InfoCard>
           <InfoCard>
             <InfoCardHeader>
               <InfoCardTitle>SNS 활동</InfoCardTitle>
             </InfoCardHeader>
-            <InfoCardContent>{profile.sns_activity_level}</InfoCardContent>
+            <InfoCardContent>{profile.snsActivityLevel}</InfoCardContent>
           </InfoCard>
           <InfoCard>
             <InfoCardHeader>
               <InfoCardTitle>생년월일</InfoCardTitle>
             </InfoCardHeader>
-            <InfoCardContent>
-              {profile.birthdate?.toLocaleDateString("ko-KR", {
+            <InfoCardContent suppressHydrationWarning>
+              {birthdate?.toLocaleDateString("ko-KR", {
                 timeZone: "UTC",
               })}
             </InfoCardContent>
           </InfoCard>
         </div>
-        <div className="space-y-2">
-          <div className="font-medium">연락처 </div>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(profile.contacts as Record<string, string>).map(
-              (e) => (
-                <InfoCard key={e[0]}>
-                  <InfoCardHeader>
-                    <InfoCardTitle>{contactsMap[e[0]] ?? e[0]} </InfoCardTitle>
-                  </InfoCardHeader>
-                  <InfoCardContent>{e[1]}</InfoCardContent>
-                </InfoCard>
-              )
-            )}
+        {profileImages.length > 0 && (
+          <div className="space-y-2">
+            <div className="font-medium">프로필 이미지</div>
+            <div className="flex flex-wrap gap-2">
+              {profileImages.map((img) => (
+                <div key={img.profileImageId} className="relative">
+                  <Image
+                    width={80}
+                    height={80}
+                    src={getImageSrc(img.imageUrl)}
+                    alt="Profile Image"
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                  <span className="text-xs text-muted-foreground">{img.status}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function ValuePickCard({
-  valuePick,
-}: {
-  valuePick: ProfileWithAll["profile_value_pick"];
-}) {
+type ValuePickInfo = UserFullInfoResponse["valuePicks"][number];
+
+function ValuePickCard({ valuePicks }: { valuePicks: ValuePickInfo[] }) {
+  if (!valuePicks || valuePicks.length === 0) {
+    return null;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -308,49 +278,42 @@ function ValuePickCard({
       </CardHeader>
 
       <CardContent className="gap-6 grid grid-cols-1 md:grid-cols-2">
-        {valuePick.map(
-          ({
-            value_pick: { category, question, answers },
-            selected_answer,
-          }) => {
-            const answer = JSON.parse(answers) as Record<string, string>;
-            return (
-              <div key={question}>
-                <p className="text-primary font-medium">{category}</p>
-                <p className="text-lg font-medium">{question}</p>
-                <div className="mt-2">
-                  {["1", "2"].map((e) => (
-                    <div className="flex gap-2 items-center" key={e}>
-                      {String(selected_answer) === e ? (
-                        <CircleCheck className={cn("size-4")} />
-                      ) : (
-                        <Circle className="size-4 stroke-muted-foreground" />
-                      )}
-
-                      <p
-                        className={cn("text-muted-foreground", {
-                          "text-foreground": String(selected_answer) === e,
-                        })}
-                      >
-                        {answer[e]}
-                      </p>
-                    </div>
-                  ))}
+        {valuePicks.map((pick) => (
+          <div key={pick.id}>
+            <p className="text-primary font-medium">{pick.category}</p>
+            <p className="text-lg font-medium">{pick.question}</p>
+            <div className="mt-2">
+              {["1", "2"].map((e) => (
+                <div className="flex gap-2 items-center" key={e}>
+                  {String(pick.selectedAnswer) === e ? (
+                    <CircleCheck className={cn("size-4")} />
+                  ) : (
+                    <Circle className="size-4 stroke-muted-foreground" />
+                  )}
+                  <p
+                    className={cn("text-muted-foreground", {
+                      "text-foreground": String(pick.selectedAnswer) === e,
+                    })}
+                  >
+                    선택지 {e}
+                  </p>
                 </div>
-              </div>
-            );
-          }
-        )}
+              ))}
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );
 }
 
-function ValueTalkCard({
-  valueTalk,
-}: {
-  valueTalk: ProfileWithAll["profile_value_talk"];
-}) {
+type ValueTalkInfo = UserFullInfoResponse["valueTalks"][number];
+
+function ValueTalkCard({ valueTalks }: { valueTalks: ValueTalkInfo[] }) {
+  if (!valueTalks || valueTalks.length === 0) {
+    return null;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -359,30 +322,23 @@ function ValueTalkCard({
       </CardHeader>
 
       <CardContent className="space-y-6 break-all">
-        {valueTalk.map(
-          ({ value_talk: { category, title }, answer, summary }) => {
-            // const answer = JSON.parse(answers) as Record<string, string>;
-            return (
-              <div key={title}>
-                <p className="text-primary font-medium">{category}</p>
-                <p className="text-lg font-medium">{title}</p>
-                <Card className="bg-background my-2 py-4">
-                  <CardContent className="px-4  break-all">
-                    <p>{answer}</p>
-                  </CardContent>
-                  <CardFooter className="justify-end">
-                    <p>
-                      <span className="text-primary">{answer?.length}</span>
-                      <span className="text-muted-foreground">/300</span>
-                    </p>
-                  </CardFooter>
-                </Card>
-
-                <p className="text-muted-foreground">요약 : {summary}</p>
-              </div>
-            );
-          }
-        )}
+        {valueTalks.map((talk) => (
+          <div key={talk.id}>
+            <p className="text-primary font-medium">{talk.category}</p>
+            <p className="text-lg font-medium">{talk.summary}</p>
+            <Card className="bg-background my-2 py-4">
+              <CardContent className="px-4 break-all">
+                <p>{talk.answer}</p>
+              </CardContent>
+              <CardFooter className="justify-end">
+                <p>
+                  <span className="text-primary">{talk.answer?.length ?? 0}</span>
+                  <span className="text-muted-foreground">/300</span>
+                </p>
+              </CardFooter>
+            </Card>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

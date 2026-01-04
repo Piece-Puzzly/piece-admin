@@ -1,7 +1,8 @@
 "use client";
 
 import { Toggle } from "@/components/ui/toggle";
-import { profile_image_status } from "@prisma/client";
+
+export type ProfileImageStatus = "PENDING" | "ACCEPTED" | "REJECTED";
 
 // 토글 버튼의 타입과 내용을 정의합니다.
 const reviewTypes = [
@@ -11,9 +12,9 @@ const reviewTypes = [
 
 interface ReviewStatusTogglesProps {
   // 현재 선택된 상태 (부모 컴포넌트로부터 받음)
-  currentStatus: profile_image_status | null;
+  currentStatus: ProfileImageStatus | null;
   // 상태 변경 시 부모 컴포넌트에 알릴 콜백 함수
-  onStatusChange: (newStatus: profile_image_status) => void;
+  onStatusChange: (newStatus: ProfileImageStatus) => void;
   // 비활성화 여부
   disabled?: boolean;
 }

@@ -16,9 +16,8 @@ import {
   UpdateProfileImageStatus,
 } from "@/lib/server";
 
-import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
+import { UpdateProfileImageToggles, ProfileImageStatus } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
 import { Photo } from "@/lib/types";
-import { profile_image_status } from "@prisma/client";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
@@ -37,7 +36,7 @@ export default function PhotoDetailButton({
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
   const [reviewDecision, setReviewDecision] =
-    useState<profile_image_status>("PENDING");
+    useState<ProfileImageStatus>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
     console.log(res);

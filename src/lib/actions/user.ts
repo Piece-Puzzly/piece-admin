@@ -1,7 +1,8 @@
 // lib/actions/user.ts
 "use server";
 
-import prisma from "../prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth-options";
 import { User } from "../types";
 import { checkAuth } from "./auth";
 
@@ -13,6 +14,48 @@ type FetchPagedUsersParams = {
   nickname?: string;
 };
 
+// API 응답 타입
+interface ApiUserResponse {
+  userId: number;
+  profileId: number | null;
+  description: string | null;
+  nickname: string | null;
+  name: string | null;
+  birthdate: string | null;
+  phoneNumber: string | null;
+  joinDate: string | null;
+  profileStatus: string | null;
+  profileImageStatus: string | null;
+  rejectImage: boolean;
+  rejectDescription: boolean;
+}
+
+interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalPages: number;
+  totalElements: number;
+  first: boolean;
+  last: boolean;
+}
+
+// API 응답을 기존 User 타입으로 변환
+function convertApiUserToUser(apiUser: ApiUserResponse): User {
+  return {
+    user_id: apiUser.userId,
+    phone: apiUser.phoneNumber,
+    created_at: apiUser.joinDate ? new Date(apiUser.joinDate) : null,
+    profile: apiUser.profileId ? {
+      profile_id: BigInt(apiUser.profileId),
+      nickname: apiUser.nickname,
+      birthdate: apiUser.birthdate ? new Date(apiUser.birthdate) : null,
+      description: apiUser.description,
+      profile_status: apiUser.profileStatus,
+    } : null,
+  } as User;
+}
+
 export async function fetchPagedUsers({
   page,
   userId,
@@ -22,38 +65,49 @@ export async function fetchPagedUsers({
   totalPages: number;
 }> {
   await checkAuth();
-  const skip = (page - 1) * PAGE_SIZE;
 
-  const where = {
-    ...(userId && !isNaN(Number(userId)) && { user_id: Number(userId) }),
-    ...(nickname && {
-      profile: {
-        nickname: {
-          contains: nickname,
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { users: [], totalPages: 1 };
+  }
+
+  try {
+    // API 쿼리 파라미터 구성
+    const params = new URLSearchParams();
+    params.append("page", String(page - 1)); // API는 0-based
+    params.append("size", String(PAGE_SIZE));
+    if (userId) params.append("userId", userId);
+    if (nickname) params.append("nickname", nickname);
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
         },
-      },
-    }),
-  };
+        cache: "no-store",
+      }
+    );
 
-  const [users, totalCount] = await Promise.all([
-    prisma.user_table
-      .findMany({
-        skip,
-        take: PAGE_SIZE,
-        orderBy: { user_id: "desc" },
-        where,
-        include: { profile: true },
-      })
-      .then((users) =>
-        users.map((user) => ({ ...user, user_id: Number(user.user_id) }))
-      ),
-    prisma.user_table.count({ where }),
-  ]);
+    if (!response.ok) {
+      console.error("fetchPagedUsers API error:", response.status);
+      return { users: [], totalPages: 1 };
+    }
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+    const { data } = await response.json();
+    const pageData = data as PageResponse<ApiUserResponse>;
 
-  return { users, totalPages };
+    const users = pageData.content.map(convertApiUserToUser);
+    const totalPages = Math.max(1, pageData.totalPages);
+
+    return { users, totalPages };
+  } catch (err) {
+    console.error("fetchPagedUsers error:", err);
+    return { users: [], totalPages: 1 };
+  }
 }
+
 export async function getFilteredUsers({
   page,
   pageSize,
@@ -64,29 +118,45 @@ export async function getFilteredUsers({
   pageSize: number;
   userIdQuery?: string;
   nicknameQuery?: string;
-}) {
+}): Promise<{ users: User[]; totalCount: number }> {
   await checkAuth();
-  const where = {
-    AND: [
-      userIdQuery
-        ? { user_id: { equals: Number(userIdQuery) || -1 } }
-        : undefined,
-      nicknameQuery
-        ? { profile: { nickname: { contains: nicknameQuery } } }
-        : undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ].filter(Boolean) as any,
-  };
 
-  const users = await prisma.user_table.findMany({
-    where,
-    include: { profile: true },
-    orderBy: { user_id: "desc" },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-  });
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { users: [], totalCount: 0 };
+  }
 
-  const totalCount = await prisma.user_table.count({ where });
+  try {
+    const params = new URLSearchParams();
+    params.append("page", String(page - 1)); // API는 0-based
+    params.append("size", String(pageSize));
+    if (userIdQuery) params.append("userId", userIdQuery);
+    if (nicknameQuery) params.append("nickname", nicknameQuery);
 
-  return { users, totalCount };
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error("getFilteredUsers API error:", response.status);
+      return { users: [], totalCount: 0 };
+    }
+
+    const { data } = await response.json();
+    const pageData = data as PageResponse<ApiUserResponse>;
+
+    const users = pageData.content.map(convertApiUserToUser);
+
+    return { users, totalCount: pageData.totalElements };
+  } catch (err) {
+    console.error("getFilteredUsers error:", err);
+    return { users: [], totalCount: 0 };
+  }
 }

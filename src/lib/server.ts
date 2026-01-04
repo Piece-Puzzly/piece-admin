@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "./auth-options";
+import { apiFetch, logger } from "./logger";
 
 import { revalidatePath } from "next/cache";
 import {
@@ -19,7 +20,7 @@ export async function getProfiles(page: number): Promise<ProfilesResponse> {
   if (!session) {
     redirect("/login");
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/users?page=${page}&size=${10}`,
 
@@ -49,7 +50,7 @@ export async function getFilteredProfile(
   if (!session) {
     redirect("/login");
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/users/search?` +
       `${select}=${value}`,
@@ -77,7 +78,7 @@ export async function updateProfileStatus(
     return;
   }
 
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profile`,
     {
       method: "POST",
@@ -102,7 +103,7 @@ export const getUserById = async (userId: number) => {
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}`,
     {
       method: "GET",
@@ -123,7 +124,7 @@ export const getBlockDatas = async (page: number = 0, size: number = 10) => {
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/blocks?page=${page}&size=${size}`,
     {
@@ -148,7 +149,7 @@ export async function getReportedDatas(
   if (!session) {
     return null;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/reports?page=${page}&size=${size}`,
     {
@@ -174,7 +175,7 @@ export const getReportDetail = async (
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/reports/users/${userId}?page=${page}&size=${size}`,
     {
@@ -197,7 +198,7 @@ export const banUsers = async (userId: number) => {
     return;
   }
 
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/bans/users`,
     {
       method: "POST",
@@ -222,7 +223,7 @@ export async function getUserProfileImageDetail(userId: number) {
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profileImage`,
     {
       method: "GET",
@@ -245,7 +246,7 @@ export async function UpdateProfileImageStatus(
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/profileImages/${profileImageId}`,
     {
@@ -274,7 +275,7 @@ export async function getMatchHistory(
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/manual-match/history` +
       `?page=${page}`,
@@ -300,7 +301,7 @@ export async function getMatchCandidate(
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
       `/manual-match/candidates` +
       `?page=${page}`,
@@ -330,7 +331,7 @@ export async function reserveMatch(
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
 
     {
@@ -355,7 +356,7 @@ export async function cancelMatch(matchId: number) {
   if (!session) {
     return;
   }
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
 
     {
@@ -390,14 +391,11 @@ export async function setPaidMatchStatus(params: {
 }) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    console.error("No session found");
+    logger.error("setPaidMatchStatus", "No session found");
     return;
   }
 
-  console.log("Request URL:", process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/paid`);
-  console.log("Request body:", params);
-
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/paid`,
     {
       method: "POST",
@@ -412,7 +410,6 @@ export async function setPaidMatchStatus(params: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("API Error:", response.status, errorText);
     let errorMessage = "요청 처리 중 오류가 발생했습니다.";
     try {
       const errorJson = JSON.parse(errorText);
@@ -424,7 +421,6 @@ export async function setPaidMatchStatus(params: {
   }
 
   const responseText = await response.text();
-  console.log("Response:", response.status, responseText);
 
   if (!responseText) {
     return { success: true };
@@ -442,14 +438,11 @@ export async function setFreeMatchStatus(params: {
 }) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    console.error("No session found");
+    logger.error("setFreeMatchStatus", "No session found");
     return;
   }
 
-  console.log("Request URL:", process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/free`);
-  console.log("Request body:", params);
-
-  const response = await fetch(
+  const response = await apiFetch(
     process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match/free`,
     {
       method: "POST",
@@ -464,7 +457,6 @@ export async function setFreeMatchStatus(params: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("API Error:", response.status, errorText);
     throw new Error(`Failed: ${response.status} - ${errorText}`);
   }
 

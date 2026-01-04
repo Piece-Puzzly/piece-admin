@@ -1,65 +1,146 @@
 // lib/actions/get-user.ts
 "use server";
 
-import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth-options";
+import { apiFetch, logger } from "../logger";
 import { checkAuth } from "./auth";
 
-export async function getUserInfo(userId: string | number | bigint) {
-  await checkAuth();
-  try {
-    const user = await prisma.user_table.findUnique({
-      where: { user_id: BigInt(userId) },
-      include: { profile: true },
-    })!;
+// API 응답 타입 정의
+export interface UserInfoResponse {
+  nickname: string | null;
+  phone: string | null;
+  role: string | null;
+  is_admin: boolean | null;
+  created_at: string | null;
+  profile: {
+    nickname: string | null;
+    birthdate: string | null;
+    job: string | null;
+    description: string | null;
+  } | null;
+}
 
-    if (!user) {
+export interface UserFullInfoResponse {
+  userId: number;
+  name: string | null;
+  phoneNumber: string | null;
+  role: string | null;
+  isAdmin: boolean | null;
+  createdAt: string | null;
+  profile: {
+    profileId: number;
+    nickname: string | null;
+    description: string | null;
+    birthdate: string | null;
+    height: number | null;
+    weight: number | null;
+    job: string | null;
+    location: string | null;
+    smokingStatus: string | null;
+    snsActivityLevel: string | null;
+    imageUrl: string | null;
+    profileStatus: string | null;
+    createdAt: string | null;
+  } | null;
+  profileImages: {
+    profileImageId: number;
+    imageUrl: string | null;
+    status: string | null;
+    createdAt: string | null;
+  }[];
+  valuePicks: {
+    id: number;
+    valuePickId: number | null;
+    category: string | null;
+    question: string | null;
+    selectedAnswer: number | null;
+  }[];
+  valueTalks: {
+    id: number;
+    valueTalkId: number | null;
+    category: string | null;
+    summary: string | null;
+    answer: string | null;
+  }[];
+}
+
+export async function getUserInfo(userId: string | number | bigint): Promise<UserInfoResponse | null> {
+  await checkAuth();
+
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return null;
+  }
+
+  try {
+    const response = await apiFetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
       return null;
     }
 
+    const { data } = await response.json();
+
+    // API 응답을 기존 형식에 맞게 변환
     return {
-      nickname: user.profile?.nickname ?? null,
-      phone: user.phone,
-      role: user.role,
-      is_admin: user.is_admin,
-      created_at: user.created_at?.toISOString(),
-      profile: {
-        nickname: user.profile?.nickname,
-        birthdate: user.profile?.birthdate?.toISOString(),
-        job: user.profile?.job,
-        description: user.profile?.description,
-      },
+      nickname: data.nickname ?? null,
+      phone: data.phoneNumber ?? null,
+      role: data.role ?? null,
+      is_admin: data.isAdmin ?? null,
+      created_at: data.createdAt ?? null,
+      profile: data.profile ? {
+        nickname: data.profile.nickname ?? null,
+        birthdate: data.profile.birthdate ?? null,
+        job: data.profile.job ?? null,
+        description: data.profile.description ?? null,
+      } : null,
     };
   } catch (err) {
-    console.error("getUserInfo error:", err);
-    throw new Error("Server error");
+    logger.error("getUserInfo", err);
+    return null;
   }
 }
 
-export async function getUserAllInfo(user_id: bigint | number) {
-  // BigInt인 경우 대비해서 number도 받을 수 있게 처리
-  const userIdBigInt = typeof user_id === "number" ? BigInt(user_id) : user_id;
+export async function getUserAllInfo(user_id: bigint | number): Promise<UserFullInfoResponse | null> {
+  await checkAuth();
 
-  const user = await prisma.user_table.findUnique({
-    where: { user_id: userIdBigInt },
-    include: {
-      profile: {
-        include: {
-          profile_image: true,
-          profile_value_pick: {
-            include: { value_pick: true },
-          },
-          profile_value_talk: {
-            include: { value_talk: true },
-          },
-        },
-      },
-      term_agreement: {
-        include: {
-          term: true,
-        },
-      },
-    },
-  });
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return null;
+  }
 
-  return user;
+  const userId = typeof user_id === "bigint" ? Number(user_id) : user_id;
+
+  try {
+    const response = await apiFetch(
+      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users/${userId}/full`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const { data } = await response.json();
+    return data as UserFullInfoResponse;
+  } catch (err) {
+    logger.error("getUserAllInfo", err);
+    return null;
+  }
 }

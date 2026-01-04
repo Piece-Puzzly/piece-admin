@@ -60,25 +60,25 @@ export function KpiHistoryTable({ history }: KpiHistoryTableProps) {
                     history.map((kpi) => (
                       <TableRow key={`user-${kpi.id}`}>
                         <TableCell className="font-medium">
-                          {toLocaleDateString(kpi.target_date)}
+                          {toLocaleDateString(kpi.targetDate)}
                         </TableCell>
 
                         <TableCell className="text-right">
-                          {kpi.new_user_count?.toLocaleString() ?? 0}
+                          {kpi.newUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.active_user_count?.toLocaleString() ?? 0}
+                          {kpi.activeUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.register_status_user_count?.toLocaleString() ??
+                          {kpi.registerStatusUserCount?.toLocaleString() ??
                             0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.created_profile_user_count?.toLocaleString() ??
+                          {kpi.createdProfileUserCount?.toLocaleString() ??
                             0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.approved_profile_user_count?.toLocaleString() ??
+                          {kpi.approvedProfileUserCount?.toLocaleString() ??
                             0}
                         </TableCell>
                       </TableRow>
@@ -116,31 +116,31 @@ export function KpiHistoryTable({ history }: KpiHistoryTableProps) {
                     history.map((kpi) => (
                       <TableRow key={`match-${kpi.id}`}>
                         <TableCell className="font-medium">
-                          {toLocaleDateString(kpi.target_date)}
+                          {toLocaleDateString(kpi.targetDate)}
                         </TableCell>
 
                         <TableCell className="text-right">
-                          {kpi.created_match_count?.toLocaleString() ?? 0}
+                          {kpi.createdMatchCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.mutually_accepted_match_count?.toLocaleString() ??
+                          {kpi.mutuallyAcceptedMatchCount?.toLocaleString() ??
                             0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.checked_match_user_count?.toLocaleString() ?? 0}
+                          {kpi.checkedMatchUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.unchecked_match_user_count?.toLocaleString() ??
+                          {kpi.uncheckedMatchUserCount?.toLocaleString() ??
                             0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.accepted_match_user_count?.toLocaleString() ?? 0}
+                          {kpi.acceptedMatchUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.refused_match_user_count?.toLocaleString() ?? 0}
+                          {kpi.refusedMatchUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                         <TableCell className="text-right">
-                          {kpi.blocked_match_user_count?.toLocaleString() ?? 0}
+                          {kpi.blockedMatchUserCount?.toLocaleString() ?? 0}
                         </TableCell>
                       </TableRow>
                     ))
