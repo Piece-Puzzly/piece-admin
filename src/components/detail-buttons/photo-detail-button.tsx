@@ -16,7 +16,7 @@ import {
   UpdateProfileImageStatus,
 } from "@/lib/server";
 
-import { UpdateProfileImageToggles, ProfileImageStatus } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
+import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
 import { Photo } from "@/lib/types";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
@@ -29,14 +29,14 @@ export default function PhotoDetailButton({
   nickname,
 }: {
   id: number | null;
-  nickname: string;
+  nickname: string | null;
 }) {
   const [content, setContent] = useState<Photo | undefined>(undefined);
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
   const [reviewDecision, setReviewDecision] =
-    useState<ProfileImageStatus>("PENDING");
+    useState<string>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
     console.log(res);

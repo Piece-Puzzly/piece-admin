@@ -17,7 +17,7 @@ import Link from "next/link";
 // 컴포넌트가 받을 props의 데이터 타입 정의
 type ChangedImageData = {
   userId: bigint;
-  nickname: string;
+  nickname: string | null;
   changeTimestamp: Date | null;
   newImages: string[];
 };

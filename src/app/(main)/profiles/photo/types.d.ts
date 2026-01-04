@@ -3,9 +3,9 @@ type ProfileImageData = {
   created_at: Date | null;
   updated_at: Date | null;
   image_url: string | null;
-  status: "ACCEPTED" | "PENDING" | "REJECTED" | null;
+  status: string | null;
   profile: {
-    nickname: string;
+    nickname: string | null;
     user_table: {
       user_id: bigint;
     } | null;
