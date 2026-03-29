@@ -23,7 +23,7 @@ export const createReportDetailTableStore = (
     ...initState,
     update: async (page: number) => {
       const { id } = get();
-      const { data } = await getReportDetail(id, page - 1);
+      const data = await getReportDetail(id, page - 1);
 
       if (!data) {
         toast("not authenticated");

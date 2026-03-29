@@ -48,7 +48,7 @@ export const createMatchCandidateStore = (initState: MatchCandidateState) => {
       const res = await getMatchCandidate(page - 1);
 
       if (res) {
-        set({ data: res.data.candidateList, page });
+        set({ data: res.candidateList, page });
       } else {
         toast(String(res));
       }

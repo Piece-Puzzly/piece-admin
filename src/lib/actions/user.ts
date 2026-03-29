@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth-options";
 import { User } from "../types";
 import { checkAuth } from "./auth";
+import { apiClient } from "../api-client";
 
 const PAGE_SIZE = 10;
 
@@ -64,45 +65,31 @@ export async function fetchPagedUsers({
   users: User[];
   totalPages: number;
 }> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { users: [], totalPages: 1 };
-  }
 
   try {
-    // API 쿼리 파라미터 구성
-    const params = new URLSearchParams();
-    params.append("page", String(page - 1)); // API는 0-based
-    params.append("size", String(PAGE_SIZE));
-    if (userId) params.append("userId", userId);
-    if (nickname) params.append("nickname", nickname);
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users?${params.toString()}`,
+    const pageData = await apiClient.get<PageResponse<ApiUserResponse>>(
+      `/users`, // 원래 `/users` 였지만, 백엔드 라우팅 확인 후 맞춰주세요.
       {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
+        page: page - 1,      // API는 0-based
+        size: PAGE_SIZE,
+        userId: userId,      // 값이 없으면 알아서 빠짐
+        nickname: nickname,  // 값이 없으면 알아서 빠짐
       }
     );
 
-    if (!response.ok) {
-      console.error("fetchPagedUsers API error:", response.status);
+    // 방어 로직 (데이터가 없거나 예상치 못한 구조일 때)
+    if (!pageData || !pageData.content) {
       return { users: [], totalPages: 1 };
     }
-
-    const { data } = await response.json();
-    const pageData = data as PageResponse<ApiUserResponse>;
 
     const users = pageData.content.map(convertApiUserToUser);
     const totalPages = Math.max(1, pageData.totalPages);
 
     return { users, totalPages };
+
   } catch (err) {
+    // API 에러(404 등) 발생 시 apiClient가 던진 에러를 캐치
     console.error("fetchPagedUsers error:", err);
     return { users: [], totalPages: 1 };
   }
@@ -119,44 +106,26 @@ export async function getFilteredUsers({
   userIdQuery?: string;
   nicknameQuery?: string;
 }): Promise<{ users: User[]; totalCount: number }> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { users: [], totalCount: 0 };
-  }
 
   try {
-    const params = new URLSearchParams();
-    params.append("page", String(page - 1)); // API는 0-based
-    params.append("size", String(pageSize));
-    if (userIdQuery) params.append("userId", userIdQuery);
-    if (nicknameQuery) params.append("nickname", nicknameQuery);
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/users?${params.toString()}`,
+    const pageData = await apiClient.get<PageResponse<ApiUserResponse>>(
+      `/users`,
       {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
+        page: page - 1,
+        size: pageSize,
+        userId: userIdQuery,
+        nickname: nicknameQuery,
       }
     );
 
-    if (!response.ok) {
-      console.error("getFilteredUsers API error:", response.status);
+    if (!pageData || !pageData.content) {
       return { users: [], totalCount: 0 };
     }
 
-    const { data } = await response.json();
-    const pageData = data as PageResponse<ApiUserResponse>;
-
     const users = pageData.content.map(convertApiUserToUser);
-
-    return { users, totalCount: pageData.totalElements };
+    const totalCount = pageData.totalElements;
+    return { users, totalCount };
   } catch (err) {
-    console.error("getFilteredUsers error:", err);
     return { users: [], totalCount: 0 };
   }
 }

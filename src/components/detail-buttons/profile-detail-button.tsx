@@ -72,11 +72,11 @@ export default function ProfileDetailButton({
         if (e) {
           const res = await getUserById(userId as number);
 
-          if (!res.data) {
+          if (!res) {
             toast.error(JSON.stringify(res));
           }
 
-          setContent(res.data);
+          setContent(res);
         }
       }}
     >
