@@ -124,7 +124,7 @@ export default function PhotoDetailButton({
                         content.pendingProfileImage!.profileImageStatus ===
                         "ACCEPTED";
 
-                      const res = await UpdateProfileImageStatus(
+                      await UpdateProfileImageStatus(
                         profileImageId,
                         accepted
                       );

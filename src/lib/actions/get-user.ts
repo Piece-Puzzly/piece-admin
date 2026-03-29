@@ -1,11 +1,8 @@
 // lib/actions/get-user.ts
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth-options";
-import { apiFetch, logger } from "../logger";
 import { apiClient } from "../api-client";
-import { checkAuth } from "./auth";
+
 
 // API 응답 타입 정의
 export interface UserInfoResponse {

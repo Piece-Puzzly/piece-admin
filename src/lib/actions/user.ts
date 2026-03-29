@@ -1,10 +1,7 @@
 // lib/actions/user.ts
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth-options";
 import { User } from "../types";
-import { checkAuth } from "./auth";
 import { apiClient } from "../api-client";
 
 const PAGE_SIZE = 10;
@@ -126,6 +123,7 @@ export async function getFilteredUsers({
     const totalCount = pageData.totalElements;
     return { users, totalCount };
   } catch (err) {
+    console.error("getFilteredUsers error:", err);
     return { users: [], totalCount: 0 };
   }
 }

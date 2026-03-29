@@ -1,10 +1,7 @@
 "use server";
 
-import { getServerSession } from "next-auth";
+
 import { revalidatePath } from "next/cache";
-import { authOptions } from "../auth-options";
-import { apiFetch, logger } from "../logger";
-import { checkAuth } from "./auth";
 import { apiClient } from "../api-client";
 
 // API 응답 타입 정의
@@ -158,7 +155,7 @@ export async function getMatchHistory({
     };
 
   } catch (err) {
-    logger.error("getMatchHistory", err);
+    console.error("getMatchHistory error:", err);
     return {
       data: [],
       pagination: { total: 0, page: 1, pageSize, totalPages: 1 },
@@ -193,7 +190,7 @@ export async function updateMatchInfoStatus(params: {
     return convertApiResponseToMatchHistoryRow(response);
   
   } catch (err) {
-    logger.error("updateMatchInfoStatus", err);
+    console.error("updateMatchInfoStatus error:", err);
     throw err;
   }
 }
@@ -207,7 +204,7 @@ export async function deleteMatchInfo(matchId: bigint | number) {
     revalidatePath("/match-action");
     return { success: true };
   } catch (err) {
-    logger.error("deleteMatchInfo", err);
+    console.error("deleteMatchInfo error:", err);
     throw err;
   }
 }
