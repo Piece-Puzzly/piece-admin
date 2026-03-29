@@ -94,6 +94,50 @@ export async function getUsersByRole(
     };
 }
 
+export async function getMarketingConsentedUsers(
+  page: number,
+  limit: number
+): Promise<{
+  users: UserWithProfile[];
+  totalPages: number;
+  totalCount: number;
+}> {
+    // 1. 기존의 checkAuth, getServerSession, apiFetch, headers 주입, json 파싱을 
+    // 모두 apiClient 하나로 대체합니다. 
+    // 서버 로그에서 확인한 /admin/v1 경로를 적용합니다.
+    const pageData = await apiClient.get<PageResponse<ApiUserResponse>>(
+      `/users/marketing-consent`,
+      {
+        page: page - 1,
+        size: limit,
+      }
+    );
+
+    // 2. 데이터가 없는 경우의 방어 로직
+    if (!pageData || !pageData.content) {
+      return { users: [], totalPages: 1, totalCount: 0 };
+    }
+
+    // 3. 기존에 잘 작성해두셨던 매핑 로직은 그대로 유지!
+    const users: UserWithProfile[] = pageData.content.map((apiUser) => ({
+      user_id: BigInt(apiUser.userId),
+      phone: apiUser.phoneNumber,
+      created_at: apiUser.joinDate ? new Date(apiUser.joinDate) : null,
+      profile: apiUser.profileId
+        ? {
+            nickname: apiUser.nickname,
+            image_url: null, // API에서 imageUrl이 없으면 null
+          }
+        : null,
+    }));
+
+    return {
+      users,
+      totalPages: Math.max(1, pageData.totalPages),
+      totalCount: pageData.totalElements,
+    };
+}
+
 export type UserCountsByRole = {
   NONE: number;
   REGISTER: number;

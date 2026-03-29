@@ -73,3 +73,7 @@ export async function getUserInfo(userId: string | number | bigint): Promise<Use
 export async function getUserAllInfo(user_id: bigint | number): Promise<UserFullInfoResponse | null> {
   return apiClient.get<UserFullInfoResponse>(`/users/${user_id}/full`);
 }
+
+export async function getMarketingConsentUsers(): Promise<UserFullInfoResponse | null> {
+  return apiClient.get<UserFullInfoResponse>(`/users/marketing-consent`);
+}
