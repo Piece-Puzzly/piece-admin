@@ -2,7 +2,7 @@ import { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXT_PUBLIC_AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       id: `${process.env.NEXT_PUBLIC_NEXTAUTH_NAME}-login`,
@@ -12,6 +12,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("[auth] calling:", process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + "/auth/login");
         const res = await fetch(
           process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + "/auth/login",
           {

@@ -18,12 +18,12 @@ export const createBlockTableStore = (initState: BlockTableState) => {
   return createStore<BlockTableStore>()((set) => ({
     ...initState,
     update: async (page: number) => {
-      const data = await getBlockDatas(page - 1);
-      if (!data) {
+      const response = await getBlockDatas(page - 1);
+      if (!response) {
         toast("not authenticated");
         return;
       }
-      set({ data: data.data.content, totalNum: data.data.totalElements, page });
+      set({ data: response.content, totalNum: response.totalElements, page });
     },
   }));
 };

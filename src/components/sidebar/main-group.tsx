@@ -57,6 +57,10 @@ export const navMain = [
     ],
   },
   {
+    url: "/marketing-consent",
+    title: "마케팅 동의 유저",
+  },
+  {
     url: "/profile-stats",
     title: "프로필 통계",
   },

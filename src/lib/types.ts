@@ -52,17 +52,13 @@ export interface BlockedUser {
 }
 
 export interface BlockedUsersResponses {
-  status: string;
-  message: string;
-  data: {
-    content: BlockedUser[];
-    currentPage: number;
-    pageSize: number;
-    totalPages: number;
-    totalElements: number;
-    isFirstPage: boolean;
-    isLastPage: boolean;
-  };
+  content: BlockedUser[];
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
 }
 
 export interface ReportedUser {
@@ -76,9 +72,6 @@ export interface ReportedUser {
 }
 
 export interface ReportedUsersResponses {
-  status: string;
-  message: string;
-  data: {
     content: ReportedUser[];
     currentPage: number;
     pageSize: number;
@@ -86,7 +79,6 @@ export interface ReportedUsersResponses {
     totalElements: number;
     isFirstPage: boolean;
     isLastPage: boolean;
-  };
 }
 
 export interface ReportDetail {
@@ -98,9 +90,6 @@ export interface ReportDetail {
 }
 
 export interface ReportDetailsResponses {
-  status: string;
-  message: string;
-  data: {
     content: ReportDetail[];
     currentPage: number;
     pageSize: number;
@@ -108,7 +97,6 @@ export interface ReportDetailsResponses {
     totalElements: number;
     isFirstPage: boolean;
     isLastPage: boolean;
-  };
 }
 
 export interface ReportProfile {
@@ -139,11 +127,8 @@ export interface Photo {
   } | null;
 }
 
-export type MatchHistoryResponse = {
-  status: string;
-  message: string;
-  data: MatchHistory[];
-};
+export type MatchHistoryResponse = MatchHistory[];
+
 
 export type MatchHistory = {
   manualMatchId: number; // 매칭 히스토리 ID
@@ -163,9 +148,7 @@ export type MatchCandidate = {
 };
 
 export type MatchCandidateResponse = {
-  message: string;
-  status: string;
-  data: { candidateList: MatchCandidate[] };
+  candidateList: MatchCandidate[];
 };
 
 export type User = {

@@ -33,6 +33,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
+    "framer-motion": "^12.29.2",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "lucide": "^0.487.0",

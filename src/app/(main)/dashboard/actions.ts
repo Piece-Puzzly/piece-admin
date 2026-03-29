@@ -1,8 +1,6 @@
 "use server";
 
-import { checkAuth } from "@/lib/actions/auth";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { apiClient } from "@/lib/api-client";
 
 export type RecentReport = {
   id: number;
@@ -28,33 +26,12 @@ export async function getRecentReports(): Promise<{
   data: RecentReport[] | null;
   error: string | null;
 }> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { data: null, error: "Unauthorized" };
-  }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/recent-reports?limit=5`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error("getRecentReports API error:", response.status);
-      return { data: null, error: "신고 내역을 불러오는 데 실패했습니다." };
-    }
-
-    const { data } = await response.json();
-    const reports = data as RecentReportApiResponse[];
-
+    const reports : RecentReportApiResponse[] = await apiClient.get<RecentReportApiResponse[]>("/dashboard/recent-reports", {
+      limit: "5",
+    });
+  
     const formattedData: RecentReport[] = reports.map((report) => ({
       id: report.id,
       reason: report.reason,
@@ -64,7 +41,6 @@ export async function getRecentReports(): Promise<{
       reportedUser: report.reportedUser,
       reportedUserId: report.reportedUserId ?? 0,
     }));
-
     return { data: formattedData, error: null };
   } catch (error) {
     console.error("Failed to fetch recent reports:", error);
@@ -94,32 +70,10 @@ export async function getIncompleteProfiles(): Promise<{
   data: IncompleteProfile[] | null;
   error: string | null;
 }> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { data: null, error: "Unauthorized" };
-  }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/pending-profiles`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
 
-    if (!response.ok) {
-      console.error("getIncompleteProfiles API error:", response.status);
-      return { data: null, error: "처리 대기중인 프로필을 불러오는 데 실패했습니다." };
-    }
-
-    const { data } = await response.json();
-    const profiles = data as IncompleteProfileApiResponse[];
+    const profiles : IncompleteProfileApiResponse[] = await apiClient.get<IncompleteProfileApiResponse[]>("/dashboard/pending-profiles");
 
     const formattedData: IncompleteProfile[] = profiles.map((profile) => ({
       profileId: profile.profileId,
@@ -132,10 +86,7 @@ export async function getIncompleteProfiles(): Promise<{
     return { data: formattedData, error: null };
   } catch (error) {
     console.error("Failed to fetch incomplete profiles:", error);
-    return {
-      data: null,
-      error: "처리 대기중인 프로필을 불러오는 데 실패했습니다.",
-    };
+    return { data: null, error: "처리 대기중인 프로필을 불러오는 데 실패했습니다." };
   }
 }
 
@@ -146,34 +97,19 @@ interface PendingImageProfileApiResponse {
   newImages: string[];
 }
 
-export async function getProfilesWithPendingImages() {
-  await checkAuth();
+interface PendingImageProfile{
+  userId: bigint;
+  nickname: string | null;
+  changeTimestamp: Date | null;
+  newImages: string[];
+}
 
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { data: [], error: "Unauthorized" };
-  }
-
+export async function getProfilesWithPendingImages() :Promise<{
+  data: PendingImageProfile[];
+  error?: string;
+}> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/pending-images`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error("getProfilesWithPendingImages API error:", response.status);
-      return { data: [], error: "데이터를 불러오는 데 실패했습니다." };
-    }
-
-    const { data } = await response.json();
-    const profiles = data as PendingImageProfileApiResponse[];
-
+    const profiles : PendingImageProfileApiResponse[] = await apiClient.get<PendingImageProfileApiResponse[]>("/dashboard/pending-images");
     const result = profiles.map((profile) => ({
       userId: BigInt(profile.userId),
       nickname: profile.nickname,
@@ -229,34 +165,13 @@ export async function getRecentKpiHistory(): Promise<{
   data: KpiData[] | null;
   error: string | null;
 }> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { data: null, error: "Unauthorized" };
-  }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/dashboard/kpi-history?days=5`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
+    const kpiList : KpiApiResponse[] = await apiClient.get<KpiApiResponse[]>("/dashboard/kpi-history", {
+      days: "5",
+    });
 
-    if (!response.ok) {
-      console.error("getRecentKpiHistory API error:", response.status);
-      return { data: null, error: "최근 KPI 기록을 가져오는 데 실패했습니다." };
-    }
-
-    const { data } = await response.json();
-    const kpiList = data as KpiApiResponse[];
-
-    return {
+        return {
       data: kpiList,
       error: null,
     };

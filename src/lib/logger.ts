@@ -24,7 +24,8 @@ export async function apiFetch(
   const { logInfo, ...fetchOptions } = options;
 
   // URL에서 base URL 제거하고 path만 추출
-  const baseUrl = process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL || "";
+  // const baseUrl = process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL || "";
+  const baseUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL || "";
   const path = url.replace(baseUrl, "");
 
   const response = await fetch(url, fetchOptions);

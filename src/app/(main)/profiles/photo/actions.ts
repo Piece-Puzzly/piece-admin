@@ -1,8 +1,6 @@
 "use server";
 
-import { checkAuth } from "@/lib/actions/auth";
-import { authOptions } from "@/lib/auth-options";
-import { getServerSession } from "next-auth";
+import { apiClient } from "@/lib/api-client";
 
 interface GetProfileImagesParams {
   page?: number;
@@ -67,18 +65,6 @@ function convertApiResponseToProfileImageData(apiResponse: ProfileImageApiRespon
 }
 
 export async function getProfileImages(params: GetProfileImagesParams) {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return {
-      images: [],
-      totalCount: 0,
-      totalPages: 1,
-      error: "Unauthorized",
-    };
-  }
-
   try {
     const {
       page = 1,
@@ -90,53 +76,38 @@ export async function getProfileImages(params: GetProfileImagesParams) {
       statusFilter = [],
     } = params;
 
-    const urlParams = new URLSearchParams();
-    urlParams.append("page", String(page - 1)); // API is 0-based
-    urlParams.append("size", String(pageSize));
-    urlParams.append("sortBy", sortBy);
-    urlParams.append("sortOrder", sortOrder);
-    if (searchId) urlParams.append("userId", searchId);
-    if (searchNickname) urlParams.append("nickname", searchNickname);
-    if (statusFilter.length > 0) {
-      statusFilter.forEach((s) => urlParams.append("status", s));
-    }
+    const pageData = await apiClient.get<PageApiResponse>("/profiles/images", {
+      page: page - 1,
+      size: pageSize,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      searchId: searchId,
+      searchNickname: searchNickname,
+      status: statusFilter.length > 0 ? statusFilter.join(",") : undefined,
+    });
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/profiles/images?${urlParams.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error("getProfileImages API error:", response.status);
+    if (!pageData || !pageData.content) {
       return {
         images: [],
         totalCount: 0,
         totalPages: 1,
-        error: "이미지 기록을 불러오는 데 실패했습니다.",
+        error: "데이터를 불러오는 데 실패했습니다.",
       };
     }
-
-    const { data } = await response.json();
-    const pageData = data as PageApiResponse;
 
     return {
       images: pageData.content.map(convertApiResponseToProfileImageData),
       totalCount: pageData.totalElements,
       totalPages: Math.max(1, pageData.totalPages),
     };
-  } catch (error) {
-    console.error("Failed to fetch profile images:", error);
+
+   
+  } catch {
     return {
       images: [],
       totalCount: 0,
       totalPages: 1,
-      error: "이미지 기록을 불러오는 데 실패했습니다.",
+      error: "데이터를 불러오는 데 실패했습니다.",
     };
   }
 }

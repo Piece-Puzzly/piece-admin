@@ -40,10 +40,10 @@ export default function PhotoDetailButton({
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
     console.log(res);
-    if (!res.data) {
+    if (!res) {
       toast.error(JSON.stringify(res));
     }
-    setContent(res.data);
+    setContent(res);
   }, [id]);
   return (
     <Dialog
@@ -124,13 +124,11 @@ export default function PhotoDetailButton({
                         content.pendingProfileImage!.profileImageStatus ===
                         "ACCEPTED";
 
-                      const res = await UpdateProfileImageStatus(
+                      await UpdateProfileImageStatus(
                         profileImageId,
                         accepted
                       );
-                      if (res.status !== "success") {
-                        toast.error(JSON.stringify(res));
-                      }
+                    
                       await update();
                       setLoading(false);
                     }}

@@ -1,8 +1,5 @@
 "use server";
-
-import { checkAuth } from "@/lib/actions/auth";
-import { authOptions } from "@/lib/auth-options";
-import { getServerSession } from "next-auth";
+import { apiClient } from "@/lib/api-client";
 
 interface ProfileStatsApiResponse {
   totalProfiles: number;
@@ -16,33 +13,9 @@ interface ProfileStatsApiResponse {
 }
 
 export async function getProfileStats() {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { totalProfiles: 0 };
-  }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/stats/profiles`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error("getProfileStats API error:", response.status);
-      return { totalProfiles: 0 };
-    }
-
-    const { data } = await response.json();
-    const stats = data as ProfileStatsApiResponse;
-
+    const stats : ProfileStatsApiResponse = await apiClient.get<ProfileStatsApiResponse>("/stats/profiles");
     return {
       totalProfiles: stats.totalProfiles,
       ageDistribution: stats.ageDistribution || {},
@@ -55,7 +28,7 @@ export async function getProfileStats() {
     };
   } catch (error) {
     console.error("Failed to fetch profile stats:", error);
-    throw new Error("프로필 통계를 가져오는 데 실패했습니다.");
+    return { totalProfiles: 0 };
   }
 }
 
@@ -90,40 +63,17 @@ export async function getUsersInStatCategory(options: {
   page?: number;
   perPage?: number;
 }): Promise<PaginatedUsersResponse> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { users: [], totalCount: 0 };
-  }
 
   const { category, value, page = 1, perPage = 10 } = options;
 
   try {
-    const params = new URLSearchParams();
-    params.append("category", category);
-    params.append("value", value);
-    params.append("page", String(page - 1)); // API is 0-based
-    params.append("size", String(perPage));
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/stats/profiles/users?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error("getUsersInStatCategory API error:", response.status);
-      return { users: [], totalCount: 0 };
-    }
-
-    const { data } = await response.json();
-    const pageData = data as PageApiResponse;
+    const pageData = await apiClient.get<PageApiResponse>("/stats/profiles/users", {
+      category: category,
+      value: value,
+      page: String(page - 1),
+      size: String(perPage),
+    });
 
     const users = pageData.content.map((user) => ({
       userId: user.userId ? BigInt(user.userId) : undefined,
