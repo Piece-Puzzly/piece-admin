@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "../auth-options";
 import { apiFetch, logger } from "../logger";
 import { checkAuth } from "./auth";
+import { apiClient } from "../api-client";
 
 // API 응답 타입 정의
 interface PaymentInfoApi {
@@ -129,45 +130,23 @@ export async function getMatchHistory({
   pageSize?: number;
   matchType?: "basic" | "paid";
 }): Promise<MatchHistoryResult> {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return {
-      data: [],
-      pagination: { total: 0, page: 1, pageSize, totalPages: 1 },
-    };
-  }
 
   try {
-    const params = new URLSearchParams();
-    params.append("page", String(page - 1)); // API는 0-based
-    params.append("size", String(pageSize));
-    if (user1Id) params.append("user1Id", String(user1Id));
-    if (user2Id) params.append("user2Id", String(user2Id));
-    if (matchType) params.append("matchType", matchType);
-
-    const response = await apiFetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
+    const pageData = await apiClient.get<PageApiResponse>("/match-info", {
+      page: String(page - 1),
+      size: String(pageSize),
+      user1Id: user1Id?.toString(),
+      user2Id: user2Id?.toString(),
+      matchType: matchType,
+    });
+  
+    if (!pageData || !pageData.content) {
       return {
         data: [],
-        pagination: { total: 0, page, pageSize, totalPages: 1 },
+        pagination: { total: 0, page: 1, pageSize, totalPages: 1 },
       };
     }
-
-    const { data } = await response.json();
-    const pageData = data as PageApiResponse;
-
+  
     return {
       data: pageData.content.map(convertApiResponseToMatchHistoryRow),
       pagination: {
@@ -177,11 +156,12 @@ export async function getMatchHistory({
         totalPages: Math.max(1, pageData.totalPages),
       },
     };
+
   } catch (err) {
     logger.error("getMatchHistory", err);
     return {
       data: [],
-      pagination: { total: 0, page, pageSize, totalPages: 1 },
+      pagination: { total: 0, page: 1, pageSize, totalPages: 1 },
     };
   }
 }
@@ -203,38 +183,15 @@ export async function updateMatchInfoStatus(params: {
     | "UNCHECKED"
     | null;
 }) {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    throw new Error("Unauthorized");
-  }
-
   const { id, user_1_match_status, user_2_match_status } = params;
   if (!id) throw new Error("id is required");
-
   try {
-    const response = await apiFetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${id}/status`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user1MatchStatus: user_1_match_status,
-          user2MatchStatus: user_2_match_status,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to update match status");
-    }
-
-    const { data } = await response.json();
-    return convertApiResponseToMatchHistoryRow(data);
+    const response = await apiClient.patch<MatchInfoApiResponse>(`/match-info/${id}/status`, {
+      user1MatchStatus: user_1_match_status,
+      user2MatchStatus: user_2_match_status,
+    });
+    return convertApiResponseToMatchHistoryRow(response);
+  
   } catch (err) {
     logger.error("updateMatchInfoStatus", err);
     throw err;
@@ -243,30 +200,10 @@ export async function updateMatchInfoStatus(params: {
 
 // match id 받고 그 match id에 해당하는 행 삭제하는 함수
 export async function deleteMatchInfo(matchId: bigint | number) {
-  await checkAuth();
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    throw new Error("Unauthorized");
-  }
-
   if (!matchId) throw new Error("matchId is required");
 
   try {
-    const response = await apiFetch(
-      `${process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL}/match-info/${matchId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to delete match");
-    }
-
+    await apiClient.delete<MatchInfoApiResponse>(`/match-info/${matchId}`);
     revalidatePath("/match-action");
     return { success: true };
   } catch (err) {

@@ -6,15 +6,15 @@ import BlockPagination from "./_components/block-pagination";
 
 export default async function Page() {
   const res = (await getBlockDatas(0)) as BlockedUsersResponses;
-
-  if (res.data == undefined) {
+  console.log("res: " , res);
+  if (res.content == undefined) {
     return JSON.stringify(res);
   } else {
     return (
       <div className="space-y-[44px] mb-[86px]">
         <BlockTableStoreProvider
-          data={res.data.content}
-          totalNum={res.data.totalElements}
+          data={res.content}
+          totalNum={res.totalElements}
         >
           <BlockDataTable />
           <BlockPagination />

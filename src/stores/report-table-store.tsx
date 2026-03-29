@@ -26,7 +26,7 @@ export const createReportTableStore = (initState: ReportTableState) => {
         toast("not authenticated");
         return;
       }
-      set({ data: data.data.content, totalNum: data.data.totalElements, page });
+      set({ data: data.content, totalNum: data.totalElements, page });
     },
   }));
 };

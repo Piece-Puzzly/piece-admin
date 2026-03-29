@@ -9,16 +9,15 @@ import ReportReasonDialog from "./_components/report-reason-dialog";
 export default async function Page() {
   const res = (await getReportedDatas(0)) as ReportedUsersResponses;
 
-  if (res.data == undefined) {
+  if (res.content == undefined) {
     return JSON.stringify(res);
   } else {
-    const data = res.data;
 
     return (
       <div className="space-y-[44px] mb-[86px]">
         <ReportTableStoreProvider
-          data={data.content}
-          totalNum={res.data.totalElements}
+          data={res.content}
+          totalNum={res.totalElements}
         >
           <ReportReasonDialog />
           <ReportDataTable />
