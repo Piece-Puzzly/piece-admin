@@ -1,8 +1,5 @@
 "use server";
 
-import { checkAuth } from "@/lib/actions/auth";
-import { authOptions } from "@/lib/auth-options";
-import { getServerSession } from "next-auth";
 import { apiClient } from "@/lib/api-client";
 
 interface GetProfileImagesParams {

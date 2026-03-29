@@ -1,8 +1,5 @@
 "use server";
 
-import { checkAuth } from "@/lib/actions/auth";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { apiClient } from "@/lib/api-client";
 
 export type RecentReport = {
@@ -100,7 +97,17 @@ interface PendingImageProfileApiResponse {
   newImages: string[];
 }
 
-export async function getProfilesWithPendingImages() {
+interface PendingImageProfile{
+  userId: bigint;
+  nickname: string | null;
+  changeTimestamp: Date | null;
+  newImages: string[];
+}
+
+export async function getProfilesWithPendingImages() :Promise<{
+  data: PendingImageProfile[];
+  error?: string;
+}> {
   try {
     const profiles : PendingImageProfileApiResponse[] = await apiClient.get<PendingImageProfileApiResponse[]>("/dashboard/pending-images");
     const result = profiles.map((profile) => ({

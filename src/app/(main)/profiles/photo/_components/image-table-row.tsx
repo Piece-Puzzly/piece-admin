@@ -38,15 +38,11 @@ export function ImageTableRow({ image }: { image: ProfileImageData }) {
     }
 
     setIsSubmitting(true);
-    const result = await UpdateProfileImageStatus(
+    await UpdateProfileImageStatus(
       Number(image.profile_image_id),
       reviewStatus === "ACCEPTED"
     );
 
-    if (result.status === "success") {
-    } else {
-      toast.error(result.message);
-    }
     setIsSubmitting(false);
   };
 

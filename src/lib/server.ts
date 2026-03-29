@@ -1,8 +1,6 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth-options";
-import { apiFetch, logger } from "./logger";
+import { logger } from "./logger";
 import { apiClient } from "./api-client";
 import { ReportDetailsResponses } from "./types";
 import { ProfileDetail } from "./types";

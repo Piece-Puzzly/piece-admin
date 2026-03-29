@@ -1,8 +1,5 @@
 "use server";
 
-import { checkAuth } from "@/lib/actions/auth";
-import { authOptions } from "@/lib/auth-options";
-import { getServerSession } from "next-auth";
 import { InitialData, UserData } from "./types.d";
 import { apiClient } from "@/lib/api-client";
 

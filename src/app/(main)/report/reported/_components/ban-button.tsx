@@ -17,7 +17,6 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function BanButton({
   userId,
@@ -76,10 +75,7 @@ export default function BanButton({
               variant="default"
               onClick={async () => {
                 setLoading(true);
-                const res = await banUsers(userId);
-                if (res.status !== "success") {
-                  toast.error(JSON.stringify(res));
-                }
+                await banUsers(userId);
                 setLoading(false);
                 await update();
                 router.replace(pathname);

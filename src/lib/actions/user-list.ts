@@ -1,10 +1,5 @@
 // lib/actions/user-list.ts
 "use server";
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth-options";
-import { apiFetch, logger } from "../logger";
-import { checkAuth } from "./auth";
 import { apiClient } from "../api-client";
 
 // API 응답 타입
@@ -44,11 +39,6 @@ interface UserWithProfile {
   } | null;
 }
 
-interface UserWithProfileResponse {
-  users: UserWithProfile[];
-  totalPages: number;
-  totalCount: number;
-}
 export async function getUsersByRole(
   role: string,
   page: number,
