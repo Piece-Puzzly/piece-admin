@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import UserInfoButton from "@/components/user-info/user-info-button";
+import { getImageSrc } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,7 +66,7 @@ export function ChangedImageCard({ profiles }: ChangedImageCardProps) {
                         className="relative w-20 h-20 rounded-md overflow-hidden border-2 border-yellow-400"
                       >
                         <Image
-                          src={imageUrl}
+                          src={getImageSrc(imageUrl)}
                           alt={`${data.nickname}의 새 이미지 ${index + 1}`}
                           layout="fill"
                           objectFit="cover"

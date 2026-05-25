@@ -19,57 +19,55 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 
+// 운영자가 하는 일 기준 4그룹 IA. (URL은 기존 경로 유지 — 폴더 이동은 별도 단계)
 export const navMain = [
-  { url: "/dashboard", title: "대시보드" },
   {
-    url: "/profiles",
-    title: "회원 프로필 심사",
+    url: "/dashboard",
+    title: "대시보드",
     items: [
-      { url: "/profiles/profile", title: "프로필" },
-      { url: "/profiles/photo", title: "사진" },
+      { url: "/dashboard", title: "대시보드" },
+      { url: "/profile-stats", title: "프로필 통계" },
     ],
   },
   {
-    url: "/report",
-    title: "신고 유저 검토 및 제재",
+    url: "/review",
+    title: "심사·제재",
     items: [
-      { url: "/report/blocked", title: "차단" },
+      { url: "/profiles/profile", title: "프로필 심사" },
+      { url: "/profiles/photo", title: "사진 심사" },
+      { url: "/profiles/profile/history", title: "심사 내역" },
       { url: "/report/reported", title: "신고" },
+      { url: "/report/blocked", title: "차단" },
     ],
   },
-  { url: "/match", title: "수동 매칭" },
   {
-    url: "/match-action",
-    title: "매치 상태 관리",
+    url: "/matching",
+    title: "매칭 관리",
     items: [
-      { url: "/match-action/free", title: "무료 매칭" },
-      { url: "/match-action/paid", title: "유료 매칭" },
+      { url: "/match", title: "수동 매칭" },
+      { url: "/match-action", title: "매칭 상태 관리" },
     ],
   },
   {
-    url: "/user-list",
+    url: "/users",
     title: "유저 조회",
     items: [
-      { url: "/user-list/role-none", title: "미인증 유저" },
-      { url: "/user-list/role-register", title: "프로필 미작성 유저" },
-      { url: "/user-list/role-pending", title: "심사 미완료 유저" },
-      { url: "/user-list/role-user", title: "정상 유저" },
+      { url: "/user-list", title: "유저 조회" },
+      { url: "/marketing-consent", title: "마케팅 동의 유저" },
+      { url: "/referral-code", title: "추천인 코드 조회" },
     ],
   },
   {
-    url: "/marketing-consent",
-    title: "마케팅 동의 유저",
-  },
-  {
-    url: "/profile-stats",
-    title: "프로필 통계",
+    url: "/puzzle",
+    title: "퍼즐 관리",
   },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   return (
-    <SidebarGroup>
+    // 사이드바가 접히면(아이콘 레일) 메뉴 글씨는 숨기고 패널 내 햄버거만 남긴다.
+    <SidebarGroup className="group-data-[state=collapsed]:hidden">
       <SidebarMenu>
         {navMain.map((item) => {
           const isParentActive = item.items?.some(

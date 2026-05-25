@@ -17,6 +17,7 @@ export const roleNameMap: Record<string, string> = {
   REGISTER: "프로필 미작성",
   PENDING: "심사 미완료",
   USER: "정상",
+  DELETED: "탈퇴",
 };
 
 export const imageStatusOptions = [

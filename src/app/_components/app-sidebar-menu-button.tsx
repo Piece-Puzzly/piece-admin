@@ -2,19 +2,24 @@
 
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useMount } from "@/hooks/use-mount";
 import { Menu } from "lucide-react";
-import { useMediaQuery } from "../hooks/use-media-query";
 
+// 모바일에서만 노출: 닫힌 사이드바 시트를 여는 햄버거.
+// 데스크톱은 패널 내부 햄버거(AppSidebarHeader)로 접고/펴므로 헤더엔 표시하지 않는다.
 export default function AppSidebarMenuButton() {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const isMount = useMount();
-  const { toggleSidebar } = useSidebar();
+  const { isMobile, toggleSidebar } = useSidebar();
 
-  if (!isDesktop && isMount)
-    return (
-      <Button variant={"ghost"} className="size-8" onClick={toggleSidebar}>
-        <Menu />
-      </Button>
-    );
+  if (!isMobile) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-8"
+      onClick={toggleSidebar}
+      aria-label="사이드바 열기"
+    >
+      <Menu />
+    </Button>
+  );
 }

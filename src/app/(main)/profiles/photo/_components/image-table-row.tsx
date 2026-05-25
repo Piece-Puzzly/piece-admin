@@ -3,6 +3,7 @@
 import { useDebug } from "@/app/hooks/use-debug";
 import PhotoDetailButton from "@/components/detail-buttons/photo-detail-button";
 import ImageStatus from "@/components/image-status";
+import ProfileImage from "@/components/profile-image";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import {
@@ -13,7 +14,6 @@ import {
 import { UpdateProfileImageStatus } from "@/lib/server";
 import { toLocaleDateString, toLocaleString } from "@/lib/utils";
 import { Loader } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UpdateProfileImageToggles } from "./update-profile-image-toggles";
@@ -52,17 +52,18 @@ export function ImageTableRow({ image }: { image: ProfileImageData }) {
   return (
     <TableRow key={image.profile_image_id}>
       <TableCell className="flex justify-center">
-        {image.image_url ? (
-          <Image
-            src={image.image_url}
-            alt="Profile"
-            width={64}
-            height={64}
-            className="rounded-md object-cover w-16 h-16 shrink-0"
-          />
-        ) : (
-          "N/A"
-        )}
+        <ProfileImage
+          src={image.image_url}
+          alt="프로필 이미지"
+          width={64}
+          height={64}
+          className="rounded-md object-cover w-16 h-16 shrink-0"
+          fallback={
+            <div className="flex w-16 h-16 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
+              사진 없음
+            </div>
+          }
+        />
       </TableCell>
       <TableCell>
         {image.profile?.user_table?.user_id ? (

@@ -18,7 +18,8 @@ class ApiError extends Error {
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  // accessToken이 없거나, 리프레시 실패(error)면 재로그인으로 보낸다.
+  if (!session?.accessToken || session.error) {
     redirect("/login");
   }
   return {
@@ -68,8 +69,14 @@ async function request<T>(
   const text = await response.text();
   if (!text) return {} as T;
 
-  const json = JSON.parse(text);
-  return json.data as T;
+  try {
+    const json = JSON.parse(text);
+    // data 키가 없거나 null이면 null을 반환해 호출부에서 방어하도록 함
+    return (json?.data ?? null) as T;
+  } catch {
+    // 응답 본문이 JSON이 아니거나 손상된 경우 방어
+    return {} as T;
+  }
 }
 
 export const apiClient = {

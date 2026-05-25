@@ -9,7 +9,6 @@ interface ProfileImagesPageProps {
     sortOrder?: "asc" | "desc";
     searchId?: string;
     searchNickname?: string;
-    status?: string;
   }>;
 }
 
@@ -23,7 +22,8 @@ export default async function ProfileImagesPage({
   const sortOrder = searchParams.sortOrder === "asc" ? "asc" : "desc";
   const searchId = searchParams.searchId;
   const searchNickname = searchParams.searchNickname;
-  const statusFilter = searchParams.status?.split(",") || [];
+  // 사진 심사는 PENDING(심사 필요) 전용 큐다. 상태는 항상 PENDING으로 고정해 조회한다.
+  const statusFilter = ["PENDING"];
 
   const initialData = await getProfileImages({
     page,

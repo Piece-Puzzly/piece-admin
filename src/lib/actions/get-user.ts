@@ -1,7 +1,7 @@
 // lib/actions/get-user.ts
 "use server";
 
-import { apiClient } from "../api-client";
+import { apiClient, ApiError } from "../api-client";
 
 
 // API 응답 타입 정의
@@ -67,8 +67,30 @@ export async function getUserInfo(userId: string | number | bigint): Promise<Use
   return apiClient.get<UserInfoResponse>(`/users/${userId}`);
 }
 
-export async function getUserAllInfo(user_id: bigint | number): Promise<UserFullInfoResponse | null> {
-  return apiClient.get<UserFullInfoResponse>(`/users/${user_id}/full`);
+// 프로필 조회 결과 — 404(또는 데이터 없음)와 일반 에러를 호출부가 구분할 수 있도록 함
+export type UserAllInfoResult =
+  | { status: "ok"; data: UserFullInfoResponse }
+  | { status: "not-found" }
+  | { status: "error"; message: string };
+
+export async function getUserAllInfo(
+  user_id: bigint | number
+): Promise<UserAllInfoResult> {
+  try {
+    const data = await apiClient.get<UserFullInfoResponse>(
+      `/users/${user_id}/full`
+    );
+    if (!data) return { status: "not-found" };
+    return { status: "ok", data };
+  } catch (e) {
+    // 알려진 API 에러만 결과로 변환. 404는 프로필 없음으로 처리
+    if (e instanceof ApiError) {
+      if (e.status === 404) return { status: "not-found" };
+      return { status: "error", message: `프로필 조회 실패 (${e.status})` };
+    }
+    // redirect(NEXT_REDIRECT) 등 Next.js 내부 에러는 그대로 전파
+    throw e;
+  }
 }
 
 export async function getMarketingConsentUsers(): Promise<UserFullInfoResponse | null> {

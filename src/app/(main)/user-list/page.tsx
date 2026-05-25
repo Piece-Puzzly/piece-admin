@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function page() {
-  redirect("/user-list/role-none");
+  redirect("/user-list/role-user");
 }

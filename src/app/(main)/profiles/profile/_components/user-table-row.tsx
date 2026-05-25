@@ -5,6 +5,7 @@ import { useDebug } from "@/app/hooks/use-debug";
 import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import ProfileStatus from "@/components/profile-status";
 import { Button } from "@/components/ui/button";
+import { roleNameMap } from "@/lib/constants";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Toggle } from "@/components/ui/toggle";
 import {
@@ -13,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { updateProfileStatus } from "@/lib/server";
-import { toLocaleDateString, toLocaleString } from "@/lib/utils";
+import { cn, toLocaleDateString, toLocaleString } from "@/lib/utils";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -33,6 +34,13 @@ const rejectionStatusInfo = [
 export function UserTableRow({ user }: UserTableRowProps) {
   const [isSaving, setIsSaving] = useState(false);
   const debug = useDebug((e) => e.debug);
+
+  // 탈퇴 유저: 목록에는 is_admin이 없어 닉네임이 "탈퇴_"로 시작하는지로 판별
+  const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
+
+  // 사진 보유 여부 판정: imageUrl이 "명시적으로 null"일 때만 미제출로 보고 비활성.
+  // 필드가 아직 안 내려오면(undefined, BE 미배포) 활성 유지해 기존 UX를 깨지 않는다.
+  const photoSubmitted = user.profile?.image_url !== null;
 
   // 1. 서버에서 받은 초기 상태를 저장
   const initialStatus = {
@@ -81,12 +89,16 @@ export function UserTableRow({ user }: UserTableRowProps) {
   };
 
   return (
-    <TableRow key={user.user_id}>
+    <TableRow
+      key={user.user_id}
+      className={cn(isWithdrawn && "bg-destructive/5 hover:bg-destructive/10")}
+    >
       <TableCell className="font-medium">{user.user_id}</TableCell>
       <TableCell>
         <ProfileDetailButton
           userId={Number(user.user_id)}
           nickname={user.profile?.nickname || ""}
+          userRole={user.role}
         />
       </TableCell>
       <TableCell>
@@ -106,6 +118,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
         </Tooltip>
       </TableCell>
       <TableCell>
+        {user.role ? roleNameMap[user.role] ?? user.role : "-"}
+      </TableCell>
+      <TableCell>
         {user.profile?.profile_status ? (
           <ProfileStatus status={user.profile?.profile_status} />
         ) : (
@@ -123,7 +138,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
                     handleToggleChange(key, pressed)
                   }
                   disabled={
-                    user.profile?.profile_status === "APPROVED" && !debug
+                    (!debug && user.profile?.profile_status === "APPROVED") ||
+                    // 사진 미제출이면 사진 버튼만 비활성 (소개글은 필수라 항상 활성)
+                    (key === "reason_image" && !photoSubmitted)
                   }
                   className="px-3 leading-6 min-w-[80px]"
                 >

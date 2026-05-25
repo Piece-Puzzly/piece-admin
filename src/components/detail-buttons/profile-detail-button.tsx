@@ -15,8 +15,9 @@ import {
 import { getUserById } from "@/lib/server";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
+import { roleNameMap } from "@/lib/constants";
 import { ProfileDetail } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -27,6 +28,7 @@ import UserInfoTrigger from "../user-info/user-info-trigger";
 export default function ProfileDetailButton({
   userId,
   nickname,
+  userRole,
   showId = false,
   className,
   ...props
@@ -34,11 +36,30 @@ export default function ProfileDetailButton({
   showId?: boolean;
   userId: number | null;
   nickname: string;
+  userRole?: string | null;
 } & React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   const [content, setContent] = useState<ProfileDetail | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
+  const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const debug = useDebug((e) => e.debug);
+
+  const handleOpenChange = async (next: boolean) => {
+    // 닫기
+    if (!next) {
+      setOpen(false);
+      return;
+    }
+    // 열기 시도: 프로필이 존재할 때만 다이얼로그를 연다
+    const res = await getUserById(userId as number);
+    if (!res) {
+      toast.error("존재하지 않는 프로필입니다.");
+      return;
+    }
+    setContent(res);
+    setPage(1);
+    setOpen(true);
+  };
 
   const questionComps = [
     content && (
@@ -52,13 +73,13 @@ export default function ProfileDetailButton({
         <ChevronLeft />
       </PaginationButton>
     ),
-    content && <QuestionCard key="1" data={content.responses[page - 1]} />,
+    content && <QuestionCard key="1" data={content.responses?.[page - 1]} />,
     content && (
       <PaginationButton
         key="2"
-        isActive={page !== content.responses.length}
+        isActive={page !== (content.responses?.length ?? 0)}
         onClick={() => {
-          setPage(Math.min(page + 1, content.responses.length));
+          setPage(Math.min(page + 1, content.responses?.length ?? 1));
         }}
       >
         <ChevronRight />
@@ -67,19 +88,7 @@ export default function ProfileDetailButton({
   ];
 
   return (
-    <Dialog
-      onOpenChange={async (e) => {
-        if (e) {
-          const res = await getUserById(userId as number);
-
-          if (!res) {
-            toast.error(JSON.stringify(res));
-          }
-
-          setContent(res);
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -104,7 +113,7 @@ export default function ProfileDetailButton({
             <div className="flex flex-col-reverse md:flex-col gap-[20px] items-center ">
               <Image
                 className="rounded-lg"
-                src={content.imageUrl}
+                src={getImageSrc(content.imageUrl)}
                 height={220}
                 width={220}
                 alt="Profile"
@@ -116,6 +125,11 @@ export default function ProfileDetailButton({
                 <div className="font-semibold text-[20px]">
                   {content.nickname}
                 </div>
+                {userRole && (
+                  <div className="text-[14px] text-muted-foreground">
+                    {roleNameMap[userRole] ?? userRole}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-x-[20px] w-full max-w-full justify-center">

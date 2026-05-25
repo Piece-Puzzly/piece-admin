@@ -6,9 +6,7 @@ import { KeyboardEvent, useCallback, useState } from "react";
 // Shadcn UI 및 커스텀 컴포넌트 import
 import { CustomPagination } from "@/components/custom-pagination"; // ⭐️ CustomPagination import
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -17,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { imageStatusOptions } from "@/lib/constants";
 import { ImageTableRow } from "./image-table-row";
 
 // 타입 정의 (이전과 동일)
@@ -68,23 +65,12 @@ export function ImageHistoryClient({
     if (e.key === "Enter") handleSearch();
   };
 
-  const handleFilterChange = (value: string) => {
-    const currentFilter = searchParams.get("status")?.split(",") || [];
-    const newFilter = currentFilter.includes(value)
-      ? currentFilter.filter((item) => item !== value)
-      : [...currentFilter, value];
-    const newQueryString = createQueryString({
-      status: newFilter.join(",") || null,
-    });
-    router.push(`${pathname}?${newQueryString}`, { scroll: false });
-  };
-
   const handlePageChange = (page: number) => {
     const newQueryString = createQueryString({ page });
     router.push(`${pathname}?${newQueryString}`, { scroll: false });
   };
 
-  const statusFilter = searchParams.get("status")?.split(",") || [];
+  // 사진 심사는 PENDING(심사 필요) 전용 큐다. 상태 필터는 서버에서 PENDING으로 고정한다.
   const currentPage = Number(searchParams.get("page")) || 1;
   const currentPageSize = Number(searchParams.get("pageSize")) || 10;
 
@@ -110,25 +96,6 @@ export function ImageHistoryClient({
           <Button onClick={handleSearch}>검색</Button>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <h4 className="font-medium">이미지 상태:</h4>
-        <div className="flex flex-wrap gap-4">
-          {imageStatusOptions.map(({ key, label }) => (
-            <div key={key} className="flex items-center space-x-2">
-              <Label htmlFor={key} className="cursor-pointer">
-                <Checkbox
-                  id={key}
-                  checked={statusFilter.includes(key)}
-                  onCheckedChange={() => handleFilterChange(key)}
-                />
-
-                {label}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 데이터 테이블 (이전과 동일) */}
 
       <Table>

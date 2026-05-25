@@ -1,7 +1,7 @@
 "use server";
 
 import { logger } from "./logger";
-import { apiClient } from "./api-client";
+import { apiClient, ApiError } from "./api-client";
 import { ReportDetailsResponses } from "./types";
 import { ProfileDetail } from "./types";
 import { revalidatePath } from "next/cache";
@@ -48,8 +48,17 @@ export async function updateProfileStatus(
   return response;
 }
 
-export const getUserById = async (userId: number) => {
-  return await apiClient.get<ProfileDetail>(`/users/${userId}`);
+export const getUserById = async (
+  userId: number
+): Promise<ProfileDetail | null> => {
+  try {
+    return await apiClient.get<ProfileDetail>(`/users/${userId}`);
+  } catch (e) {
+    // 404(존재하지 않는 프로필)는 null로 반환해 호출부에서 안내하도록 함
+    if (e instanceof ApiError && e.status === 404) return null;
+    // redirect(NEXT_REDIRECT) 등 Next.js 내부 에러는 그대로 전파
+    throw e;
+  }
 };
 
 export const getBlockDatas = async (page: number = 0, size: number = 10) => {
