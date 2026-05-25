@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
+import MemoWidget from "@/components/memo-widget";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { authOptions } from "@/lib/auth-options";
@@ -25,6 +26,7 @@ export default async function layout({
             <div className="">{children}</div>
           </SidebarInset>
         </main>
+        <MemoWidget />
       </div>
     );
   }
