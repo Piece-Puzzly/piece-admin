@@ -70,14 +70,14 @@ export default function PuzzleManageCard({
   const [loading, setLoading] = useState(true);
 
   // 지급 폼 상태
-  const [puzzleType, setPuzzleType] = useState<PuzzleType>("GENERAL");
+  const [puzzleType, setPuzzleType] = useState<PuzzleType>("GENERIC");
   const [amount, setAmount] = useState("");
   const [expiryDays, setExpiryDays] = useState<number>(30);
   const [granting, setGranting] = useState(false);
 
   const count = Number(amount);
   const isValid = Number.isInteger(count) && count > 0;
-  const isReward = puzzleType === "REWARD";
+  const isEvent = puzzleType === "REWARD";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -103,10 +103,10 @@ export default function PuzzleManageCard({
     setGranting(true);
     try {
       // 일반 퍼즐은 만료 없음(0), 이벤트 퍼즐은 30/60/90일 중 선택값
-      const expiryDate = isReward ? expiryDays : 0;
+      const expiryDate = isEvent ? expiryDays : 0;
       await grantPuzzle(id, puzzleType, count, expiryDate);
       toast.success(
-        `${isReward ? "이벤트" : "일반"} 퍼즐 ${count}개를 지급했습니다.`
+        `${isEvent ? "이벤트" : "일반"} 퍼즐 ${count}개를 지급했습니다.`
       );
       setAmount("");
       await load();
@@ -159,7 +159,7 @@ export default function PuzzleManageCard({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="GENERAL">일반 퍼즐</SelectItem>
+                <SelectItem value="GENERIC">일반 퍼즐</SelectItem>
                 <SelectItem value="REWARD">이벤트 퍼즐</SelectItem>
               </SelectContent>
             </Select>
@@ -183,8 +183,8 @@ export default function PuzzleManageCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>퍼즐 지급 확인</AlertDialogTitle>
                   <AlertDialogDescription>
-                    유저 #{id}에게 {isReward ? "이벤트" : "일반"} 퍼즐 {count}개
-                    {isReward && ` (만료 ${expiryDays}일)`}를 지급합니다.
+                    유저 #{id}에게 {isEvent ? "이벤트" : "일반"} 퍼즐 {count}개
+                    {isEvent && ` (만료 ${expiryDays}일)`}를 지급합니다.
                     진행할까요?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -197,7 +197,7 @@ export default function PuzzleManageCard({
           </div>
 
           {/* 이벤트 퍼즐: 만료 기간 토글 (30/60/90일) */}
-          {isReward && (
+          {isEvent && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">만료 기간</span>
               <div className="flex gap-1">

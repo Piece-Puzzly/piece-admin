@@ -33,8 +33,8 @@ export async function getRewardPuzzleHistory(
   return res ?? [];
 }
 
-// 퍼즐 타입. (REWARD = 이벤트 퍼즐, 확정값) TODO(BE 확인): GENERAL 등 나머지 enum 값 확인.
-export type PuzzleType = "GENERAL" | "REWARD";
+// 퍼즐 타입 (BE PuzzleType enum)
+export type PuzzleType = "GENERIC" | "REWARD";
 
 /**
  * 특정 유저에게 퍼즐을 직접 지급한다. (운영 보상 대응 등)
