@@ -38,6 +38,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
   // 탈퇴 유저: 목록에는 is_admin이 없어 닉네임이 "탈퇴_"로 시작하는지로 판별
   const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
 
+  // 사진 미제출(profileImageStatus null) = 심사 대상 아님 → 사진 버튼 비활성
+  const photoSubmitted = user.profileImageStatus != null;
+
   // 1. 서버에서 받은 초기 상태를 저장
   const initialStatus = {
     reason_image: user.user_reject_history?.[0]?.reason_image ?? false,
@@ -134,7 +137,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
                     handleToggleChange(key, pressed)
                   }
                   disabled={
-                    user.profile?.profile_status === "APPROVED" && !debug
+                    (!debug && user.profile?.profile_status === "APPROVED") ||
+                    // 사진 미제출이면 사진 버튼만 비활성 (소개글은 필수라 항상 활성)
+                    (key === "reason_image" && !photoSubmitted)
                   }
                   className="px-3 leading-6 min-w-[80px]"
                 >

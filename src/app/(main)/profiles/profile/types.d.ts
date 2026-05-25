@@ -3,6 +3,8 @@ export type UserData = {
   role: string | null;
   phone: string | null;
   created_at: Date | null;
+  // 사진 심사 상태. null이면 사진 미제출(심사 대상 아님 → 사진 버튼 비활성).
+  profileImageStatus: string | null;
   profile: {
     nickname: string;
     birthdate: Date | null;
