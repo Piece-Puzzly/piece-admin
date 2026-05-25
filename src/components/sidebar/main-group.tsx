@@ -27,7 +27,6 @@ export const navMain = [
     items: [
       { url: "/profiles/profile", title: "프로필" },
       { url: "/profiles/photo", title: "사진" },
-      { url: "/profiles/deleted", title: "탈퇴" },
     ],
   },
   {
