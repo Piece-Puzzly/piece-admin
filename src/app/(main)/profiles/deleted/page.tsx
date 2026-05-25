@@ -1,8 +1,8 @@
-import { UserTableClient } from "./_components/user-table-client";
-import { getUsers } from "./actions";
+import { UserTableClient } from "../profile/_components/user-table-client";
+import { getUsers } from "../profile/actions";
 
-// 페이지 컴포넌트가 URL로부터 받을 수 있는 searchParams의 타입을 정의합니다.
-interface UserAdminPageProps {
+// 메인 프로필 페이지와 동일한 searchParams 구조를 사용합니다.
+interface DeletedProfilePageProps {
   searchParams: Promise<{
     page?: string;
     pageSize?: string;
@@ -15,11 +15,10 @@ interface UserAdminPageProps {
   }>;
 }
 
-// page.tsx는 기본적으로 서버 컴포넌트입니다.
-export default async function UserAdminPage({
+// 탈퇴(DELETED) 유저만 보여주는 탭.
+export default async function DeletedProfilePage({
   searchParams: searchParamsPromise,
-}: UserAdminPageProps) {
-  // 1. URL searchParams를 파싱하여 서버 액션에 전달할 인자를 준비합니다.
+}: DeletedProfilePageProps) {
   const searchParams = await searchParamsPromise;
   const page = Number(searchParams.page) || 1;
   const pageSize = Number(searchParams.pageSize) || 10;
@@ -29,7 +28,6 @@ export default async function UserAdminPage({
   const searchNickname = searchParams.searchNickname;
   const statusFilter = searchParams.status?.split(",") || [];
 
-  // 2. 서버 컴포넌트에서 직접 서버 액션을 호출하여 데이터를 가져옵니다.
   const initialData = await getUsers({
     page,
     pageSize,
@@ -38,9 +36,8 @@ export default async function UserAdminPage({
     searchId,
     searchNickname,
     statusFilter,
-    withdrawnFilter: "exclude", // 탈퇴 유저(닉네임 "탈퇴_") 제외 (탈퇴 탭에서 조회)
+    withdrawnFilter: "only", // 탈퇴 유저(닉네임 "탈퇴_")만 조회
   });
 
-  // 3. 가져온 초기 데이터를 클라이언트 컴포넌트에 props로 전달합니다.
   return <UserTableClient initialData={initialData} />;
 }

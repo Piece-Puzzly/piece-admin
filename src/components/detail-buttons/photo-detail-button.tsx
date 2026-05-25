@@ -18,6 +18,7 @@ import {
 
 import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
 import { Photo } from "@/lib/types";
+import { getImageSrc } from "@/lib/utils";
 import { ChevronRight, Loader } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useState } from "react";
@@ -78,7 +79,7 @@ export default function PhotoDetailButton({
                     <div>수정 전 이미지</div>
                     <Image
                       className="rounded-lg"
-                      src={content.profileImageUrl}
+                      src={getImageSrc(content.profileImageUrl)}
                       height={220}
                       width={220}
                       alt="Profile"
@@ -90,7 +91,7 @@ export default function PhotoDetailButton({
                     <div>수정 후 이미지</div>
                     <Image
                       className="rounded-lg"
-                      src={content.pendingProfileImage.profileImageUrl}
+                      src={getImageSrc(content.pendingProfileImage.profileImageUrl)}
                       height={220}
                       width={220}
                       alt="Profile"
@@ -142,7 +143,7 @@ export default function PhotoDetailButton({
                 <div>현재 이미지</div>
                 <Image
                   className="rounded-lg"
-                  src={content.profileImageUrl}
+                  src={getImageSrc(content.profileImageUrl)}
                   height={220}
                   width={220}
                   alt="Profile"

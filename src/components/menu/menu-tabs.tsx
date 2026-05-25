@@ -18,6 +18,7 @@ export const menuInfo: {
     tabs: [
       { value: "profile", name: "프로필" },
       { value: "photo", name: "사진" },
+      { value: "deleted", name: "탈퇴" },
     ],
   },
   {

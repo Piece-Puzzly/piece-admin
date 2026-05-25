@@ -43,18 +43,21 @@ export default function ReportReasonDialog() {
           0,
           10
         )) as ReportDetailsResponses;
-        const res_profile: ProfileDetail = await getUserById(
+        const res_profile: ProfileDetail | null = await getUserById(
           parseInt(id)
         );
 
         if (!res_report.content) {
           toast.error(JSON.stringify(res_report));
         }
-        if (!res_profile) {
-          toast.error(JSON.stringify(res_profile));
-        }
 
         setData(res_report);
+
+        if (!res_profile) {
+          toast.error("존재하지 않는 프로필입니다.");
+          return;
+        }
+
         setNickName(res_profile.nickname);
       })();
     }

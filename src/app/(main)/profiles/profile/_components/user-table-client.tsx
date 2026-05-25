@@ -235,6 +235,7 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
                 <SortIndicator columnKey="created_at" />
               </div>
             </TableHead>
+            <TableHead>유저 상태</TableHead>
             <TableHead>프로필 상태</TableHead>
             <TableHead>부적격</TableHead>
             <TableHead>제출</TableHead>
@@ -243,7 +244,7 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
         <TableBody>
           {error ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-red-500">
+              <TableCell colSpan={9} className="h-24 text-center text-red-500">
                 {error}
               </TableCell>
             </TableRow>
@@ -251,7 +252,7 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
             users.map((user) => <UserTableRow key={user.user_id} user={user} />)
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={9} className="h-24 text-center">
                 결과가 없습니다.
               </TableCell>
             </TableRow>

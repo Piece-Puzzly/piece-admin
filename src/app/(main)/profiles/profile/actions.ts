@@ -11,10 +11,14 @@ interface GetUsersParams {
   searchId?: string;
   searchNickname?: string;
   statusFilter?: string[];
+  // 탈퇴 유저 필터링. user role이 "DELETED"인지로 판별한다.
+  // "only" = 탈퇴 유저만, "exclude" = 탈퇴 유저 제외
+  withdrawnFilter?: "only" | "exclude";
 }
 
 interface ProfileListApiResponse {
   userId: number;
+  role: string | null;
   phone: string | null;
   createdAt: string | null;
   profile: {
@@ -42,6 +46,7 @@ interface PageApiResponse {
 function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): UserData {
   return {
     user_id: BigInt(apiResponse.userId),
+    role: apiResponse.role,
     phone: apiResponse.phone,
     created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
     profile: apiResponse.profile ? {
@@ -56,6 +61,13 @@ function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): User
   };
 }
 
+// 탈퇴 유저 판별: user role이 "DELETED"인지로 구분한다.
+const DELETED_ROLE = "DELETED";
+
+function isWithdrawnUser(user: UserData): boolean {
+  return user.role === DELETED_ROLE;
+}
+
 export async function getUsers(params: GetUsersParams): Promise<InitialData> {
 
     const {
@@ -66,6 +78,7 @@ export async function getUsers(params: GetUsersParams): Promise<InitialData> {
       searchId,
       searchNickname,
       statusFilter = [],
+      withdrawnFilter,
     } = params;
 
 
@@ -80,6 +93,7 @@ export async function getUsers(params: GetUsersParams): Promise<InitialData> {
         nickname: searchNickname, // 값이 없으면 apiClient가 알아서 제외
         // 배열 파라미터 처리: 요소가 있을 때만 'A,B' 형태로 결합
         status: statusFilter.length > 0 ? statusFilter.join(",") : undefined,
+        // 탈퇴 필터는 백엔드에 보내지 않고 아래에서 프론트 필터링으로 처리
       }
     );
 
@@ -93,9 +107,20 @@ export async function getUsers(params: GetUsersParams): Promise<InitialData> {
       };
     }
 
-    // 3. 기존 매핑 및 반환 로직 유지
+    // 3. 매핑 후, withdrawnFilter에 따라 프론트에서 탈퇴 유저를 필터링한다.
+    //    (user role이 "DELETED"인지로 판별)
+    const allUsers = pageData.content.map(convertApiResponseToUserData);
+    const users =
+      withdrawnFilter === "only"
+        ? allUsers.filter(isWithdrawnUser)
+        : withdrawnFilter === "exclude"
+          ? allUsers.filter((user) => !isWithdrawnUser(user))
+          : allUsers;
+
+    // 주의: 서버 사이드 페이지네이션이므로 totalCount/totalPages에는
+    // 필터링으로 제외된 유저도 포함되어, 페이지당 행 수가 줄거나 카운트가 다소 부정확할 수 있음.
     return {
-      users: pageData.content.map(convertApiResponseToUserData),
+      users,
       totalCount: pageData.totalElements,
       totalPages: Math.max(1, pageData.totalPages),
     };

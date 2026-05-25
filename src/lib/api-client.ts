@@ -68,8 +68,14 @@ async function request<T>(
   const text = await response.text();
   if (!text) return {} as T;
 
-  const json = JSON.parse(text);
-  return json.data as T;
+  try {
+    const json = JSON.parse(text);
+    // data 키가 없거나 null이면 null을 반환해 호출부에서 방어하도록 함
+    return (json?.data ?? null) as T;
+  } catch {
+    // 응답 본문이 JSON이 아니거나 손상된 경우 방어
+    return {} as T;
+  }
 }
 
 export const apiClient = {

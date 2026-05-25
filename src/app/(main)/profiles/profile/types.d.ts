@@ -1,5 +1,6 @@
 export type UserData = {
   user_id: bigint;
+  role: string | null;
   phone: string | null;
   created_at: Date | null;
   profile: {

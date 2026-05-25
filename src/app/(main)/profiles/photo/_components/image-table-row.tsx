@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UpdateProfileImageStatus } from "@/lib/server";
-import { toLocaleDateString, toLocaleString } from "@/lib/utils";
+import { getImageSrc, toLocaleDateString, toLocaleString } from "@/lib/utils";
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -54,7 +54,7 @@ export function ImageTableRow({ image }: { image: ProfileImageData }) {
       <TableCell className="flex justify-center">
         {image.image_url ? (
           <Image
-            src={image.image_url}
+            src={getImageSrc(image.image_url)}
             alt="Profile"
             width={64}
             height={64}
