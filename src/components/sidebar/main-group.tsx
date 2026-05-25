@@ -60,7 +60,8 @@ export default function MainGroup() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   return (
-    <SidebarGroup>
+    // 사이드바가 접히면(아이콘 레일) 메뉴 글씨는 숨기고 패널 내 햄버거만 남긴다.
+    <SidebarGroup className="group-data-[state=collapsed]:hidden">
       <SidebarMenu>
         {navMain.map((item) => {
           const isParentActive = item.items?.some(
