@@ -40,12 +40,29 @@ export default function PhotoDetailButton({
     useState<string>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
-    console.log(res);
     if (!res) {
-      toast.error(JSON.stringify(res));
+      toast.error("사진 정보를 불러오지 못했습니다.");
     }
     setContent(res);
   }, [id]);
+
+  // 사진이 없으면(없거나 빈/null 문자열) 이미지 대신 "사진 없음"을 표시
+  const renderPhoto = (url: string | null | undefined) => {
+    const hasPhoto = !!url && url.trim() !== "" && url.trim() !== "null";
+    return hasPhoto ? (
+      <Image
+        className="rounded-lg"
+        src={getImageSrc(url)}
+        height={220}
+        width={220}
+        alt="Profile"
+      />
+    ) : (
+      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+        사진 없음
+      </div>
+    );
+  };
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -77,25 +94,13 @@ export default function PhotoDetailButton({
                 <div className="flex justify-between items-center gap-[20px]">
                   <div className="space-y-[20px] flex flex-col items-center">
                     <div>수정 전 이미지</div>
-                    <Image
-                      className="rounded-lg"
-                      src={getImageSrc(content.profileImageUrl)}
-                      height={220}
-                      width={220}
-                      alt="Profile"
-                    />
+                    {renderPhoto(content.profileImageUrl)}
                   </div>
                   <ChevronRight className="text-gray-black" />
 
                   <div className="space-y-[20px] flex flex-col items-center">
                     <div>수정 후 이미지</div>
-                    <Image
-                      className="rounded-lg"
-                      src={getImageSrc(content.pendingProfileImage.profileImageUrl)}
-                      height={220}
-                      width={220}
-                      alt="Profile"
-                    />
+                    {renderPhoto(content.pendingProfileImage.profileImageUrl)}
                   </div>
                 </div>
 
@@ -141,13 +146,7 @@ export default function PhotoDetailButton({
             ) : (
               <div className="space-y-[20px] flex flex-col items-center">
                 <div>현재 이미지</div>
-                <Image
-                  className="rounded-lg"
-                  src={getImageSrc(content.profileImageUrl)}
-                  height={220}
-                  width={220}
-                  alt="Profile"
-                />
+                {renderPhoto(content.profileImageUrl)}
               </div>
             )}
           </div>
