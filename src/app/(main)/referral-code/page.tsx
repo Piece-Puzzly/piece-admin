@@ -79,7 +79,9 @@ export default function ReferralCodePage() {
             <Field label="추천인 코드" value={info.referralCode ?? "-"} />
             <Field label="초대 인원" value={info.inviteCount ?? 0} />
             <Field label="보상 퍼즐 수" value={info.rewardPuzzleCount ?? 0} />
-            <Field label="코드 만료" value={info.expired ? "만료됨" : "유효"} />
+            {info.expired != null && (
+              <Field label="코드 만료" value={info.expired ? "만료됨" : "유효"} />
+            )}
             <Field
               label="이미 초대받음"
               value={info.alreadyInvited ? "예" : "아니오"}
