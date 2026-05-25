@@ -57,7 +57,7 @@ const formatDateTime = (value: string | null) =>
   value ? new Date(value).toLocaleString("ko-KR", { timeZone: "UTC" }) : "-";
 
 // 보상 퍼즐 만료 옵션 (일)
-const EXPIRY_OPTIONS = [30, 60, 90] as const;
+const EXPIRY_OPTIONS = [30, 60, 90, 120, 150] as const;
 
 export default function PuzzleManageCard({
   userId,
