@@ -3,19 +3,6 @@
 import { InitialData, UserData } from "./types.d";
 import { apiClient } from "@/lib/api-client";
 
-interface GetUsersParams {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  searchId?: string;
-  searchNickname?: string;
-  statusFilter?: string[];
-  // 탈퇴 유저 필터링. user role이 "DELETED"인지로 판별한다.
-  // "only" = 탈퇴 유저만, "exclude" = 탈퇴 유저 제외
-  withdrawnFilter?: "only" | "exclude";
-}
-
 interface ProfileListApiResponse {
   userId: number;
   role: string | null;
@@ -27,6 +14,7 @@ interface ProfileListApiResponse {
     birthdate: string | null;
     profileStatus: string | null;
     imageUrl: string | null;
+    approvedAt: string | null;
   } | null;
   rejectHistory: {
     reasonImage: boolean;
@@ -57,6 +45,8 @@ function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): User
       profile_status: apiResponse.profileInfo.profileStatus,
       // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
       image_url: apiResponse.profileInfo.imageUrl,
+      // 승인 일시. 미승인이면 null.
+      approved_at: apiResponse.profileInfo.approvedAt ? new Date(apiResponse.profileInfo.approvedAt) : null,
     } : null,
     user_reject_history: [{
       reason_image: apiResponse.rejectHistory.reasonImage,
@@ -65,67 +55,102 @@ function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): User
   };
 }
 
+interface GetPendingUsersParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+// 심사 대기(role=PENDING) 프로필만 조회한다.
+// /profiles/pending 엔드포인트는 검색(userId/nickname)·상태 필터를 지원하지 않고
+// 페이지·정렬 파라미터만 받는다. 응답 형태는 /profiles와 동일하다.
+export async function getPendingUsers(
+  params: GetPendingUsersParams
+): Promise<InitialData> {
+  const {
+    page = 1,
+    pageSize = 10,
+    sortBy = "created_at",
+    sortOrder = "desc",
+  } = params;
+
+  const pageData = await apiClient.get<PageApiResponse>("/profiles/pending", {
+    page: page - 1, // API는 0-based
+    size: pageSize,
+    sortBy,
+    sortOrder,
+  });
+
+  if (!pageData || !pageData.content) {
+    return {
+      users: [],
+      totalCount: 0,
+      totalPages: 1,
+      error: "데이터를 불러오는 데 실패했습니다.",
+    };
+  }
+
+  const users = pageData.content.map(convertApiResponseToUserData);
+
+  return {
+    users,
+    totalCount: pageData.totalElements,
+    totalPages: Math.max(1, pageData.totalPages),
+  };
+}
+
 // 탈퇴 유저 판별: user role이 "DELETED"인지로 구분한다.
 const DELETED_ROLE = "DELETED";
 
-function isWithdrawnUser(user: UserData): boolean {
-  return user.role === DELETED_ROLE;
+interface GetProfileHistoryParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  // true면 탈퇴 유저(role === "DELETED")를 제외한다.
+  excludeWithdrawn?: boolean;
 }
 
-export async function getUsers(params: GetUsersParams): Promise<InitialData> {
+// 심사 내역: 전체 프로필을 상태 필터 없이 조회한다(조회 전용).
+// excludeWithdrawn이 true면 탈퇴 유저(role=DELETED)를 프론트에서 제외한다.
+// 주의: 서버 사이드 페이지네이션이라 제외 시 페이지당 행 수/카운트가 다소 어긋날 수 있다.
+export async function getProfileHistory(
+  params: GetProfileHistoryParams
+): Promise<InitialData> {
+  const {
+    page = 1,
+    pageSize = 10,
+    sortBy = "created_at",
+    sortOrder = "desc",
+    excludeWithdrawn = false,
+  } = params;
 
-    const {
-      page = 1,
-      pageSize = 10,
-      sortBy = "user_id",
-      sortOrder = "desc",
-      searchId,
-      searchNickname,
-      statusFilter = [],
-      withdrawnFilter,
-    } = params;
+  const pageData = await apiClient.get<PageApiResponse>("/profiles", {
+    page: page - 1, // API는 0-based
+    size: pageSize,
+    sortBy,
+    sortOrder,
+    // 상태 필터 없이 전체 조회
+  });
 
-
-    const pageData = await apiClient.get<PageApiResponse>(
-      `/profiles`, 
-      {
-        page: page - 1, // API는 0-based
-        size: pageSize,
-        sortBy: sortBy,
-        sortOrder: sortOrder,
-        userId: searchId,       // 값이 없으면 apiClient가 알아서 제외
-        nickname: searchNickname, // 값이 없으면 apiClient가 알아서 제외
-        // 배열 파라미터 처리: 요소가 있을 때만 'A,B' 형태로 결합
-        status: statusFilter.length > 0 ? statusFilter.join(",") : undefined,
-        // 탈퇴 필터는 백엔드에 보내지 않고 아래에서 프론트 필터링으로 처리
-      }
-    );
-
-    // 2. 데이터가 비어있거나 예상치 못한 응답 방어 로직
-    if (!pageData || !pageData.content) {
-      return {
-        users: [],
-        totalCount: 0,
-        totalPages: 1,
-        error: "데이터를 불러오는 데 실패했습니다.",
-      };
-    }
-
-    // 3. 매핑 후, withdrawnFilter에 따라 프론트에서 탈퇴 유저를 필터링한다.
-    //    (user role이 "DELETED"인지로 판별)
-    const allUsers = pageData.content.map(convertApiResponseToUserData);
-    const users =
-      withdrawnFilter === "only"
-        ? allUsers.filter(isWithdrawnUser)
-        : withdrawnFilter === "exclude"
-          ? allUsers.filter((user) => !isWithdrawnUser(user))
-          : allUsers;
-
-    // 주의: 서버 사이드 페이지네이션이므로 totalCount/totalPages에는
-    // 필터링으로 제외된 유저도 포함되어, 페이지당 행 수가 줄거나 카운트가 다소 부정확할 수 있음.
+  if (!pageData || !pageData.content) {
     return {
-      users,
-      totalCount: pageData.totalElements,
-      totalPages: Math.max(1, pageData.totalPages),
+      users: [],
+      totalCount: 0,
+      totalPages: 1,
+      error: "데이터를 불러오는 데 실패했습니다.",
     };
+  }
+
+  const allUsers = pageData.content.map(convertApiResponseToUserData);
+  const users = excludeWithdrawn
+    ? allUsers.filter((user) => user.role !== DELETED_ROLE)
+    : allUsers;
+
+  return {
+    users,
+    totalCount: pageData.totalElements,
+    totalPages: Math.max(1, pageData.totalPages),
+  };
 }

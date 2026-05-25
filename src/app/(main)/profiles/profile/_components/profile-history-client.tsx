@@ -1,10 +1,11 @@
-// /app/admin/users/user-table-client.tsx
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 import { CustomPagination } from "@/components/custom-pagination";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -16,7 +17,7 @@ import {
 import { SortDirection } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { InitialData, SortableKey } from "../types";
-import { UserTableRow } from "./user-table-row";
+import { ProfileHistoryRow } from "./profile-history-row";
 
 const sortableKeys: SortableKey[] = [
   "user_id",
@@ -32,9 +33,12 @@ function isSortDirection(direction: string | null): direction is SortDirection {
   return direction === "asc" || direction === "desc";
 }
 
-// 프로필 심사는 심사 대기(role=PENDING) 프로필 전용 큐다(/profiles/pending).
-// 해당 API는 검색(userId/nickname)·상태 필터를 지원하지 않으므로 정렬·페이지네이션만 제공한다.
-export function UserTableClient({ initialData }: { initialData: InitialData }) {
+// 심사 내역: 전체 프로필을 상태 필터 없이 조회(조회 전용). 정렬·페이지네이션 + 탈퇴 제외 토글만 제공한다.
+export function ProfileHistoryClient({
+  initialData,
+}: {
+  initialData: InitialData;
+}) {
   const { users, totalCount, error } = initialData;
   const router = useRouter();
   const pathname = usePathname();
@@ -63,25 +67,36 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
   );
 
   const handlePageChange = (page: number) => {
-    const newQueryString = createQueryString({ page });
-    router.push(`${pathname}?${newQueryString}`, { scroll: false });
+    router.push(`${pathname}?${createQueryString({ page })}`, {
+      scroll: false,
+    });
   };
   const handleSort = (key: SortableKey) => {
-    const currentSortBy = searchParams.get("sortBy") || "user_id";
+    const currentSortBy = searchParams.get("sortBy") || "created_at";
     const currentSortOrder = searchParams.get("sortOrder") || "desc";
     const newSortOrder =
       currentSortBy === key && currentSortOrder === "desc" ? "asc" : "desc";
-    const newQueryString = createQueryString({
-      sortBy: key,
-      sortOrder: newSortOrder,
-    });
-    router.push(`${pathname}?${newQueryString}`, { scroll: false });
+    router.push(
+      `${pathname}?${createQueryString({ sortBy: key, sortOrder: newSortOrder })}`,
+      { scroll: false }
+    );
+  };
+
+  // '탈퇴 제외' 토글: 체크하면 role=DELETED 유저를 제외한다(URL ?excludeWithdrawn=1).
+  const excludeWithdrawn = searchParams.get("excludeWithdrawn") === "1";
+  const handleWithdrawnToggle = () => {
+    router.push(
+      `${pathname}?${createQueryString({
+        excludeWithdrawn: excludeWithdrawn ? null : "1",
+      })}`,
+      { scroll: false }
+    );
   };
 
   const currentSortBy = searchParams.get("sortBy");
   const currentSortOrder = searchParams.get("sortOrder");
   const sortConfig = {
-    key: isSortableKey(currentSortBy) ? currentSortBy : "user_id",
+    key: isSortableKey(currentSortBy) ? currentSortBy : "created_at",
     direction: isSortDirection(currentSortOrder) ? currentSortOrder : "desc",
   };
 
@@ -99,6 +114,20 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
 
   return (
     <div className="w-full space-y-6">
+      <div className="flex items-center gap-2">
+        <Label
+          htmlFor="excludeWithdrawn"
+          className="flex cursor-pointer items-center gap-2"
+        >
+          <Checkbox
+            id="excludeWithdrawn"
+            checked={excludeWithdrawn}
+            onCheckedChange={handleWithdrawnToggle}
+          />
+          탈퇴 제외
+        </Label>
+      </div>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -142,7 +171,7 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
             <TableHead>유저 상태</TableHead>
             <TableHead>프로필 상태</TableHead>
             <TableHead>부적격</TableHead>
-            <TableHead>제출</TableHead>
+            <TableHead>승인일</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -153,7 +182,9 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
               </TableCell>
             </TableRow>
           ) : users.length > 0 ? (
-            users.map((user) => <UserTableRow key={user.user_id} user={user} />)
+            users.map((user) => (
+              <ProfileHistoryRow key={user.user_id} user={user} />
+            ))
           ) : (
             <TableRow>
               <TableCell colSpan={9} className="h-24 text-center">
