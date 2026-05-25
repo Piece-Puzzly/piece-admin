@@ -38,8 +38,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
   // 탈퇴 유저: 목록에는 is_admin이 없어 닉네임이 "탈퇴_"로 시작하는지로 판별
   const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
 
-  // 사진 보유 여부로 판정: profile.imageUrl이 null이면 사진 미제출 → 사진 버튼 비활성
-  const photoSubmitted = user.profile?.image_url != null;
+  // 사진 보유 여부 판정: imageUrl이 "명시적으로 null"일 때만 미제출로 보고 비활성.
+  // 필드가 아직 안 내려오면(undefined, BE 미배포) 활성 유지해 기존 UX를 깨지 않는다.
+  const photoSubmitted = user.profile?.image_url !== null;
 
   // 1. 서버에서 받은 초기 상태를 저장
   const initialStatus = {
