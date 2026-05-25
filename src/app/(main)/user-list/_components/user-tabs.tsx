@@ -5,11 +5,12 @@ import { roleNameMap } from "@/lib/constants"; // 역할 한글 이름을 담은
 import { usePathname, useRouter } from "next/navigation";
 
 // 각 탭의 정보를 정의합니다.
+// 정렬 순서: 정상 → 심사 미완료 → 프로필 미작성 → 미인증 → 탈퇴
 const roles = [
-  { href: "/user-list/role-none", role: "NONE" as const },
-  { href: "/user-list/role-register", role: "REGISTER" as const },
-  { href: "/user-list/role-pending", role: "PENDING" as const },
   { href: "/user-list/role-user", role: "USER" as const },
+  { href: "/user-list/role-pending", role: "PENDING" as const },
+  { href: "/user-list/role-register", role: "REGISTER" as const },
+  { href: "/user-list/role-none", role: "NONE" as const },
   { href: "/user-list/role-deleted", role: "DELETED" as const },
 ];
 
