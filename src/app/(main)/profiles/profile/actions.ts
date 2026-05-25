@@ -108,11 +108,13 @@ interface GetProfileHistoryParams {
   pageSize?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  // 프로필 상태 필터 (REJECTED, INCOMPLETE, REVISED, APPROVED). 비어 있으면 전체 조회.
+  statusFilter?: string[];
   // true면 탈퇴 유저(role === "DELETED")를 제외한다.
   excludeWithdrawn?: boolean;
 }
 
-// 심사 내역: 전체 프로필을 상태 필터 없이 조회한다(조회 전용).
+// 심사 내역: 전체 프로필을 조회한다(조회 전용). 상태 필터를 넘기면 해당 상태만 조회한다.
 // excludeWithdrawn이 true면 탈퇴 유저(role=DELETED)를 프론트에서 제외한다.
 // 주의: 서버 사이드 페이지네이션이라 제외 시 페이지당 행 수/카운트가 다소 어긋날 수 있다.
 export async function getProfileHistory(
@@ -123,6 +125,7 @@ export async function getProfileHistory(
     pageSize = 10,
     sortBy = "created_at",
     sortOrder = "desc",
+    statusFilter = [],
     excludeWithdrawn = false,
   } = params;
 
@@ -131,7 +134,8 @@ export async function getProfileHistory(
     size: pageSize,
     sortBy,
     sortOrder,
-    // 상태 필터 없이 전체 조회
+    // 배열 파라미터: 요소가 있을 때만 'A,B' 형태로 결합해 List<String>으로 전달
+    status: statusFilter.length > 0 ? statusFilter.join(",") : undefined,
   });
 
   if (!pageData || !pageData.content) {
