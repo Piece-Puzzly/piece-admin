@@ -121,9 +121,9 @@ export default function PhotoDetailButton({
                       setLoading(true);
                       const profileImageId =
                         content.pendingProfileImage!.profileImageId;
-                      const accepted =
-                        content.pendingProfileImage!.profileImageStatus ===
-                        "ACCEPTED";
+                      // 심사 결과는 운영자가 토글로 선택한 값(reviewDecision)을 따른다.
+                      // (기존: 현재 상태값으로 계산해 항상 반려로 전송되던 버그)
+                      const accepted = reviewDecision === "ACCEPTED";
 
                       await UpdateProfileImageStatus(
                         profileImageId,
