@@ -26,6 +26,14 @@ const sortableKeys: SortableKey[] = [
   "created_at",
 ];
 
+// 프로필 상태 필터 옵션. key는 백엔드 status 파라미터, label은 실제 반환 상태 표시와 일치.
+// 백엔드 매핑: NORMAL→APPROVED(통과), NEEDS_REVIEW→REVISED(수정 제출), REJECTED→REJECTED(반려)
+const profileStatusOptions = [
+  { key: "NORMAL", label: "통과" },
+  { key: "NEEDS_REVIEW", label: "수정 제출" },
+  { key: "REJECTED", label: "반려" },
+];
+
 function isSortableKey(key: string | null): key is SortableKey {
   return sortableKeys.includes(key as SortableKey);
 }
@@ -82,6 +90,20 @@ export function ProfileHistoryClient({
     );
   };
 
+  // 프로필 상태 필터: 선택한 상태만 조회한다(비어 있으면 전체). URL ?status=A,B
+  const statusFilter =
+    searchParams.get("status")?.split(",").filter(Boolean) || [];
+  const handleStatusToggle = (key: string) => {
+    const newFilter = statusFilter.includes(key)
+      ? statusFilter.filter((s) => s !== key)
+      : [...statusFilter, key];
+    // 모두 해제하면 status 파라미터를 제거해 전체를 조회한다.
+    router.push(
+      `${pathname}?${createQueryString({ status: newFilter.join(",") || null })}`,
+      { scroll: false }
+    );
+  };
+
   // '탈퇴 제외' 토글: 체크하면 role=DELETED 유저를 제외한다(URL ?excludeWithdrawn=1).
   const excludeWithdrawn = searchParams.get("excludeWithdrawn") === "1";
   const handleWithdrawnToggle = () => {
@@ -114,7 +136,27 @@ export function ProfileHistoryClient({
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
+        <div className="flex items-center gap-4 text-nowrap">
+          <h4 className="font-medium">프로필 상태:</h4>
+          <div className="flex flex-wrap gap-4">
+            {profileStatusOptions.map(({ key, label }) => (
+              <div key={key} className="flex items-center space-x-2">
+                <Label
+                  htmlFor={`status-${key}`}
+                  className="flex cursor-pointer items-center gap-2"
+                >
+                  <Checkbox
+                    id={`status-${key}`}
+                    checked={statusFilter.includes(key)}
+                    onCheckedChange={() => handleStatusToggle(key)}
+                  />
+                  {label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
         <Label
           htmlFor="excludeWithdrawn"
           className="flex cursor-pointer items-center gap-2"

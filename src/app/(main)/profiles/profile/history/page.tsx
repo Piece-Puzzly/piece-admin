@@ -7,11 +7,12 @@ interface ProfileHistoryPageProps {
     pageSize?: string;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
+    status?: string;
     excludeWithdrawn?: string;
   }>;
 }
 
-// 심사 내역: 전체 프로필을 상태 필터 없이 조회(조회 전용). 탈퇴 제외 옵션 지원.
+// 심사 내역: 전체 프로필을 조회(조회 전용). 프로필 상태 필터 + 탈퇴 제외 옵션 지원.
 export default async function ProfileHistoryPage({
   searchParams: searchParamsPromise,
 }: ProfileHistoryPageProps) {
@@ -20,6 +21,7 @@ export default async function ProfileHistoryPage({
   const pageSize = Number(searchParams.pageSize) || 10;
   const sortBy = searchParams.sortBy || "created_at";
   const sortOrder = searchParams.sortOrder === "asc" ? "asc" : "desc";
+  const statusFilter = searchParams.status?.split(",").filter(Boolean) || [];
   const excludeWithdrawn = searchParams.excludeWithdrawn === "1";
 
   const initialData = await getProfileHistory({
@@ -27,6 +29,7 @@ export default async function ProfileHistoryPage({
     pageSize,
     sortBy,
     sortOrder,
+    statusFilter,
     excludeWithdrawn,
   });
 
