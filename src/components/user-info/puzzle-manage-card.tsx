@@ -56,7 +56,7 @@ import {
 const formatDateTime = (value: string | null) =>
   value ? new Date(value).toLocaleString("ko-KR", { timeZone: "UTC" }) : "-";
 
-// 이벤트 퍼즐 만료 옵션 (일)
+// 보상 퍼즐 만료 옵션 (일)
 const EXPIRY_OPTIONS = [30, 60, 90] as const;
 
 export default function PuzzleManageCard({
@@ -77,7 +77,7 @@ export default function PuzzleManageCard({
 
   const count = Number(amount);
   const isValid = Number.isInteger(count) && count > 0;
-  const isEvent = puzzleType === "REWARD";
+  const isReward = puzzleType === "REWARD";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -102,11 +102,11 @@ export default function PuzzleManageCard({
   const handleGrant = async () => {
     setGranting(true);
     try {
-      // 일반 퍼즐은 만료 없음(0), 이벤트 퍼즐은 30/60/90일 중 선택값
-      const expiryDate = isEvent ? expiryDays : 0;
+      // 일반 퍼즐은 만료 없음(0), 보상 퍼즐은 30/60/90일 중 선택값
+      const expiryDate = isReward ? expiryDays : 0;
       await grantPuzzle(id, puzzleType, count, expiryDate);
       toast.success(
-        `${isEvent ? "이벤트" : "일반"} 퍼즐 ${count}개를 지급했습니다.`
+        `${isReward ? "보상" : "일반"} 퍼즐 ${count}개를 지급했습니다.`
       );
       setAmount("");
       await load();
@@ -122,7 +122,7 @@ export default function PuzzleManageCard({
       <CardHeader>
         <CardTitle>퍼즐 관리</CardTitle>
         <CardDescription>
-          보유 퍼즐 · 이벤트 퍼즐 지급 이력 · 직접 지급
+          보유 퍼즐 · 보상 퍼즐 지급 이력 · 직접 지급
         </CardDescription>
       </CardHeader>
 
@@ -139,7 +139,7 @@ export default function PuzzleManageCard({
           </InfoCard>
           <InfoCard>
             <InfoCardHeader>
-              <InfoCardTitle>이벤트 퍼즐</InfoCardTitle>
+              <InfoCardTitle>보상 퍼즐</InfoCardTitle>
             </InfoCardHeader>
             <InfoCardContent>
               {loading ? "…" : info?.eventPuzzleCount ?? 0}
@@ -160,7 +160,7 @@ export default function PuzzleManageCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="GENERIC">일반 퍼즐</SelectItem>
-                <SelectItem value="REWARD">이벤트 퍼즐</SelectItem>
+                <SelectItem value="REWARD">보상 퍼즐</SelectItem>
               </SelectContent>
             </Select>
             <Input
@@ -183,8 +183,8 @@ export default function PuzzleManageCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>퍼즐 지급 확인</AlertDialogTitle>
                   <AlertDialogDescription>
-                    유저 #{id}에게 {isEvent ? "이벤트" : "일반"} 퍼즐 {count}개
-                    {isEvent && ` (만료 ${expiryDays}일)`}를 지급합니다.
+                    유저 #{id}에게 {isReward ? "보상" : "일반"} 퍼즐 {count}개
+                    {isReward && ` (만료 ${expiryDays}일)`}를 지급합니다.
                     진행할까요?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -196,8 +196,8 @@ export default function PuzzleManageCard({
             </AlertDialog>
           </div>
 
-          {/* 이벤트 퍼즐: 만료 기간 토글 (30/60/90일) */}
-          {isEvent && (
+          {/* 보상 퍼즐: 만료 기간 토글 (30/60/90일) */}
+          {isReward && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">만료 기간</span>
               <div className="flex gap-1">
@@ -217,9 +217,9 @@ export default function PuzzleManageCard({
           )}
         </div>
 
-        {/* 이벤트 퍼즐 지급 이력 */}
+        {/* 보상 퍼즐 지급 이력 */}
         <div className="space-y-2">
-          <div className="text-sm font-medium">이벤트 퍼즐 지급 이력</div>
+          <div className="text-sm font-medium">보상 퍼즐 지급 이력</div>
           {loading ? (
             <p className="text-sm text-muted-foreground">불러오는 중…</p>
           ) : history.length === 0 ? (
