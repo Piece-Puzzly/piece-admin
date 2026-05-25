@@ -18,7 +18,8 @@ class ApiError extends Error {
 
 async function getAuthHeaders(): Promise<Record<string, string>> {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  // accessToken이 없거나, 리프레시 실패(error)면 재로그인으로 보낸다.
+  if (!session?.accessToken || session.error) {
     redirect("/login");
   }
   return {
