@@ -29,7 +29,7 @@ import {
   InfoCardHeader,
   InfoCardTitle,
 } from "./info-card";
-import PuzzleGrantCard from "./puzzle-grant-card";
+import PuzzleManageCard from "./puzzle-manage-card";
 
 // 데이터가 null/undefined/빈 문자열일 때 화면에 표시할 빈칸 표기
 const EMPTY_PLACEHOLDER = "-";
@@ -142,7 +142,6 @@ export default function UserInfo({ id }: { id: number | bigint }) {
   return (
     <main className="space-y-4">
       <UserCard user={user} isWithdrawn={isWithdrawn} />
-      {!isWithdrawn && <PuzzleGrantCard userId={user.userId} />}
       {user.profile ? (
         <>
           <ProfileCard
@@ -156,6 +155,7 @@ export default function UserInfo({ id }: { id: number | bigint }) {
       ) : (
         "프로필 등록 안 됨"
       )}
+      {!isWithdrawn && <PuzzleManageCard userId={user.userId} />}
     </main>
   );
 }
