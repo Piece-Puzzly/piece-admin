@@ -19,36 +19,41 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 
+// 운영자가 하는 일 기준 4그룹 IA. (URL은 기존 경로 유지 — 폴더 이동은 별도 단계)
 export const navMain = [
-  { url: "/dashboard", title: "대시보드" },
   {
-    url: "/profiles",
-    title: "회원 프로필 심사",
+    url: "/dashboard",
+    title: "대시보드",
     items: [
-      { url: "/profiles/profile", title: "프로필" },
-      { url: "/profiles/photo", title: "사진" },
+      { url: "/dashboard", title: "대시보드" },
+      { url: "/profile-stats", title: "프로필 통계" },
     ],
   },
   {
-    url: "/user",
-    title: "유저",
+    url: "/review",
+    title: "심사·제재",
     items: [
-      { url: "/user-list", title: "유저 조회" },
-      { url: "/marketing-consent", title: "마케팅 동의 유저" },
-      { url: "/report/reported", title: "신고 유저 검토 및 제재" },
+      { url: "/profiles/profile", title: "프로필 심사" },
+      { url: "/profiles/photo", title: "사진 심사" },
+      { url: "/report/reported", title: "신고" },
+      { url: "/report/blocked", title: "차단" },
     ],
   },
   {
     url: "/matching",
-    title: "매칭",
+    title: "매칭 관리",
     items: [
       { url: "/match", title: "수동 매칭" },
       { url: "/match-action", title: "매칭 상태 관리" },
     ],
   },
   {
-    url: "/profile-stats",
-    title: "프로필 통계",
+    url: "/users",
+    title: "유저 조회",
+    items: [
+      { url: "/user-list", title: "유저 조회" },
+      { url: "/marketing-consent", title: "마케팅 동의 유저" },
+    ],
   },
 ];
 export default function MainGroup() {
