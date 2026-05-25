@@ -25,6 +25,7 @@ interface ProfileListApiResponse {
     nickname: string | null;
     birthdate: string | null;
     profileStatus: string | null;
+    imageUrl: string | null;
   } | null;
   rejectHistory: {
     reasonImage: boolean;
@@ -49,12 +50,12 @@ function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): User
     role: apiResponse.role,
     phone: apiResponse.phone,
     created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
-    // 미제출(선택 미입력) 사진은 null로 내려옴 → 사진 심사 버튼 비활성 판정에 사용
-    profileImageStatus: apiResponse.profileImageStatus,
     profile: apiResponse.profile ? {
       nickname: apiResponse.profile.nickname ?? "",
       birthdate: apiResponse.profile.birthdate ? new Date(apiResponse.profile.birthdate) : null,
       profile_status: apiResponse.profile.profileStatus,
+      // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
+      image_url: apiResponse.profile.imageUrl,
     } : null,
     user_reject_history: [{
       reason_image: apiResponse.rejectHistory.reasonImage,
