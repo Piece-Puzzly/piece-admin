@@ -17,10 +17,9 @@ import {
 } from "@/lib/server";
 
 import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
+import ProfileImage from "@/components/profile-image";
 import { Photo } from "@/lib/types";
-import { getImageSrc } from "@/lib/utils";
 import { ChevronRight, Loader } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import UserInfoTrigger from "../user-info/user-info-trigger";
@@ -46,23 +45,21 @@ export default function PhotoDetailButton({
     setContent(res);
   }, [id]);
 
-  // 사진이 없으면(없거나 빈/null 문자열) 이미지 대신 "사진 없음"을 표시
-  const renderPhoto = (url: string | null | undefined) => {
-    const hasPhoto = !!url && url.trim() !== "" && url.trim() !== "null";
-    return hasPhoto ? (
-      <Image
-        className="rounded-lg"
-        src={getImageSrc(url)}
-        height={220}
-        width={220}
-        alt="Profile"
-      />
-    ) : (
-      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-        사진 없음
-      </div>
-    );
-  };
+  // 사진이 없거나(없거나 빈/null 문자열) 로드에 실패하면 이미지 대신 "사진 없음"을 표시
+  const renderPhoto = (url: string | null | undefined) => (
+    <ProfileImage
+      className="rounded-lg"
+      src={url}
+      height={220}
+      width={220}
+      alt="프로필 이미지"
+      fallback={
+        <div className="flex h-[220px] w-[220px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+          사진 없음
+        </div>
+      }
+    />
+  );
   return (
     <Dialog
       onOpenChange={async (e) => {
