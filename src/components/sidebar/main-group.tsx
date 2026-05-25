@@ -55,6 +55,10 @@ export const navMain = [
       { url: "/marketing-consent", title: "마케팅 동의 유저" },
     ],
   },
+  {
+    url: "/puzzle",
+    title: "퍼즐 관리",
+  },
 ];
 export default function MainGroup() {
   const pathname = usePathname();

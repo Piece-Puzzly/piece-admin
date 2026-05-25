@@ -21,6 +21,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -33,6 +40,7 @@ import {
   getRewardPuzzleHistory,
   grantPuzzle,
   type PuzzleInfo,
+  type PuzzleType,
   type RewardPuzzle,
 } from "@/lib/actions/puzzle";
 import { Loader } from "lucide-react";
@@ -48,6 +56,9 @@ import {
 const formatDateTime = (value: string | null) =>
   value ? new Date(value).toLocaleString("ko-KR", { timeZone: "UTC" }) : "-";
 
+// 이벤트 퍼즐 만료 옵션 (일)
+const EXPIRY_OPTIONS = [30, 60, 90] as const;
+
 export default function PuzzleManageCard({
   userId,
 }: {
@@ -57,11 +68,16 @@ export default function PuzzleManageCard({
   const [info, setInfo] = useState<PuzzleInfo | null>(null);
   const [history, setHistory] = useState<RewardPuzzle[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 지급 폼 상태
+  const [puzzleType, setPuzzleType] = useState<PuzzleType>("GENERAL");
   const [amount, setAmount] = useState("");
+  const [expiryDays, setExpiryDays] = useState<number>(30);
   const [granting, setGranting] = useState(false);
 
   const count = Number(amount);
   const isValid = Number.isInteger(count) && count > 0;
+  const isReward = puzzleType === "REWARD";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -86,8 +102,12 @@ export default function PuzzleManageCard({
   const handleGrant = async () => {
     setGranting(true);
     try {
-      await grantPuzzle(id, count);
-      toast.success(`퍼즐 ${count}개를 지급했습니다.`);
+      // 일반 퍼즐은 만료 없음(0), 이벤트 퍼즐은 30/60/90일 중 선택값
+      const expiryDate = isReward ? expiryDays : 0;
+      await grantPuzzle(id, puzzleType, count, expiryDate);
+      toast.success(
+        `${isReward ? "이벤트" : "일반"} 퍼즐 ${count}개를 지급했습니다.`
+      );
       setAmount("");
       await load();
     } catch (e) {
@@ -128,9 +148,21 @@ export default function PuzzleManageCard({
         </div>
 
         {/* 직접 지급 */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="text-sm font-medium">퍼즐 지급</div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={puzzleType}
+              onValueChange={(v) => setPuzzleType(v as PuzzleType)}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="GENERAL">일반 퍼즐</SelectItem>
+                <SelectItem value="REWARD">이벤트 퍼즐</SelectItem>
+              </SelectContent>
+            </Select>
             <Input
               type="number"
               min={1}
@@ -138,8 +170,8 @@ export default function PuzzleManageCard({
               inputMode="numeric"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="지급 수량"
-              className="max-w-[200px]"
+              placeholder="수량"
+              className="max-w-[120px]"
             />
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -151,21 +183,38 @@ export default function PuzzleManageCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>퍼즐 지급 확인</AlertDialogTitle>
                   <AlertDialogDescription>
-                    유저 #{id}에게 퍼즐 {count}개를 지급합니다. 진행할까요?
+                    유저 #{id}에게 {isReward ? "이벤트" : "일반"} 퍼즐 {count}개
+                    {isReward && ` (만료 ${expiryDays}일)`}를 지급합니다.
+                    진행할까요?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleGrant}>
-                    지급
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={handleGrant}>지급</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           </div>
-          <p className="text-xs text-muted-foreground">
-            ※ 지급 API는 BE 엔드포인트 확정 후 연결됩니다.
-          </p>
+
+          {/* 이벤트 퍼즐: 만료 기간 토글 (30/60/90일) */}
+          {isReward && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">만료 기간</span>
+              <div className="flex gap-1">
+                {EXPIRY_OPTIONS.map((days) => (
+                  <Button
+                    key={days}
+                    type="button"
+                    size="sm"
+                    variant={expiryDays === days ? "default" : "outline"}
+                    onClick={() => setExpiryDays(days)}
+                  >
+                    {days}일
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 이벤트 퍼즐 지급 이력 */}
