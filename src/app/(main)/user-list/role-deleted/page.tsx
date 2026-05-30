@@ -9,12 +9,19 @@ export default async function DeletedUserPage({
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const currentPage = Number((await searchParams)?.page) || 1;
+  const sp = await searchParams;
+  const currentPage = Number(sp?.page) || 1;
+  const searchType: "nickname" | "id" = sp?.searchType === "id" ? "id" : "nickname";
+  const searchValueRaw = sp?.searchValue;
+  const searchValue =
+    typeof searchValueRaw === "string" ? searchValueRaw : "";
+  const search = searchValue ? { type: searchType, value: searchValue } : undefined;
 
   const { users, totalCount } = await getUsersByRole(
     "DELETED",
     currentPage,
-    USERS_PER_PAGE
+    USERS_PER_PAGE,
+    search
   );
 
   return (
