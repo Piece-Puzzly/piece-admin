@@ -53,6 +53,7 @@ export const navMain = [
     title: "유저 조회",
     items: [
       { url: "/user-list", title: "유저 조회" },
+      { url: "/referral-history", title: "초대 이력 조회" },
       { url: "/marketing-consent", title: "마케팅 동의 유저" },
       { url: "/referral-code", title: "추천인 코드 조회" },
     ],
