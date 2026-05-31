@@ -46,6 +46,8 @@ export const navMain = [
     items: [
       { url: "/match", title: "수동 매칭" },
       { url: "/match-action", title: "매칭 상태 관리" },
+      { url: "/match-test", title: "즉시 매칭 테스트" },
+      { url: "/match-test/basic", title: "BASIC 매칭 테스트" },
     ],
   },
   {
