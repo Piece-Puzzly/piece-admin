@@ -5,6 +5,28 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const DEFAULT_PROFILE_IMAGE = "/default-profile.svg";
+
+/**
+ * next/image의 src로 안전한 값을 반환한다.
+ * null·undefined·빈 문자열·"null"·https가 아닌 값은 기본 프로필 이미지로 대체해
+ * "Failed to construct 'URL': Invalid URL" 크래시를 방지한다.
+ */
+export function getImageSrc(url: string | null | undefined): string {
+  if (!url || typeof url !== "string") return DEFAULT_PROFILE_IMAGE;
+  const trimmed = url.trim();
+  if (trimmed === "" || trimmed === "null") return DEFAULT_PROFILE_IMAGE;
+  if (!trimmed.startsWith("https://")) return DEFAULT_PROFILE_IMAGE;
+  // "https://"로 시작해도 호스트가 없거나 깨진 값은 next/image의 new URL()에서
+  // "Invalid URL"로 크래시하므로, 실제로 파싱 가능한 URL인지 검증한다.
+  try {
+    new URL(trimmed);
+    return trimmed;
+  } catch {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+}
 export function formatPhoneNumber(number: string): string {
   const digits = number.replace(/\D/g, "");
 
@@ -75,6 +97,24 @@ export const createQueryString = (
       params.set(key, value);
     }
   }
-  
+
   return params.toString();
 };
+
+export function toLocaleString(date: Date | string | number): string {
+  if (typeof date === "string" || typeof date === "number") {
+    date = new Date(date);
+  }
+  return date.toLocaleString("ko-KR", {
+    timeZone: "UTC",
+  });
+}
+
+export function toLocaleDateString(date: Date | string | number): string {
+  if (typeof date === "string" || typeof date === "number") {
+    date = new Date(date);
+  }
+  return date.toLocaleDateString("ko-KR", {
+    timeZone: "UTC",
+  });
+}

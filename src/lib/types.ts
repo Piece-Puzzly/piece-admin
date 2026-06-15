@@ -52,17 +52,13 @@ export interface BlockedUser {
 }
 
 export interface BlockedUsersResponses {
-  status: string;
-  message: string;
-  data: {
-    content: BlockedUser[];
-    currentPage: number;
-    pageSize: number;
-    totalPages: number;
-    totalElements: number;
-    isFirstPage: boolean;
-    isLastPage: boolean;
-  };
+  content: BlockedUser[];
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
 }
 
 export interface ReportedUser {
@@ -76,9 +72,6 @@ export interface ReportedUser {
 }
 
 export interface ReportedUsersResponses {
-  status: string;
-  message: string;
-  data: {
     content: ReportedUser[];
     currentPage: number;
     pageSize: number;
@@ -86,7 +79,6 @@ export interface ReportedUsersResponses {
     totalElements: number;
     isFirstPage: boolean;
     isLastPage: boolean;
-  };
 }
 
 export interface ReportDetail {
@@ -98,9 +90,6 @@ export interface ReportDetail {
 }
 
 export interface ReportDetailsResponses {
-  status: string;
-  message: string;
-  data: {
     content: ReportDetail[];
     currentPage: number;
     pageSize: number;
@@ -108,7 +97,6 @@ export interface ReportDetailsResponses {
     totalElements: number;
     isFirstPage: boolean;
     isLastPage: boolean;
-  };
 }
 
 export interface ReportProfile {
@@ -139,11 +127,8 @@ export interface Photo {
   } | null;
 }
 
-export type MatchHistoryResponse = {
-  status: string;
-  message: string;
-  data: MatchHistory[];
-};
+export type MatchHistoryResponse = MatchHistory[];
+
 
 export type MatchHistory = {
   manualMatchId: number; // 매칭 히스토리 ID
@@ -153,6 +138,7 @@ export type MatchHistory = {
   user2Nickname: string; // 두 번째 유저 닉네임
   matchDateTime: string; // 예약된 매칭 시간 (ISO8601 문자열)
   isMatched: boolean; // 실제 매칭 여부
+  matchType: string; // 매칭 타입 (basic, trial, premium)
 };
 
 export type MatchCandidate = {
@@ -162,7 +148,13 @@ export type MatchCandidate = {
 };
 
 export type MatchCandidateResponse = {
-  message: string;
-  status: string;
-  data: { candidateList: MatchCandidate[] };
+  candidateList: MatchCandidate[];
+};
+
+export type User = {
+  user_id: number;
+  profile: {
+    nickname: string;
+    image_url: string | null;
+  } | null;
 };

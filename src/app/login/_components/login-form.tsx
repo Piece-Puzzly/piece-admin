@@ -21,8 +21,8 @@ export default function LoginForm() {
       callbackUrl: "/",
     });
 
-    if (res?.ok && res.url) {
-      router.push(res.url); // 수동 이동
+    if (res?.ok) {
+      router.push("/"); // 상대 경로로 이동 (현재 도메인 유지)
       router.refresh();
     } else {
       toast.error(JSON.stringify(res));
@@ -41,18 +41,18 @@ export default function LoginForm() {
             <Input
               id="id"
               type="text"
-              className="w-full md:w-[432px]"
+              className="w-full md:w-[432px] h-12"
               placeholder="아이디를 입력하세요."
               {...register("id")}
             />
           </div>
-          <div className="space-y-[8px]">
+          <div className="space-y-[8px] ">
             <Label htmlFor="pw">비밀번호</Label>
             <Input
               id="pw"
               type="password"
               {...register("password")}
-              className="w-full md:w-[432px]"
+              className="w-full md:w-[432px] h-12"
               placeholder="비밀번호를 입력하세요."
             />
           </div>

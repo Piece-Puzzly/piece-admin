@@ -1,12 +1,12 @@
 "use client";
 
-import UpdateProfileImageToggle from "@/app/(main)/profiles/photo/_components/update-profile-image-toggle";
 import { useDebug } from "@/app/hooks/use-debug";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -16,31 +16,50 @@ import {
   UpdateProfileImageStatus,
 } from "@/lib/server";
 
+import { UpdateProfileImageToggles } from "@/app/(main)/profiles/photo/_components/update-profile-image-toggles";
+import ProfileImage from "@/components/profile-image";
 import { Photo } from "@/lib/types";
 import { ChevronRight, Loader } from "lucide-react";
-import Image from "next/image";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import UserInfoTrigger from "../user-info/user-info-trigger";
 
 export default function PhotoDetailButton({
   id,
   nickname,
 }: {
   id: number | null;
-  nickname: string;
+  nickname: string | null;
 }) {
   const [content, setContent] = useState<Photo | undefined>(undefined);
   const profileImageStatus = content?.pendingProfileImage?.profileImageStatus;
   const debug = useDebug((e) => e.debug);
   const [loading, setLoading] = useState<boolean>(false);
+  const [reviewDecision, setReviewDecision] =
+    useState<string>("PENDING");
   const update = useCallback(async () => {
     const res = await getUserProfileImageDetail(id as number);
-
-    if (!res.data) {
-      toast.error(JSON.stringify(res));
+    if (!res) {
+      toast.error("사진 정보를 불러오지 못했습니다.");
     }
-    setContent(res.data);
+    setContent(res);
   }, [id]);
+
+  // 사진이 없거나(없거나 빈/null 문자열) 로드에 실패하면 이미지 대신 "사진 없음"을 표시
+  const renderPhoto = (url: string | null | undefined) => (
+    <ProfileImage
+      className="rounded-lg"
+      src={url}
+      height={220}
+      width={220}
+      alt="프로필 이미지"
+      fallback={
+        <div className="flex h-[220px] w-[220px] items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+          사진 없음
+        </div>
+      }
+    />
+  );
   return (
     <Dialog
       onOpenChange={async (e) => {
@@ -52,12 +71,11 @@ export default function PhotoDetailButton({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          disabled={!debug && id == null}
-          className="w-full flex justify-between py-[10px] px-[12px] h-[42px] md:h-[46px] "
-        >
-          <div>{nickname}</div>
+        <Button variant="outline" className="w-full flex justify-between ">
+          <div className="flex gap-2">
+            <div className="text-muted-foreground">[{id}]</div>
+            <div>{nickname}</div>
+          </div>
           <ChevronRight />
         </Button>
       </DialogTrigger>
@@ -73,61 +91,47 @@ export default function PhotoDetailButton({
                 <div className="flex justify-between items-center gap-[20px]">
                   <div className="space-y-[20px] flex flex-col items-center">
                     <div>수정 전 이미지</div>
-                    <Image
-                      className="rounded-lg"
-                      src={content.profileImageUrl}
-                      height={220}
-                      width={220}
-                      alt="Profile"
-                    />
+                    {renderPhoto(content.profileImageUrl)}
                   </div>
                   <ChevronRight className="text-gray-black" />
 
                   <div className="space-y-[20px] flex flex-col items-center">
                     <div>수정 후 이미지</div>
-                    <Image
-                      className="rounded-lg"
-                      src={content.pendingProfileImage.profileImageUrl}
-                      height={220}
-                      width={220}
-                      alt="Profile"
-                    />
+                    {renderPhoto(content.pendingProfileImage.profileImageUrl)}
                   </div>
                 </div>
 
                 <div className="flex gap-[24px] w-full md:w-auto items-center">
-                  <UpdateProfileImageToggle
-                    profileImageStatus={profileImageStatus!}
-                    rawData={content}
+                  <UpdateProfileImageToggles
+                    currentStatus={reviewDecision}
+                    onStatusChange={setReviewDecision}
+                    disabled={
+                      content.pendingProfileImage.profileImageStatus !==
+                        "PENDING" && !debug
+                    }
                   />
                   <Button
                     variant="submit"
                     className=" py-[10px] px-[12px] h-[40px] md:h-[44px] w-[76px]"
                     disabled={
-                      loading || (!debug && profileImageStatus !== "PENDING")
+                      loading ||
+                      (!debug &&
+                        (profileImageStatus !== "PENDING" ||
+                          reviewDecision === "PENDING"))
                     }
                     onClick={async () => {
-                      if (
-                        content.pendingProfileImage!.profileImageStatus ===
-                        "PENDING"
-                      ) {
-                        toast.error("반려/통과 여부를 체크해주세요!");
-                        return;
-                      }
                       setLoading(true);
                       const profileImageId =
                         content.pendingProfileImage!.profileImageId;
-                      const accepted =
-                        content.pendingProfileImage!.profileImageStatus ===
-                        "ACCEPTED";
+                      // 심사 결과는 운영자가 토글로 선택한 값(reviewDecision)을 따른다.
+                      // (기존: 현재 상태값으로 계산해 항상 반려로 전송되던 버그)
+                      const accepted = reviewDecision === "ACCEPTED";
 
-                      const res = await UpdateProfileImageStatus(
+                      await UpdateProfileImageStatus(
                         profileImageId,
                         accepted
                       );
-                      if (res.status !== "success") {
-                        toast.error(JSON.stringify(res));
-                      }
+                    
                       await update();
                       setLoading(false);
                     }}
@@ -139,19 +143,18 @@ export default function PhotoDetailButton({
             ) : (
               <div className="space-y-[20px] flex flex-col items-center">
                 <div>현재 이미지</div>
-                <Image
-                  className="rounded-lg"
-                  src={content.profileImageUrl}
-                  height={220}
-                  width={220}
-                  alt="Profile"
-                />
+                {renderPhoto(content.profileImageUrl)}
               </div>
             )}
           </div>
         ) : (
           <div>loading</div>
         )}
+        <DialogFooter>
+          <UserInfoTrigger asChild userId={id} nickname={nickname}>
+            <Button variant={"outline"}>자세히 보기</Button>
+          </UserInfoTrigger>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

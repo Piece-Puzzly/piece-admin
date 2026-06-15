@@ -1,7 +1,7 @@
 "use client";
 
-import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
 import { Button } from "@/components/ui/button";
+import UserInfoButton from "@/components/user-info/user-info-button";
 import { cancelMatch } from "@/lib/server";
 import { MatchHistory } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -20,14 +20,7 @@ export const columns: ColumnDef<MatchHistory>[] = [
       const id = row.original.user1Id;
       const nickname = row.original.user1Nickname;
 
-      return (
-        <div className="items-center gap-[10px] flex ">
-          <div className="w-[60px] text-right">{id}</div>
-          <div className="flex-1">
-            <ProfileDetailButton userId={id} nickname={nickname} />
-          </div>
-        </div>
-      );
+      return <UserInfoButton userId={id} nickname={nickname} />;
     },
   },
   {
@@ -36,21 +29,22 @@ export const columns: ColumnDef<MatchHistory>[] = [
       const id = row.original.user2Id;
       const nickname = row.original.user2Nickname;
 
-      return (
-        <div className="items-center gap-[10px] flex ">
-          <div className="w-[60px] text-right">{id}</div>
-          <div className="flex-1">
-            <ProfileDetailButton userId={id} nickname={nickname} />
-          </div>
-        </div>
-      );
+      return <UserInfoButton userId={id} nickname={nickname} />;
+    },
+  },
+  {
+    accessorKey: "matchType",
+    header: "매칭 타입",
+    cell: ({ row }) => {
+      const matchType = row.original.matchType;
+      return <div className="capitalize">{matchType}</div>;
     },
   },
   {
     accessorKey: "date",
     header: "매칭 날짜",
     cell: ({ row }) => {
-      const date = row.original.matchDateTime.split("T")[0].replace("-", ".");
+      const date = row.original.matchDateTime.split("T")[0];
 
       return <div>{date}</div>;
     },

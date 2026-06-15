@@ -17,7 +17,6 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function BanButton({
   userId,
@@ -38,10 +37,7 @@ export default function BanButton({
       <DialogTrigger asChild>
         <Button
           variant="submit"
-          className={cn(
-            "px-[12px] py-[10px] leading-[24px] h-[44px]",
-            className
-          )}
+          className={cn("px-[12px] leading-[24px] ", className)}
           {...props}
         >
           영구 정지
@@ -79,10 +75,7 @@ export default function BanButton({
               variant="default"
               onClick={async () => {
                 setLoading(true);
-                const res = await banUsers(userId);
-                if (res.status !== "success") {
-                  toast.error(JSON.stringify(res));
-                }
+                await banUsers(userId);
                 setLoading(false);
                 await update();
                 router.replace(pathname);
@@ -96,3 +89,4 @@ export default function BanButton({
     </Dialog>
   );
 }
+

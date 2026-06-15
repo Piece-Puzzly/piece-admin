@@ -29,6 +29,14 @@ export const menuInfo: {
     ],
   },
   { value: "match", name: "수동 매칭" },
+  {
+      value: "match-action",
+      name: "매치 상태 관리",
+      tabs: [
+          { value: "free", name: "무료 매칭" },
+          { value: "paid", name: "유료 매칭" },
+      ]
+  },
 ];
 
 export default function MenuTabs() {

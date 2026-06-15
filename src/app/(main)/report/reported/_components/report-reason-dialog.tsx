@@ -25,7 +25,7 @@ import BanButton from "./ban-button";
 import ReportReasonPagination from "./report-reason-pagination";
 
 export default function ReportReasonDialog() {
-  const [data, setData] = useState<ReportDetailsResponses["data"] | undefined>(
+  const [data, setData] = useState<ReportDetailsResponses | undefined>(
     undefined
   );
   const [nickName, setNickName] = useState<string | undefined>(undefined);
@@ -43,19 +43,22 @@ export default function ReportReasonDialog() {
           0,
           10
         )) as ReportDetailsResponses;
-        const res_profile: { data: ProfileDetail } = await getUserById(
+        const res_profile: ProfileDetail | null = await getUserById(
           parseInt(id)
         );
 
-        if (!res_report.data) {
+        if (!res_report.content) {
           toast.error(JSON.stringify(res_report));
         }
-        if (!res_profile.data) {
-          toast.error(JSON.stringify(res_profile));
+
+        setData(res_report);
+
+        if (!res_profile) {
+          toast.error("존재하지 않는 프로필입니다.");
+          return;
         }
 
-        setData(res_report.data);
-        setNickName(res_profile.data.nickname);
+        setNickName(res_profile.nickname);
       })();
     }
   }, [searchParams]);
@@ -65,7 +68,7 @@ export default function ReportReasonDialog() {
     <Dialog
       onOpenChange={async (e) => {
         if (e) {
-          const { data } = (await getReportDetail(
+          const data = (await getReportDetail(
             userId,
             0,
             10

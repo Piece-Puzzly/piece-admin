@@ -1,69 +1,37 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "./auth-options";
-
+import { logger } from "./logger";
+import { apiClient, ApiError } from "./api-client";
+import { ReportDetailsResponses } from "./types";
+import { ProfileDetail } from "./types";
+import { revalidatePath } from "next/cache";
 import {
   BlockedUsersResponses,
   MatchCandidateResponse,
   MatchHistoryResponse,
   Profile,
   ProfilesResponse,
+  Photo,
   ReportedUsersResponses,
 } from "./types";
 
 export async function getProfiles(page: number): Promise<ProfilesResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/login");
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/users?page=${page}&size=${10}`,
 
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-
-  if (!response.ok) {
-    redirect("/login");
-  }
-
-  const res = await response.json();
-
-  return res as ProfilesResponse;
+  return await apiClient.get<ProfilesResponse>("/users", {
+    page: page,
+    size: 10,
+  });
 }
 
 export async function getFilteredProfile(
   select: "userId" | "profileId" | "nickname",
   value: string
 ): Promise<Profile> {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/login");
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/users/search?` +
-      `${select}=${value}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
 
-  const res: Profile = (await response.json()).data;
-
-  return res;
+  return await apiClient.get<Profile>("/users/search", {
+    select: select,
+    value: value,
+  });
 }
 
 export async function updateProfileStatus(
@@ -71,97 +39,45 @@ export async function updateProfileStatus(
   rejectImage: boolean,
   rejectDescription: boolean
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
 
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profile`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      body: JSON.stringify({
-        rejectImage,
-        rejectDescription,
-      }),
-    }
-  );
-
-  const response_json = await response.json();
-
-  return response_json;
+  const response = await apiClient.post<Profile>(`/users/${userId}/profile`, {
+    rejectImage: rejectImage,
+    rejectDescription: rejectDescription,
+  });
+  revalidatePath("/profiles/profile");
+  return response;
 }
 
-export const getUserById = async (userId: number) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
+export const getUserById = async (
+  userId: number
+): Promise<ProfileDetail | null> => {
+  try {
+    return await apiClient.get<ProfileDetail>(`/users/${userId}`);
+  } catch (e) {
+    // 404(존재하지 않는 프로필)는 null로 반환해 호출부에서 안내하도록 함
+    if (e instanceof ApiError && e.status === 404) return null;
+    // redirect(NEXT_REDIRECT) 등 Next.js 내부 에러는 그대로 전파
+    throw e;
   }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-
-  const response_json = await response.json();
-
-  return response_json;
 };
 
 export const getBlockDatas = async (page: number = 0, size: number = 10) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/blocks?page=${page}&size=${size}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-
-  const response_json: BlockedUsersResponses = await response.json();
-
-  return response_json;
+  const response : BlockedUsersResponses =  await apiClient.get<BlockedUsersResponses>("/blocks", {
+    page: page,
+    size: size,
+  });
+  return response;
 };
 
 export async function getReportedDatas(
   page: number = 0,
   size: number = 10
 ): Promise<ReportedUsersResponses | null> {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return null;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/reports?page=${page}&size=${size}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
 
-  const response_json = await response.json();
-
-  return response_json as ReportedUsersResponses;
+  return await apiClient.get<ReportedUsersResponses>("/reports", {
+    page: page,
+    size: size,
+  });
 }
 
 export const getReportDetail = async (
@@ -169,205 +85,108 @@ export const getReportDetail = async (
   page: number = 0,
   size: number = 10
 ) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/reports/users/${userId}?page=${page}&size=${size}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-
-  const response_json = await response.json();
-
-  return response_json;
+  return await apiClient.get<ReportDetailsResponses>(`/reports/users/${userId}`, {
+    page: page,
+    size: size,
+  });
 };
 
 export const banUsers = async (userId: number) => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
 
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/bans/users`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId,
-      }),
-      cache: "no-store",
-    }
-  );
-
-  const response_json = await response.json();
-
-  return response_json;
+  return await apiClient.post<void>(`/bans/users`, {
+    userId,
+  });
 };
 
 export async function getUserProfileImageDetail(userId: number) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/users/${userId}/profileImage`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
-  const response_json = await response.json();
 
-  return response_json;
+  return await apiClient.get<Photo>(`/users/${userId}/profileImage`);
 }
 
 export async function UpdateProfileImageStatus(
   profileImageId: number,
   accepted: boolean
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/profileImages/${profileImageId}`,
-    {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        accepted,
-      }),
-      cache: "no-store",
-    }
-  );
-
-  const response_json = await response.json();
-
-  return response_json;
+  const response = await apiClient.patch<void>(`/profileImages/${profileImageId}`, {
+    accepted,
+  });
+  revalidatePath("/profiles/photo");
+  return response;
 }
 
 export async function getMatchHistory(
   page: number
 ): Promise<undefined | MatchHistoryResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/manual-match/history` +
-      `?page=${page}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    }
-  );
 
-  const response_json = (await response.json()) as MatchHistoryResponse;
-
-  return response_json;
+  return await apiClient.get<MatchHistoryResponse>(`/manual-match/history`, {
+    page: page,
+  });
 }
 
 export async function getMatchCandidate(
   page: number
 ): Promise<undefined | MatchCandidateResponse> {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL +
-      `/manual-match/candidates` +
-      `?page=${page}`,
-    // `?match-time=${new Date().toISOString().slice(0, 19)}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    }
-  );
-
-  const response_json = (await response.json()) as MatchCandidateResponse;
-
-  return response_json;
+  return await apiClient.get<MatchCandidateResponse>(`/manual-match/candidates`, {
+    page: page,
+  });
 }
 
 export async function reserveMatch(
   user1Id: number,
   user2Id: number,
-  dateTime: string
+  dateTime: string,
+  matchType: string
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
-  }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
 
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ user1Id, user2Id, dateTime }),
-
-      cache: "no-store",
-    }
-  );
-
-  const response_json = (await response.json()) as MatchCandidateResponse;
-
-  return response_json;
+  return await apiClient.post<MatchCandidateResponse>(`/manual-match`, {
+    user1Id,
+    user2Id,
+    dateTime,
+    matchType,
+  });
 }
 
 export async function cancelMatch(matchId: number) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return;
+  return await apiClient.delete<MatchCandidateResponse>(`/manual-match`, {
+    manualMatchId: matchId,
+  });
+}
+
+export async function setPaidMatchStatus(params: {
+  matchId: number;
+  user1Id: number;
+  user2Id: number;
+  user1Status: string;
+  user2Status: string;
+  user1AcceptPaid: boolean;
+  user1ImagePaid: boolean;
+  user1ContactPaid: boolean;
+  user2AcceptPaid: boolean;
+  user2ImagePaid: boolean;
+  user2ContactPaid: boolean;
+}) {
+  try {
+  
+    await apiClient.post<void>(`/manual-match/paid`, params);
+    
+    return { success: true };
+
+  } catch (error) {
+
+    logger.error("setPaidMatchStatus", error);
+    
+    // 4. UI(컴포넌트) 쪽에서 토스트 알림 등을 띄울 수 있도록 에러를 던져줍니다.
+    throw new Error("요청 처리 중 오류가 발생했습니다.");
   }
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_NEXTAUTH_BASE_URL + `/manual-match`,
+}
 
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ manualMatchId: matchId }),
+export async function setFreeMatchStatus(params: {
+  matchId: number;
+  user1Id: number;
+  user2Id: number;
+  user1Status: string;
+  user2Status: string;
+}) {
 
-      cache: "no-store",
-    }
-  );
-
-  const response_json = (await response.json()) as MatchCandidateResponse;
-
-  return response_json;
+  await apiClient.post<void>(`/manual-match/free`, params);
 }

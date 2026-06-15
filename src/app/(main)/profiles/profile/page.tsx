@@ -1,10 +1,32 @@
-"use client";
+import { UserTableClient } from "./_components/user-table-client";
+import { getPendingUsers } from "./actions";
 
-import { columns } from "@/app/(main)/profiles/profile/_components/profile-columns";
-import { DataTable } from "@/components/data-table";
-import { useProfileTableStore } from "@/providers/profile-table-provider";
+// 페이지 컴포넌트가 URL로부터 받을 수 있는 searchParams의 타입을 정의합니다.
+interface UserAdminPageProps {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }>;
+}
 
-export default function Page() {
-  const data = useProfileTableStore((e) => e.data);
-  return <DataTable columns={columns} data={data} />;
+// 프로필 심사: 심사 대기(role=PENDING) 프로필만 /profiles/pending API로 조회한다.
+export default async function UserAdminPage({
+  searchParams: searchParamsPromise,
+}: UserAdminPageProps) {
+  const searchParams = await searchParamsPromise;
+  const page = Number(searchParams.page) || 1;
+  const pageSize = Number(searchParams.pageSize) || 10;
+  const sortBy = searchParams.sortBy || "user_id";
+  const sortOrder = searchParams.sortOrder === "asc" ? "asc" : "desc";
+
+  const initialData = await getPendingUsers({
+    page,
+    pageSize,
+    sortBy,
+    sortOrder,
+  });
+
+  return <UserTableClient initialData={initialData} />;
 }

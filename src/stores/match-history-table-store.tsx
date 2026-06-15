@@ -26,7 +26,7 @@ export const createMatchHistoryTableStore = (
     update: async (page: number) => {
       const res = await getMatchHistory(page - 1);
       if (res) {
-        set({ data: res.data, page });
+        set({ data: res, page });
       } else {
         toast(String(res));
       }
