@@ -64,6 +64,10 @@ export const navMain = [
     url: "/puzzle",
     title: "퍼즐 관리",
   },
+  {
+    url: "/broadcast",
+    title: "전체 발송",
+  },
 ];
 export default function MainGroup() {
   const pathname = usePathname();
