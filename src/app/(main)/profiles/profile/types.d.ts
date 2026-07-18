@@ -1,3 +1,9 @@
+export type PendingImage = {
+  profileImageId: number;
+  type: "MAIN" | "ADDITIONAL";
+  imageUrl: string;
+};
+
 export type UserData = {
   user_id: bigint;
   role: string | null;
@@ -16,6 +22,8 @@ export type UserData = {
     reason_image: boolean;
     reason_description: boolean;
   }[];
+  // 심사 대기 중인 이미지 목록
+  pending_images: PendingImage[];
 };
 
 export type InitialData = {

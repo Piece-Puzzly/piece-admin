@@ -36,13 +36,12 @@ export async function getFilteredProfile(
 
 export async function updateProfileStatus(
   userId: number,
-  rejectImage: boolean,
+  imageDecisions: { profileImageId: number; reject: boolean }[],
   rejectDescription: boolean
 ) {
-
   const response = await apiClient.post<Profile>(`/users/${userId}/profile`, {
-    rejectImage: rejectImage,
-    rejectDescription: rejectDescription,
+    imageDecisions,
+    rejectDescription,
   });
   revalidatePath("/profiles/profile");
   return response;

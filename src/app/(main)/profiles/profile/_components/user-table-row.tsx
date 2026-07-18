@@ -16,77 +16,88 @@ import {
 import { updateProfileStatus } from "@/lib/server";
 import { cn, toLocaleDateString, toLocaleString } from "@/lib/utils";
 import { Loader } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { UserData } from "../types";
-
-// 필요한 타입들을 정의하거나 공유 파일에서 import 합니다.
+import { PendingImage, UserData } from "../types";
 
 interface UserTableRowProps {
   user: UserData;
 }
 
-const rejectionStatusInfo = [
-  { label: "사진", key: "reason_image" as const },
-  { label: "소개글", key: "reason_description" as const },
-];
+// 이미지 타입에 따른 라벨 생성
+function getImageLabel(image: PendingImage, additionalIndex: number): string {
+  if (image.type === "MAIN") {
+    return "정면사진";
+  }
+  return `기본사진${additionalIndex}`;
+}
 
 export function UserTableRow({ user }: UserTableRowProps) {
   const [isSaving, setIsSaving] = useState(false);
   const debug = useDebug((e) => e.debug);
 
-  // 탈퇴 유저: 목록에는 is_admin이 없어 닉네임이 "탈퇴_"로 시작하는지로 판별
+  // 탈퇴 유저 판별
   const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
 
-  // 사진 보유 여부 판정: imageUrl이 "명시적으로 null"일 때만 미제출로 보고 비활성.
-  // 필드가 아직 안 내려오면(undefined, BE 미배포) 활성 유지해 기존 UX를 깨지 않는다.
-  const photoSubmitted = user.profile?.image_url !== null;
-
-  // 1. 서버에서 받은 초기 상태를 저장
-  const initialStatus = {
-    reason_image: user.user_reject_history?.[0]?.reason_image ?? false,
-    reason_description:
-      user.user_reject_history?.[0]?.reason_description ?? false,
-  };
-
-  // 2. Row 컴포넌트가 직접 자신의 토글 상태를 관리
-  const [currentStatus, setCurrentStatus] = useState(initialStatus);
-
-  // 3. 부모 컴포넌트의 데이터가 바뀔 때(예: 페이지 이동) 상태를 리셋
-  useEffect(() => {
-    setCurrentStatus({
-      reason_image: user.user_reject_history?.[0]?.reason_image ?? false,
-      reason_description:
-        user.user_reject_history?.[0]?.reason_description ?? false,
+  // pending_images 배열에서 라벨 포함된 목록 생성
+  const pendingImagesWithLabel = useMemo(() => {
+    const images = user.pending_images ?? [];
+    let additionalIndex = 1;
+    return images.map((img) => {
+      const label = getImageLabel(img, additionalIndex);
+      if (img.type === "ADDITIONAL") {
+        additionalIndex++;
+      }
+      return { ...img, label };
     });
+  }, [user.pending_images]);
+
+  // 각 이미지별 reject 상태 (profileImageId -> reject)
+  const [imageRejectMap, setImageRejectMap] = useState<Record<number, boolean>>({});
+  // 소개글 reject 상태
+  const [rejectDescription, setRejectDescription] = useState(false);
+
+  // 데이터 변경 시 상태 초기화
+  useEffect(() => {
+    // 이전 반려 이력 기반 초기화 (새 심사는 모두 false)
+    const initialMap: Record<number, boolean> = {};
+    for (const img of user.pending_images ?? []) {
+      initialMap[img.profileImageId] = false;
+    }
+    setImageRejectMap(initialMap);
+    setRejectDescription(user.user_reject_history?.[0]?.reason_description ?? false);
   }, [user]);
 
-  // 4. 토글 상태를 변경하는 핸들러
-  const handleToggleChange = (
-    key: "reason_image" | "reason_description",
-    pressed: boolean
-  ) => {
-    setCurrentStatus((prev) => ({ ...prev, [key]: pressed }));
+  // 이미지 토글 핸들러
+  const handleImageToggle = (profileImageId: number, pressed: boolean) => {
+    setImageRejectMap((prev) => ({ ...prev, [profileImageId]: pressed }));
   };
 
-  // 5. 이 Row의 변경 사항을 외부 API로 제출하는 핸들러
+  // 저장 핸들러
   const handleSave = async () => {
     setIsSaving(true);
-
     try {
-      //   if (!response.ok) throw new Error("API 서버 응답 오류");
+      const imageDecisions = (user.pending_images ?? []).map((img) => ({
+        profileImageId: img.profileImageId,
+        reject: imageRejectMap[img.profileImageId] ?? false,
+      }));
+
       await updateProfileStatus(
         Number(user.user_id),
-        currentStatus.reason_image,
-        currentStatus.reason_description
+        imageDecisions,
+        rejectDescription
       );
+      toast.success("저장되었습니다.");
     } catch (error) {
       console.error("API 호출 오류:", error);
-      toast("저장에 실패했습니다.");
+      toast.error("저장에 실패했습니다.");
     } finally {
       setIsSaving(false);
     }
   };
+
+  const isApproved = user.profile?.profile_status === "APPROVED";
+  const hasPendingImages = pendingImagesWithLabel.length > 0;
 
   return (
     <TableRow
@@ -128,29 +139,44 @@ export function UserTableRow({ user }: UserTableRowProps) {
         )}
       </TableCell>
       <TableCell>
-        <div className="flex gap-x-2 justify-center items-center">
-          {user.profile
-            ? rejectionStatusInfo.map(({ label, key }) => (
+        <div className="flex gap-x-2 justify-center items-center flex-wrap">
+          {user.profile ? (
+            <>
+              {/* 이미지별 버튼 (pending_images 순회) */}
+              {pendingImagesWithLabel.map((img) => (
                 <Toggle
-                  key={key}
-                  pressed={currentStatus[key]}
+                  key={img.profileImageId}
+                  pressed={imageRejectMap[img.profileImageId] ?? false}
                   onPressedChange={(pressed) =>
-                    handleToggleChange(key, pressed)
+                    handleImageToggle(img.profileImageId, pressed)
                   }
-                  disabled={
-                    (!debug && user.profile?.profile_status === "APPROVED") ||
-                    // 사진 미제출이면 사진 버튼만 비활성 (소개글은 필수라 항상 활성)
-                    (key === "reason_image" && !photoSubmitted)
-                  }
+                  disabled={!debug && isApproved}
                   className="px-3 leading-6 min-w-[80px]"
                 >
-                  {label}
+                  {img.label}
                 </Toggle>
-              ))
-            : "-"}
+              ))}
+              {/* 소개글 버튼 (항상 표시, 신규 심사에서만 활성) */}
+              {!isApproved && (
+                <Toggle
+                  pressed={rejectDescription}
+                  onPressedChange={setRejectDescription}
+                  disabled={!debug && isApproved}
+                  className="px-3 leading-6 min-w-[80px]"
+                >
+                  소개글
+                </Toggle>
+              )}
+              {/* 심사 대상 없음 표시 */}
+              {!hasPendingImages && isApproved && (
+                <span className="text-muted-foreground text-sm">-</span>
+              )}
+            </>
+          ) : (
+            "-"
+          )}
         </div>
       </TableCell>
-      {/* 7. Row마다 제출 버튼을 위한 새로운 Cell 추가 */}
       <TableCell className="text-center">
         {user.profile ? (
           <Button
@@ -158,7 +184,7 @@ export function UserTableRow({ user }: UserTableRowProps) {
             onClick={handleSave}
             disabled={
               isSaving ||
-              (!debug && user.profile?.profile_status === "APPROVED")
+              (!debug && isApproved && !hasPendingImages)
             }
             className="w-full min-w-[80px]"
           >
