@@ -5,15 +5,14 @@ import PhotoDetailButton from "@/components/detail-buttons/photo-detail-button";
 import ProfileImage from "@/components/profile-image";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UpdateProfileImageStatus } from "@/lib/server";
-import { toLocaleDateString, toLocaleString } from "@/lib/utils";
-import { Loader } from "lucide-react";
+import { cn, toLocaleDateString, toLocaleString } from "@/lib/utils";
+import { Check, Loader, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ProfileImageData } from "../actions";
@@ -24,43 +23,49 @@ interface UserImageGroupRowProps {
   images: ProfileImageData[];
 }
 
-// 이미지 타입에 따른 라벨 생성
-function getImageLabel(image: ProfileImageData, index: number): string {
-  // type 필드가 있으면 사용, 없으면 인덱스 기반
-  return `사진${index + 1}`;
-}
+type Decision = "ACCEPTED" | "REJECTED" | null;
 
 export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRowProps) {
   const debug = useDebug((e) => e.debug);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 각 이미지별 reject 상태 (profileImageId -> reject 여부)
-  // true = 반려, false = 승인
-  const [rejectMap, setRejectMap] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
+  // 각 이미지별 심사 결정 (profileImageId -> decision)
+  const [decisionMap, setDecisionMap] = useState<Record<string, Decision>>(() => {
+    const initial: Record<string, Decision> = {};
     images.forEach((img) => {
-      initial[String(img.profile_image_id)] = false; // 기본값: 승인
+      initial[String(img.profile_image_id)] = null; // 기본값: 미선택
     });
     return initial;
   });
 
-  const handleToggle = (profileImageId: bigint, pressed: boolean) => {
-    setRejectMap((prev) => ({
+  const handleDecision = (profileImageId: bigint, decision: Decision) => {
+    setDecisionMap((prev) => ({
       ...prev,
-      [String(profileImageId)]: pressed,
+      [String(profileImageId)]: decision,
     }));
   };
 
   const handleSubmit = async () => {
+    // 모든 PENDING 이미지에 대해 결정이 내려졌는지 확인
+    const pendingImages = images.filter((img) => img.status === "PENDING");
+    const allDecided = pendingImages.every(
+      (img) => decisionMap[String(img.profile_image_id)] !== null
+    );
+
+    if (!allDecided) {
+      toast.error("모든 이미지에 대해 승인/반려를 선택해주세요.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // 각 이미지에 대해 API 호출
+      // 결정이 내려진 이미지만 API 호출
       await Promise.all(
-        images.map((img) => {
-          const reject = rejectMap[String(img.profile_image_id)] ?? false;
+        pendingImages.map((img) => {
+          const decision = decisionMap[String(img.profile_image_id)];
           return UpdateProfileImageStatus(
             Number(img.profile_image_id),
-            !reject // accepted = !reject
+            decision === "ACCEPTED"
           );
         })
       );
@@ -79,6 +84,9 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
     if (!latest) return img.created_at;
     return img.created_at > latest ? img.created_at : latest;
   }, null as Date | null);
+
+  // PENDING 이미지가 있는지 확인
+  const hasPendingImages = images.some((img) => img.status === "PENDING");
 
   return (
     <TableRow>
@@ -104,35 +112,73 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
         )}
       </TableCell>
 
-      {/* 이미지 목록 (각각 토글 가능) */}
+      {/* 이미지 목록 (각각 승인/반려 버튼) */}
       <TableCell>
-        <div className="flex gap-3 flex-wrap">
-          {images.map((img, index) => {
-            const isRejected = rejectMap[String(img.profile_image_id)] ?? false;
+        <div className="flex gap-4 flex-wrap">
+          {images.map((img) => {
+            const decision = decisionMap[String(img.profile_image_id)];
+            const isPending = img.status === "PENDING";
+            const isDisabled = !isPending && !debug;
+
             return (
-              <div key={String(img.profile_image_id)} className="flex flex-col items-center gap-1">
-                <ProfileImage
-                  src={img.image_url}
-                  alt={getImageLabel(img, index)}
-                  width={64}
-                  height={64}
-                  className={`rounded-md object-cover w-16 h-16 shrink-0 border-2 ${
-                    isRejected ? "border-red-500" : "border-green-500"
-                  }`}
-                  fallback={
-                    <div className="flex w-16 h-16 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
-                      사진 없음
+              <div key={String(img.profile_image_id)} className="flex flex-col items-center gap-2">
+                {/* 이미지 */}
+                <div className="relative">
+                  <ProfileImage
+                    src={img.image_url}
+                    alt="프로필 이미지"
+                    width={80}
+                    height={80}
+                    className={cn(
+                      "rounded-md object-cover w-20 h-20 shrink-0 border-2",
+                      decision === "ACCEPTED" && "border-green-500",
+                      decision === "REJECTED" && "border-red-500",
+                      decision === null && isPending && "border-yellow-400",
+                      !isPending && "border-gray-300 opacity-50"
+                    )}
+                    fallback={
+                      <div className="flex w-20 h-20 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
+                        사진 없음
+                      </div>
+                    }
+                  />
+                  {/* 이미 처리된 상태 표시 */}
+                  {!isPending && (
+                    <div className="absolute -top-1 -right-1 bg-gray-500 text-white text-xs px-1 rounded">
+                      {img.status === "ACCEPTED" ? "승인됨" : img.status === "REJECTED" ? "반려됨" : img.status}
                     </div>
-                  }
-                />
-                <Toggle
-                  pressed={isRejected}
-                  onPressedChange={(pressed) => handleToggle(img.profile_image_id, pressed)}
-                  className="text-xs px-2 py-1 h-6"
-                  disabled={!debug && img.status !== "PENDING"}
-                >
-                  {isRejected ? "반려" : "승인"}
-                </Toggle>
+                  )}
+                </div>
+
+                {/* 승인/반려 버튼 */}
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={decision === "ACCEPTED" ? "default" : "outline"}
+                    className={cn(
+                      "h-7 px-2",
+                      decision === "ACCEPTED" && "bg-green-600 hover:bg-green-700"
+                    )}
+                    onClick={() => handleDecision(img.profile_image_id, "ACCEPTED")}
+                    disabled={isDisabled}
+                  >
+                    <Check className="h-3 w-3 mr-1" />
+                    승인
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={decision === "REJECTED" ? "default" : "outline"}
+                    className={cn(
+                      "h-7 px-2",
+                      decision === "REJECTED" && "bg-red-600 hover:bg-red-700"
+                    )}
+                    onClick={() => handleDecision(img.profile_image_id, "REJECTED")}
+                    disabled={isDisabled}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    반려
+                  </Button>
+                </div>
               </div>
             );
           })}
@@ -144,7 +190,7 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
         <Button
           variant="submit"
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !hasPendingImages}
           className="min-w-[80px]"
         >
           {isSubmitting ? <Loader className="h-4 w-4 animate-spin" /> : "제출"}
