@@ -3,6 +3,7 @@
 
 import { useDebug } from "@/app/hooks/use-debug";
 import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
+import ProfileImage from "@/components/profile-image";
 import ProfileStatus from "@/components/profile-status";
 import { Button } from "@/components/ui/button";
 import { roleNameMap } from "@/lib/constants";
@@ -39,7 +40,7 @@ export function UserTableRow({ user }: UserTableRowProps) {
   // 탈퇴 유저 판별
   const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
 
-  // pending_images 배열에서 라벨 포함된 목록 생성
+  // pending_images 배열에서 라벨 포함된 목록 생성 (열람용)
   const pendingImagesWithLabel = useMemo(() => {
     const images = user.pending_images ?? [];
     let additionalIndex = 1;
@@ -52,41 +53,19 @@ export function UserTableRow({ user }: UserTableRowProps) {
     });
   }, [user.pending_images]);
 
-  // 각 이미지별 reject 상태 (profileImageId -> reject)
-  const [imageRejectMap, setImageRejectMap] = useState<Record<number, boolean>>({});
-  // 소개글 reject 상태
+  // 소개글 reject 상태 (가치관Talk)
   const [rejectDescription, setRejectDescription] = useState(false);
 
   // 데이터 변경 시 상태 초기화
   useEffect(() => {
-    // 이전 반려 이력 기반 초기화 (새 심사는 모두 false)
-    const initialMap: Record<number, boolean> = {};
-    for (const img of user.pending_images ?? []) {
-      initialMap[img.profileImageId] = false;
-    }
-    setImageRejectMap(initialMap);
     setRejectDescription(user.user_reject_history?.[0]?.reason_description ?? false);
   }, [user]);
 
-  // 이미지 토글 핸들러
-  const handleImageToggle = (profileImageId: number, pressed: boolean) => {
-    setImageRejectMap((prev) => ({ ...prev, [profileImageId]: pressed }));
-  };
-
-  // 저장 핸들러
+  // 저장 핸들러 (가치관Talk만 처리)
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const imageDecisions = (user.pending_images ?? []).map((img) => ({
-        profileImageId: img.profileImageId,
-        reject: imageRejectMap[img.profileImageId] ?? false,
-      }));
-
-      await updateProfileStatus(
-        Number(user.user_id),
-        imageDecisions,
-        rejectDescription
-      );
+      await updateProfileStatus(Number(user.user_id), rejectDescription);
       toast.success("저장되었습니다.");
     } catch (error) {
       console.error("API 호출 오류:", error);
@@ -138,54 +117,60 @@ export function UserTableRow({ user }: UserTableRowProps) {
           "-"
         )}
       </TableCell>
+
+      {/* 심사 대기 중인 이미지 미리보기 (열람용, 심사는 사진 심사 탭에서) */}
       <TableCell>
-        <div className="flex gap-x-2 justify-center items-center flex-wrap">
-          {user.profile ? (
-            <>
-              {/* 이미지별 버튼 (pending_images 순회) */}
-              {pendingImagesWithLabel.map((img) => (
-                <Toggle
-                  key={img.profileImageId}
-                  pressed={imageRejectMap[img.profileImageId] ?? false}
-                  onPressedChange={(pressed) =>
-                    handleImageToggle(img.profileImageId, pressed)
-                  }
-                  disabled={!debug && isApproved}
-                  className="px-3 leading-6 min-w-[80px]"
-                >
-                  {img.label}
-                </Toggle>
-              ))}
-              {/* 소개글 버튼 (항상 표시, 신규 심사에서만 활성) */}
-              {!isApproved && (
-                <Toggle
-                  pressed={rejectDescription}
-                  onPressedChange={setRejectDescription}
-                  disabled={!debug && isApproved}
-                  className="px-3 leading-6 min-w-[80px]"
-                >
-                  소개글
-                </Toggle>
-              )}
-              {/* 심사 대상 없음 표시 */}
-              {!hasPendingImages && isApproved && (
-                <span className="text-muted-foreground text-sm">-</span>
-              )}
-            </>
+        <div className="flex gap-2 items-center">
+          {hasPendingImages ? (
+            pendingImagesWithLabel.map((img) => (
+              <Tooltip key={img.profileImageId}>
+                <TooltipTrigger>
+                  <ProfileImage
+                    src={img.imageUrl}
+                    alt={img.label}
+                    width={40}
+                    height={40}
+                    className="rounded-md object-cover w-10 h-10 shrink-0 border border-yellow-400"
+                    fallback={
+                      <div className="flex w-10 h-10 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
+                        ?
+                      </div>
+                    }
+                  />
+                </TooltipTrigger>
+                <TooltipContent>{img.label} (심사 대기)</TooltipContent>
+              </Tooltip>
+            ))
           ) : (
-            "-"
+            <span className="text-muted-foreground text-sm">-</span>
           )}
         </div>
       </TableCell>
+
+      {/* 가치관Talk 심사 */}
+      <TableCell>
+        <div className="flex gap-x-2 justify-center items-center">
+          {user.profile && !isApproved ? (
+            <Toggle
+              pressed={rejectDescription}
+              onPressedChange={setRejectDescription}
+              disabled={!debug && isApproved}
+              className="px-3 leading-6 min-w-[80px]"
+            >
+              가치관Talk
+            </Toggle>
+          ) : (
+            <span className="text-muted-foreground text-sm">-</span>
+          )}
+        </div>
+      </TableCell>
+
       <TableCell className="text-center">
-        {user.profile ? (
+        {user.profile && !isApproved ? (
           <Button
             variant="submit"
             onClick={handleSave}
-            disabled={
-              isSaving ||
-              (!debug && isApproved && !hasPendingImages)
-            }
+            disabled={isSaving || (!debug && isApproved)}
             className="w-full min-w-[80px]"
           >
             {isSaving ? <Loader className="animate-spin" /> : "저장"}
