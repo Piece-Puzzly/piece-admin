@@ -1,10 +1,9 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { KeyboardEvent, useCallback, useState } from "react";
+import { KeyboardEvent, useCallback, useMemo, useState } from "react";
 
-// Shadcn UI 및 커스텀 컴포넌트 import
-import { CustomPagination } from "@/components/custom-pagination"; // ⭐️ CustomPagination import
+import { CustomPagination } from "@/components/custom-pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,9 +14,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ImageTableRow } from "./image-table-row";
+import { ProfileImageData } from "../actions";
+import { UserImageGroupRow } from "./user-image-group-row";
 
-// 타입 정의 (이전과 동일)
+interface InitialData {
+  images: ProfileImageData[];
+  totalCount: number;
+  totalPages: number;
+  error?: string;
+}
+
+// 이미지를 userId로 그루핑
+function groupImagesByUser(images: ProfileImageData[]) {
+  const groups = new Map<string, {
+    userId: bigint;
+    nickname: string | null;
+    images: ProfileImageData[];
+  }>();
+
+  for (const image of images) {
+    const userId = image.profile?.user_table?.user_id;
+    if (!userId) continue;
+
+    const key = String(userId);
+    if (!groups.has(key)) {
+      groups.set(key, {
+        userId,
+        nickname: image.profile?.nickname ?? null,
+        images: [],
+      });
+    }
+    groups.get(key)!.images.push(image);
+  }
+
+  return Array.from(groups.values());
+}
 
 export function ImageHistoryClient({
   initialData,
@@ -34,7 +65,9 @@ export function ImageHistoryClient({
     searchParams.get("searchNickname") || ""
   );
 
-  // 핸들러 함수들 (이전과 동일)
+  // 이미지를 userId로 그루핑
+  const userGroups = useMemo(() => groupImagesByUser(images), [images]);
+
   const createQueryString = useCallback(
     (paramsToUpdate: Record<string, string | number | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -70,13 +103,12 @@ export function ImageHistoryClient({
     router.push(`${pathname}?${newQueryString}`, { scroll: false });
   };
 
-  // 사진 심사는 PENDING(심사 필요) 전용 큐다. 상태 필터는 서버에서 PENDING으로 고정한다.
   const currentPage = Number(searchParams.get("page")) || 1;
   const currentPageSize = Number(searchParams.get("pageSize")) || 10;
 
   return (
     <div className="w-full space-y-6">
-      {/* 컨트롤 패널 (이전과 동일) */}
+      {/* 검색 패널 */}
       <div className="flex flex-col md:flex-row items-center gap-4">
         <div className="flex w-full max-w-sm items-center space-x-2">
           <Input
@@ -96,31 +128,36 @@ export function ImageHistoryClient({
           <Button onClick={handleSearch}>검색</Button>
         </div>
       </div>
-      {/* 데이터 테이블 (이전과 동일) */}
 
+      {/* 데이터 테이블 (userId 그루핑) */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>이미지</TableHead>
             <TableHead>유저</TableHead>
             <TableHead>생성일</TableHead>
-            <TableHead>상태</TableHead>
-            <TableHead>심사</TableHead>
+            <TableHead>이미지 심사</TableHead>
             <TableHead>제출</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {error ? (
             <TableRow>
-              <TableCell colSpan={7}>{error}</TableCell>
+              <TableCell colSpan={4} className="h-24 text-center text-red-500">
+                {error}
+              </TableCell>
             </TableRow>
-          ) : images.length > 0 ? (
-            images.map((image) => (
-              <ImageTableRow key={image.profile_image_id} image={image} />
+          ) : userGroups.length > 0 ? (
+            userGroups.map((group) => (
+              <UserImageGroupRow
+                key={String(group.userId)}
+                userId={group.userId}
+                nickname={group.nickname}
+                images={group.images}
+              />
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={4} className="h-24 text-center">
                 결과가 없습니다.
               </TableCell>
             </TableRow>
@@ -128,9 +165,11 @@ export function ImageHistoryClient({
         </TableBody>
       </Table>
 
-      {/* ⭐️ 페이지네이션 UI 교체 */}
+      {/* 페이지네이션 */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">{totalCount}개</div>
+        <div className="text-sm text-muted-foreground">
+          {userGroups.length}명 / 이미지 {totalCount}개
+        </div>
         <CustomPagination
           num={totalCount}
           onChangePage={handlePageChange}
