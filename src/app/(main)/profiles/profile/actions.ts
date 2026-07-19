@@ -3,12 +3,6 @@
 import { InitialData, UserData } from "./types.d";
 import { apiClient } from "@/lib/api-client";
 
-interface PendingImageApiResponse {
-  profileImageId: number;
-  type: "MAIN" | "ADDITIONAL";
-  imageUrl: string;
-}
-
 interface ProfileListApiResponse {
   userId: number;
   role: string | null;
@@ -27,7 +21,6 @@ interface ProfileListApiResponse {
     reasonDescription: boolean;
   };
   profileImageStatus: string | null;
-  pendingImages: PendingImageApiResponse[] | null;
 }
 
 interface PageApiResponse {
@@ -59,7 +52,6 @@ function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): User
       reason_image: apiResponse.rejectHistory.reasonImage,
       reason_description: apiResponse.rejectHistory.reasonDescription,
     }],
-    pending_images: apiResponse.pendingImages ?? [],
   };
 }
 

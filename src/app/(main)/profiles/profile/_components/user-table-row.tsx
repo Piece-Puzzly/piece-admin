@@ -3,12 +3,10 @@
 
 import { useDebug } from "@/app/hooks/use-debug";
 import ProfileDetailButton from "@/components/detail-buttons/profile-detail-button";
-import ProfileImage from "@/components/profile-image";
 import ProfileStatus from "@/components/profile-status";
 import { Button } from "@/components/ui/button";
 import { roleNameMap } from "@/lib/constants";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -16,56 +14,42 @@ import {
 } from "@/components/ui/tooltip";
 import { updateProfileStatus } from "@/lib/server";
 import { cn, toLocaleDateString, toLocaleString } from "@/lib/utils";
-import { Loader } from "lucide-react";
-import { useEffect, useState, useMemo } from "react";
+import { Check, Loader, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { PendingImage, UserData } from "../types";
+import { UserData } from "../types";
 
 interface UserTableRowProps {
   user: UserData;
 }
 
-// 이미지 타입에 따른 라벨 생성
-function getImageLabel(image: PendingImage, additionalIndex: number): string {
-  if (image.type === "MAIN") {
-    return "정면사진";
-  }
-  return `기본사진${additionalIndex}`;
-}
+type Decision = "APPROVED" | "REJECTED" | null;
 
 export function UserTableRow({ user }: UserTableRowProps) {
   const [isSaving, setIsSaving] = useState(false);
   const debug = useDebug((e) => e.debug);
 
-  // 탈퇴 유저 판별
-  const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
+  // 탈퇴 유저: 닉네임이 "_d_"로 시작하는지로 판별
+  const isWithdrawn = user.profile?.nickname?.startsWith("_d_") ?? false;
 
-  // pending_images 배열에서 라벨 포함된 목록 생성 (열람용)
-  const pendingImagesWithLabel = useMemo(() => {
-    const images = user.pending_images ?? [];
-    let additionalIndex = 1;
-    return images.map((img) => {
-      const label = getImageLabel(img, additionalIndex);
-      if (img.type === "ADDITIONAL") {
-        additionalIndex++;
-      }
-      return { ...img, label };
-    });
-  }, [user.pending_images]);
+  // 가치관Talk 심사 결정 상태
+  const [decision, setDecision] = useState<Decision>(null);
 
-  // 소개글 reject 상태 (가치관Talk)
-  const [rejectDescription, setRejectDescription] = useState(false);
-
-  // 데이터 변경 시 상태 초기화
+  // 부모 컴포넌트의 데이터가 바뀔 때 상태 리셋
   useEffect(() => {
-    setRejectDescription(user.user_reject_history?.[0]?.reason_description ?? false);
+    setDecision(null);
   }, [user]);
 
-  // 저장 핸들러 (가치관Talk만 처리)
+  // 제출 핸들러
   const handleSave = async () => {
+    if (decision === null) {
+      toast.error("승인 또는 반려를 선택해주세요.");
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await updateProfileStatus(Number(user.user_id), rejectDescription);
+      await updateProfileStatus(Number(user.user_id), decision === "REJECTED");
       toast.success("저장되었습니다.");
     } catch (error) {
       console.error("API 호출 오류:", error);
@@ -76,7 +60,7 @@ export function UserTableRow({ user }: UserTableRowProps) {
   };
 
   const isApproved = user.profile?.profile_status === "APPROVED";
-  const hasPendingImages = pendingImagesWithLabel.length > 0;
+  const isDisabled = !debug && isApproved;
 
   return (
     <TableRow
@@ -117,60 +101,43 @@ export function UserTableRow({ user }: UserTableRowProps) {
           "-"
         )}
       </TableCell>
-
-      {/* 심사 대기 중인 이미지 미리보기 (열람용, 심사는 사진 심사 탭에서) */}
+      {/* 가치관Talk 승인/반려 버튼 */}
       <TableCell>
-        <div className="flex gap-2 items-center">
-          {hasPendingImages ? (
-            pendingImagesWithLabel.map((img) => (
-              <Tooltip key={img.profileImageId}>
-                <TooltipTrigger>
-                  <ProfileImage
-                    src={img.imageUrl}
-                    alt={img.label}
-                    width={40}
-                    height={40}
-                    className="rounded-md object-cover w-10 h-10 shrink-0 border border-yellow-400"
-                    fallback={
-                      <div className="flex w-10 h-10 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
-                        ?
-                      </div>
-                    }
-                  />
-                </TooltipTrigger>
-                <TooltipContent>{img.label} (심사 대기)</TooltipContent>
-              </Tooltip>
-            ))
-          ) : (
-            <span className="text-muted-foreground text-sm">-</span>
-          )}
-        </div>
-      </TableCell>
-
-      {/* 가치관Talk 심사 */}
-      <TableCell>
-        <div className="flex gap-x-2 justify-center items-center">
+        <div className="flex gap-1 justify-center items-center">
           {user.profile && !isApproved ? (
-            <Toggle
-              pressed={rejectDescription}
-              onPressedChange={setRejectDescription}
-              disabled={!debug && isApproved}
-              className="px-3 leading-6 min-w-[80px]"
-            >
-              가치관Talk
-            </Toggle>
+            <>
+              <Button
+                size="sm"
+                variant={decision === "APPROVED" ? "default" : "secondary"}
+                className="h-7 px-2"
+                onClick={() => setDecision("APPROVED")}
+                disabled={isDisabled}
+              >
+                <Check className="h-3 w-3 mr-1" />
+                승인
+              </Button>
+              <Button
+                size="sm"
+                variant={decision === "REJECTED" ? "default" : "secondary"}
+                className="h-7 px-2"
+                onClick={() => setDecision("REJECTED")}
+                disabled={isDisabled}
+              >
+                <X className="h-3 w-3 mr-1" />
+                반려
+              </Button>
+            </>
           ) : (
             <span className="text-muted-foreground text-sm">-</span>
           )}
         </div>
       </TableCell>
-
       <TableCell className="text-center">
         {user.profile && !isApproved ? (
           <Button
             variant="submit"
             onClick={handleSave}
-            disabled={isSaving || (!debug && isApproved)}
+            disabled={isSaving || isDisabled || decision === null}
             className="w-full min-w-[80px]"
           >
             {isSaving ? <Loader className="animate-spin" /> : "저장"}

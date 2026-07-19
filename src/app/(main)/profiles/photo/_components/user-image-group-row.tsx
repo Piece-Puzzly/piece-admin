@@ -131,10 +131,9 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
                     height={80}
                     className={cn(
                       "rounded-md object-cover w-20 h-20 shrink-0 border-2",
-                      decision === "ACCEPTED" && "border-green-500",
-                      decision === "REJECTED" && "border-red-500",
-                      decision === null && isPending && "border-yellow-400",
-                      !isPending && "border-gray-300 opacity-50"
+                      decision !== null && "border-primary",
+                      decision === null && isPending && "border-primary-middle",
+                      !isPending && "border-muted opacity-50"
                     )}
                     fallback={
                       <div className="flex w-20 h-20 shrink-0 items-center justify-center rounded-md border border-dashed text-xs text-muted-foreground">
@@ -154,11 +153,8 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
                 <div className="flex gap-1">
                   <Button
                     size="sm"
-                    variant={decision === "ACCEPTED" ? "default" : "outline"}
-                    className={cn(
-                      "h-7 px-2",
-                      decision === "ACCEPTED" && "bg-green-600 hover:bg-green-700"
-                    )}
+                    variant={decision === "ACCEPTED" ? "default" : "secondary"}
+                    className="h-7 px-2"
                     onClick={() => handleDecision(img.profile_image_id, "ACCEPTED")}
                     disabled={isDisabled}
                   >
@@ -167,11 +163,8 @@ export function UserImageGroupRow({ userId, nickname, images }: UserImageGroupRo
                   </Button>
                   <Button
                     size="sm"
-                    variant={decision === "REJECTED" ? "default" : "outline"}
-                    className={cn(
-                      "h-7 px-2",
-                      decision === "REJECTED" && "bg-red-600 hover:bg-red-700"
-                    )}
+                    variant={decision === "REJECTED" ? "default" : "secondary"}
+                    className="h-7 px-2"
                     onClick={() => handleDecision(img.profile_image_id, "REJECTED")}
                     disabled={isDisabled}
                   >
