@@ -1,10 +1,12 @@
 "use server";
 
-import { InitialData, UserData } from "./types.d";
+import { InitialData, UserData, ReviewSession, ReviewDecision } from "./types.d";
 import { apiClient } from "@/lib/api-client";
+import { revalidatePath } from "next/cache";
 
 interface ProfileListApiResponse {
   userId: number;
+  profileId: number | null;
   role: string | null;
   phone: string | null;
   createdAt: string | null;
@@ -36,6 +38,7 @@ interface PageApiResponse {
 function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): UserData {
   return {
     user_id: BigInt(apiResponse.userId),
+    profile_id: apiResponse.profileId ? BigInt(apiResponse.profileId) : null,
     role: apiResponse.role,
     phone: apiResponse.phone,
     created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
@@ -62,9 +65,10 @@ interface GetPendingUsersParams {
   sortOrder?: "asc" | "desc";
 }
 
-// 심사 대기(role=PENDING) 프로필만 조회한다.
-// /profiles/pending 엔드포인트는 검색(userId/nickname)·상태 필터를 지원하지 않고
-// 페이지·정렬 파라미터만 받는다. 응답 형태는 /profiles와 동일하다.
+// 심사 대기 전체 조회 (신규 유저 + 기존 유저 사진 변경)
+// /profiles/needs-review 엔드포인트:
+// - role=PENDING 유저 (신규)
+// - role=USER이면서 PENDING 이미지가 있는 유저 (기존 유저 사진 변경)
 export async function getPendingUsers(
   params: GetPendingUsersParams
 ): Promise<InitialData> {
@@ -75,7 +79,7 @@ export async function getPendingUsers(
     sortOrder = "desc",
   } = params;
 
-  const pageData = await apiClient.get<PageApiResponse>("/profiles/pending", {
+  const pageData = await apiClient.get<PageApiResponse>("/profiles/needs-review", {
     page: page - 1, // API는 0-based
     size: pageSize,
     sortBy,
@@ -157,4 +161,61 @@ export async function getProfileHistory(
     totalCount: pageData.totalElements,
     totalPages: Math.max(1, pageData.totalPages),
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ReviewSession API
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 심사 세션 생성 (세션 타입은 서버에서 자동 판단)
+export async function createReviewSession(profileId: number): Promise<ReviewSession> {
+  const response = await apiClient.post<ReviewSession>("/review-sessions", {
+    profileId,
+  });
+  return response;
+}
+
+// 프로필의 현재 열린 세션 조회
+export async function getOpenSession(profileId: number): Promise<ReviewSession | null> {
+  try {
+    const response = await apiClient.get<ReviewSession>(
+      `/review-sessions/profile/${profileId}`
+    );
+    return response;
+  } catch {
+    return null;
+  }
+}
+
+// 세션 조회
+export async function getReviewSession(sessionId: number): Promise<ReviewSession | null> {
+  try {
+    const response = await apiClient.get<ReviewSession>(
+      `/review-sessions/${sessionId}`
+    );
+    return response;
+  } catch {
+    return null;
+  }
+}
+
+// 항목 심사 (이미지 또는 가치관톡)
+export async function reviewItem(
+  sessionId: number,
+  sessionImageId: number,
+  decision: ReviewDecision
+): Promise<void> {
+  await apiClient.patch<void>(
+    `/review-sessions/${sessionId}/items/${sessionImageId}`,
+    { decision }
+  );
+}
+
+// 세션 커밋 (최종 저장)
+export async function commitReviewSession(sessionId: number): Promise<ReviewSession> {
+  const response = await apiClient.post<ReviewSession>(
+    `/review-sessions/${sessionId}/commit`
+  );
+  revalidatePath("/profiles/profile");
+  return response;
 }

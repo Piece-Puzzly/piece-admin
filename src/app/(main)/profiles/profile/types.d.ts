@@ -1,5 +1,6 @@
 export type UserData = {
   user_id: bigint;
+  profile_id: bigint | null;
   role: string | null;
   phone: string | null;
   created_at: Date | null;
@@ -27,3 +28,30 @@ export type InitialData = {
 export type SortableKey = "user_id" | "nickname" | "birthdate" | "created_at";
 
 export type SortDirection = "asc" | "desc";
+
+// ReviewSession 관련 타입
+export type ReviewDecision = "PENDING" | "ACCEPT" | "REJECT";
+export type ReviewSessionType = "INITIAL" | "UPDATE";
+export type ReviewSessionStatus = "OPEN" | "COMMITTED";
+export type ReviewItemType = "MAIN_IMAGE" | "ADDITIONAL_IMAGE" | "VALUE_TALK";
+
+export interface ReviewSessionImage {
+  id: number;
+  itemType: ReviewItemType;
+  profileImageId: number | null;
+  imageUrl: string | null;
+  decision: ReviewDecision;
+  decidedAt: string | null;
+}
+
+export interface ReviewSession {
+  sessionId: number;
+  profileId: number;
+  userId: number;
+  sessionType: ReviewSessionType;
+  status: ReviewSessionStatus;
+  items: ReviewSessionImage[];
+  readyToCommit: boolean;
+  createdAt: string;
+  committedAt: string | null;
+}

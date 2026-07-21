@@ -35,7 +35,6 @@ export const navMain = [
     items: [
       { url: "/profiles/profile/history", title: "심사 내역" },
       { url: "/profiles/profile", title: "프로필 심사" },
-      { url: "/profiles/photo", title: "사진 심사" },
       { url: "/report/reported", title: "신고" },
       { url: "/report/blocked", title: "차단" },
     ],
