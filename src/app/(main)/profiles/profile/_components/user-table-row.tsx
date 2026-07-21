@@ -74,7 +74,6 @@ export function UserTableRow({ user }: UserTableRowProps) {
         {user.profile && user.profile_id ? (
           <ReviewSessionDialog
             profileId={Number(user.profile_id)}
-            userId={Number(user.user_id)}
             nickname={user.profile.nickname}
           >
             <Button

@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import {
   ReviewSession,
   ReviewSessionImage,
-  ReviewDecision,
 } from "../types.d";
 import {
   createReviewSession,
@@ -31,7 +30,6 @@ import {
 
 interface ReviewSessionDialogProps {
   profileId: number;
-  userId: number;
   nickname: string;
   children: React.ReactNode;
 }
@@ -40,7 +38,6 @@ type LocalDecision = "ACCEPT" | "REJECT" | null;
 
 export function ReviewSessionDialog({
   profileId,
-  userId,
   nickname,
   children,
 }: ReviewSessionDialogProps) {
