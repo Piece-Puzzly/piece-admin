@@ -22,8 +22,8 @@ interface UserTableRowProps {
 export function UserTableRow({ user }: UserTableRowProps) {
   const debug = useDebug((e) => e.debug);
 
-  // 탈퇴 유저: 닉네임이 "탈퇴_"로 시작하는지로 판별
-  const isWithdrawn = user.profile?.nickname?.startsWith("탈퇴_") ?? false;
+  // 탈퇴 유저: 닉네임이 "_d_"로 시작하는지로 판별
+  const isWithdrawn = user.profile?.nickname?.startsWith("_d_") ?? false;
 
   // 프로필이 없거나 이미 승인된 경우 심사 비활성
   const canReview =

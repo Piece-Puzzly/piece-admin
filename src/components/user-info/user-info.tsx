@@ -134,10 +134,10 @@ export default function UserInfo({ id }: { id: number | bigint }) {
   if (error) return <div>오류: {error}</div>;
   if (!user) return <div>유저 없음</div>;
 
-  // 탈퇴 유저: is_admin=true 또는 닉네임이 "탈퇴_"로 시작
+  // 탈퇴 유저: is_admin=true 또는 닉네임이 "_d_"로 시작
   const isWithdrawn =
     user.isAdmin === true ||
-    (user.profile?.nickname?.startsWith("탈퇴_") ?? false);
+    (user.profile?.nickname?.startsWith("_d_") ?? false);
 
   return (
     <main className="space-y-4">
