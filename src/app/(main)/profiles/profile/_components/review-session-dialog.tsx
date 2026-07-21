@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Loader, X, RefreshCw } from "lucide-react";
+import { Check, Loader, X, RefreshCw, ChevronRight, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import ProfileImage from "@/components/profile-image";
@@ -15,8 +15,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getUserById } from "@/lib/server";
+import { ProfileDetail } from "@/lib/types";
 import {
   ReviewSession,
   ReviewSessionImage,
@@ -27,6 +37,7 @@ import {
   reviewItem,
   commitReviewSession,
 } from "../actions";
+import QuestionCard from "./question-card";
 
 interface ReviewSessionDialogProps {
   profileId: number;
@@ -46,6 +57,9 @@ export function ReviewSessionDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 프로필 상세 (가치관톡 조회용)
+  const [profileDetail, setProfileDetail] = useState<ProfileDetail | null>(null);
 
   // 로컬 결정 상태 (sessionImageId -> decision)
   const [decisionMap, setDecisionMap] = useState<Record<number, LocalDecision>>({});
@@ -72,6 +86,12 @@ export function ReviewSessionDialog({
           item.decision === "PENDING" ? null : (item.decision as LocalDecision);
       });
       setDecisionMap(initialDecisions);
+
+      // INITIAL 세션이면 프로필 상세 조회 (가치관톡 표시용)
+      if (existingSession.sessionType === "INITIAL" && existingSession.userId) {
+        const detail = await getUserById(existingSession.userId);
+        setProfileDetail(detail);
+      }
     } catch (err) {
       console.error("세션 로드 실패:", err);
       setError("심사 세션을 불러오는 데 실패했습니다.");
@@ -88,6 +108,7 @@ export function ReviewSessionDialog({
       setSession(null);
       setDecisionMap({});
       setError(null);
+      setProfileDetail(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, profileId]);
@@ -208,7 +229,25 @@ export function ReviewSessionDialog({
               <div className="space-y-3">
                 <h3 className="font-medium text-sm text-muted-foreground">가치관톡</h3>
                 <div className="flex items-center gap-3 p-4 border rounded-lg">
-                  <span className="text-sm">소개글 심사</span>
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" className="text-sm p-0 h-auto hover:underline">
+                        소개글 보기
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent className="w-[450px] sm:max-w-[450px] overflow-y-auto">
+                      <SheetHeader>
+                        <SheetTitle>{nickname}의 가치관톡</SheetTitle>
+                        <SheetDescription>
+                          유저가 작성한 가치관톡 응답입니다.
+                        </SheetDescription>
+                      </SheetHeader>
+                      <div className="mt-6">
+                        <ValueTalkViewer responses={profileDetail?.responses} />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                   <div className="flex gap-2 ml-auto">
                     <Button
                       size="sm"
@@ -255,6 +294,51 @@ export function ReviewSessionDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// 가치관톡 뷰어 컴포넌트
+function ValueTalkViewer({ responses }: { responses?: { title: string; category: string; answer: string }[] }) {
+  const [page, setPage] = useState(1);
+  const totalPages = responses?.length ?? 0;
+
+  if (!responses || responses.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
+        등록된 가치관톡이 없습니다.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <QuestionCard data={responses[page - 1]} />
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="rounded-full"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {page} / {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            size="icon"
+            className="rounded-full"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
