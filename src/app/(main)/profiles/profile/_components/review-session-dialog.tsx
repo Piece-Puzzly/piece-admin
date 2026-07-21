@@ -15,14 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getUserById } from "@/lib/server";
@@ -229,25 +221,23 @@ export function ReviewSessionDialog({
               <div className="space-y-3">
                 <h3 className="font-medium text-sm text-muted-foreground">가치관톡</h3>
                 <div className="flex items-center gap-3 p-4 border rounded-lg">
-                  <Sheet>
-                    <SheetTrigger asChild>
+                  <Dialog>
+                    <DialogTrigger asChild>
                       <Button variant="ghost" className="text-sm p-0 h-auto hover:underline">
                         소개글 보기
                         <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
-                    </SheetTrigger>
-                    <SheetContent className="w-[450px] sm:max-w-[450px] overflow-y-auto">
-                      <SheetHeader>
-                        <SheetTitle>{nickname}의 가치관톡</SheetTitle>
-                        <SheetDescription>
+                    </DialogTrigger>
+                    <DialogContent className="md:w-[500px] md:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>{nickname}의 가치관톡</DialogTitle>
+                        <DialogDescription>
                           유저가 작성한 가치관톡 응답입니다.
-                        </SheetDescription>
-                      </SheetHeader>
-                      <div className="mt-6">
-                        <ValueTalkViewer responses={profileDetail?.responses} />
-                      </div>
-                    </SheetContent>
-                  </Sheet>
+                        </DialogDescription>
+                      </DialogHeader>
+                      <ValueTalkViewer responses={profileDetail?.responses} />
+                    </DialogContent>
+                  </Dialog>
                   <div className="flex gap-2 ml-auto">
                     <Button
                       size="sm"
