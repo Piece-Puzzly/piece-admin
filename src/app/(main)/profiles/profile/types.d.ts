@@ -17,6 +17,12 @@ export type UserData = {
     reason_image: boolean;
     reason_description: boolean;
   }[];
+  // 심사 대기중인 PENDING 이미지 목록
+  pendingImages?: {
+    profileImageId: number;
+    type: string;
+    imageUrl: string;
+  }[];
 };
 
 export type InitialData = {

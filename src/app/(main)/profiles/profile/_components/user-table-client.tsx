@@ -36,6 +36,11 @@ function isSortDirection(direction: string | null): direction is SortDirection {
 // 해당 API는 검색(userId/nickname)·상태 필터를 지원하지 않으므로 정렬·페이지네이션만 제공한다.
 export function UserTableClient({ initialData }: { initialData: InitialData }) {
   const { users, totalCount, error } = initialData;
+
+  // 반려(REJECTED) 상태인 프로필은 심사 탭에서 제외
+  const filteredUsers = users.filter(
+    (user) => user.profile?.profile_status !== "REJECTED"
+  );
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -151,8 +156,8 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
                 {error}
               </TableCell>
             </TableRow>
-          ) : users.length > 0 ? (
-            users.map((user) => <UserTableRow key={user.user_id} user={user} />)
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => <UserTableRow key={user.user_id} user={user} />)
           ) : (
             <TableRow>
               <TableCell colSpan={8} className="h-24 text-center">

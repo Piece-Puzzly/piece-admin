@@ -25,10 +25,9 @@ export function UserTableRow({ user }: UserTableRowProps) {
   // 탈퇴 유저: 닉네임이 "_d_"로 시작하는지로 판별
   const isWithdrawn = user.profile?.nickname?.startsWith("_d_") ?? false;
 
-  // 프로필이 없거나 이미 승인된 경우 심사 비활성
+  // 프로필이 없거나 탈퇴한 경우 심사 비활성
   const canReview =
     user.profile !== null &&
-    user.profile.profile_status !== "APPROVED" &&
     !isWithdrawn;
 
   return (
