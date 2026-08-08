@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Loader, X, RefreshCw, ChevronRight, ChevronLeft } from "lucide-react";
+import { Check, Loader, X, ChevronRight, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import ProfileImage from "@/components/profile-image";
@@ -20,150 +20,138 @@ import { cn } from "@/lib/utils";
 import { getUserById } from "@/lib/server";
 import { ProfileDetail } from "@/lib/types";
 import {
-  ReviewSession,
-  ReviewSessionImage,
+  PendingImageInfo,
+  ReviewDecision,
+  ReviewType,
+  ImageDecision,
 } from "../types.d";
-import {
-  createReviewSession,
-  getOpenSession,
-  reviewItem,
-  commitReviewSession,
-} from "../actions";
+import { reviewProfile } from "../actions";
 import QuestionCard from "./question-card";
 
 interface ReviewSessionDialogProps {
   profileId: number;
+  userId: number;
   nickname: string;
+  role: string;
+  pendingImages: PendingImageInfo[];
   children: React.ReactNode;
 }
 
-type LocalDecision = "ACCEPT" | "REJECT" | null;
+type LocalDecision = ReviewDecision | null;
 
 export function ReviewSessionDialog({
   profileId,
+  userId,
   nickname,
+  role,
+  pendingImages,
   children,
 }: ReviewSessionDialogProps) {
   const [open, setOpen] = useState(false);
-  const [session, setSession] = useState<ReviewSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCommitting, setIsCommitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 프로필 상세 (가치관톡 조회용)
   const [profileDetail, setProfileDetail] = useState<ProfileDetail | null>(null);
 
-  // 로컬 결정 상태 (sessionImageId -> decision)
-  const [decisionMap, setDecisionMap] = useState<Record<number, LocalDecision>>({});
+  // 로컬 결정 상태 (profileImageId -> decision)
+  const [imageDecisionMap, setImageDecisionMap] = useState<Record<number, LocalDecision>>({});
+  // 가치관톡 결정 (INITIAL만)
+  const [valueTalkDecision, setValueTalkDecision] = useState<LocalDecision>(null);
 
-  // 다이얼로그 열릴 때 세션 로드/생성
-  const loadSession = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // 먼저 열린 세션이 있는지 확인
-      let existingSession = await getOpenSession(profileId);
+  // 심사 타입 판단 (role 기반)
+  const reviewType: ReviewType = role === "PENDING" ? "INITIAL" : "UPDATE";
+  const isInitial = reviewType === "INITIAL";
 
-      if (!existingSession) {
-        // 없으면 새 세션 생성
-        existingSession = await createReviewSession(profileId);
-      }
+  // 세션 타입 라벨
+  const sessionTypeLabel = isInitial ? "신규 심사" : "사진 변경 심사";
 
-      setSession(existingSession);
-
-      // 기존 결정 상태 복원
-      const initialDecisions: Record<number, LocalDecision> = {};
-      existingSession.items.forEach((item) => {
-        initialDecisions[item.id] =
-          item.decision === "PENDING" ? null : (item.decision as LocalDecision);
-      });
-      setDecisionMap(initialDecisions);
-
-      // INITIAL 세션이면 프로필 상세 조회 (가치관톡 표시용)
-      if (existingSession.sessionType === "INITIAL" && existingSession.userId) {
-        const detail = await getUserById(existingSession.userId);
-        setProfileDetail(detail);
-      }
-    } catch (err) {
-      console.error("세션 로드 실패:", err);
-      setError("심사 세션을 불러오는 데 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // 다이얼로그 열릴 때 초기화 및 프로필 상세 로드
   useEffect(() => {
     if (open) {
-      loadSession();
+      // 결정 상태 초기화
+      const initialDecisions: Record<number, LocalDecision> = {};
+      pendingImages.forEach((img) => {
+        initialDecisions[img.profileImageId] = null;
+      });
+      setImageDecisionMap(initialDecisions);
+      setValueTalkDecision(null);
+
+      // INITIAL 심사면 프로필 상세 로드 (가치관톡 표시용)
+      if (isInitial && userId) {
+        setIsLoading(true);
+        getUserById(userId)
+          .then((detail) => setProfileDetail(detail))
+          .catch((err) => {
+            console.error("프로필 상세 로드 실패:", err);
+          })
+          .finally(() => setIsLoading(false));
+      }
     } else {
       // 다이얼로그 닫힐 때 상태 초기화
-      setSession(null);
-      setDecisionMap({});
-      setError(null);
+      setImageDecisionMap({});
+      setValueTalkDecision(null);
       setProfileDetail(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, profileId]);
+  }, [open, pendingImages, isInitial, userId]);
 
-  // 항목 결정 변경
-  const handleDecision = async (sessionImageId: number, decision: LocalDecision) => {
-    if (!session || !decision) return;
-
-    const prevDecision = decisionMap[sessionImageId];
-    setDecisionMap((prev) => ({
+  // 이미지 결정 변경 (로컬 상태만 변경, API 호출 없음)
+  const handleImageDecision = (profileImageId: number, decision: LocalDecision) => {
+    setImageDecisionMap((prev) => ({
       ...prev,
-      [sessionImageId]: decision,
+      [profileImageId]: decision,
     }));
-
-    try {
-      await reviewItem(session.sessionId, sessionImageId, decision);
-    } catch (err) {
-      console.error("결정 저장 실패:", err);
-      toast.error("결정 저장에 실패했습니다.");
-      // 롤백
-      setDecisionMap((prev) => ({
-        ...prev,
-        [sessionImageId]: prevDecision,
-      }));
-    }
   };
 
-  // 최종 저장 (커밋)
-  const handleCommit = async () => {
-    if (!session) return;
+  // 가치관톡 결정 변경 (로컬 상태만 변경)
+  const handleValueTalkDecision = (decision: LocalDecision) => {
+    setValueTalkDecision(decision);
+  };
 
-    // 모든 항목에 결정이 내려졌는지 확인
-    const allDecided = session.items.every(
-      (item) => decisionMap[item.id] !== null
-    );
+  // 모든 항목 결정 완료 여부
+  const allImagesDecided = pendingImages.every(
+    (img) => imageDecisionMap[img.profileImageId] !== null
+  );
+  const valueTalkDecided = !isInitial || valueTalkDecision !== null;
+  const allDecided = allImagesDecided && valueTalkDecided;
 
+  // 최종 저장 (단일 API 호출)
+  const handleSubmit = async () => {
     if (!allDecided) {
       toast.error("모든 항목에 대해 승인/반려를 선택해주세요.");
       return;
     }
 
-    setIsCommitting(true);
+    setIsSubmitting(true);
     try {
-      await commitReviewSession(session.sessionId);
+      // 이미지 결정 배열 생성
+      const imageDecisions: ImageDecision[] = pendingImages.map((img) => ({
+        profileImageId: img.profileImageId,
+        decision: imageDecisionMap[img.profileImageId] as ReviewDecision,
+      }));
+
+      // API 호출
+      await reviewProfile(profileId, {
+        imageDecisions,
+        valueTalkDecision: isInitial ? (valueTalkDecision as ReviewDecision) : undefined,
+      });
+
       toast.success("심사가 완료되었습니다.");
       setOpen(false);
     } catch (err) {
-      console.error("커밋 실패:", err);
-      toast.error("최종 저장에 실패했습니다.");
+      console.error("심사 실패:", err);
+      toast.error("심사 저장에 실패했습니다.");
     } finally {
-      setIsCommitting(false);
+      setIsSubmitting(false);
     }
   };
 
-  // 이미지 항목과 가치관톡 항목 분리
-  const imageItems = session?.items.filter((item) => item.itemType !== "VALUE_TALK") || [];
-  const valueTalkItem = session?.items.find((item) => item.itemType === "VALUE_TALK");
-
-  // 세션 타입 라벨
-  const sessionTypeLabel = session?.sessionType === "INITIAL" ? "신규 심사" : "사진 변경 심사";
-
-  // 모든 항목 결정 완료 여부
-  const allDecided = session?.items.every((item) => decisionMap[item.id] !== null) ?? false;
+  // 이미지 타입별로 분류 (MAIN 먼저, 그다음 ADDITIONAL을 displayOrder 순으로)
+  const sortedImages = [...pendingImages].sort((a, b) => {
+    if (a.type === "MAIN" && b.type !== "MAIN") return -1;
+    if (a.type !== "MAIN" && b.type === "MAIN") return 1;
+    return (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -172,11 +160,9 @@ export function ReviewSessionDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span>{nickname}</span>
-            {session && (
-              <Badge variant={session.sessionType === "INITIAL" ? "default" : "secondary"}>
-                {sessionTypeLabel}
-              </Badge>
-            )}
+            <Badge variant={isInitial ? "default" : "secondary"}>
+              {sessionTypeLabel}
+            </Badge>
           </DialogTitle>
           <DialogDescription>
             각 항목을 승인 또는 반려한 후 최종 저장을 눌러주세요.
@@ -187,43 +173,40 @@ export function ReviewSessionDialog({
           <div className="flex items-center justify-center py-12">
             <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <p className="text-red-500">{error}</p>
-            <Button variant="outline" onClick={loadSession}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              다시 시도
-            </Button>
-          </div>
-        ) : session ? (
+        ) : (
           <div className="space-y-6">
             {/* 이미지 심사 */}
-            {imageItems.length > 0 && (
+            {sortedImages.length > 0 && (
               <div className="space-y-3">
                 <h3 className="font-medium text-sm text-muted-foreground">
-                  이미지 ({imageItems.length}개)
+                  이미지 ({sortedImages.length}개)
                 </h3>
                 <div className="flex gap-4 flex-wrap">
-                  {imageItems.map((item) => (
-                    <ReviewItemCard
-                      key={item.id}
-                      item={item}
-                      decision={decisionMap[item.id]}
-                      onDecision={(decision) => handleDecision(item.id, decision)}
+                  {sortedImages.map((img) => (
+                    <ReviewImageCard
+                      key={img.profileImageId}
+                      image={img}
+                      decision={imageDecisionMap[img.profileImageId]}
+                      onDecision={(decision) =>
+                        handleImageDecision(img.profileImageId, decision)
+                      }
                     />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* 가치관톡 심사 */}
-            {valueTalkItem && (
+            {/* 가치관톡 심사 (INITIAL만) */}
+            {isInitial && (
               <div className="space-y-3">
                 <h3 className="font-medium text-sm text-muted-foreground">가치관톡</h3>
                 <div className="flex items-center gap-3 p-4 border rounded-lg">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" className="text-sm p-0 h-auto hover:underline">
+                      <Button
+                        variant="ghost"
+                        className="text-sm p-0 h-auto hover:underline"
+                      >
                         소개글 보기
                         <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
@@ -241,22 +224,22 @@ export function ReviewSessionDialog({
                   <div className="flex gap-2 ml-auto">
                     <Button
                       size="sm"
-                      variant={decisionMap[valueTalkItem.id] === "ACCEPT" ? "default" : "secondary"}
+                      variant={valueTalkDecision === "ACCEPT" ? "default" : "secondary"}
                       className={cn(
-                        decisionMap[valueTalkItem.id] === "ACCEPT" && "bg-green-600 hover:bg-green-700"
+                        valueTalkDecision === "ACCEPT" && "bg-green-600 hover:bg-green-700"
                       )}
-                      onClick={() => handleDecision(valueTalkItem.id, "ACCEPT")}
+                      onClick={() => handleValueTalkDecision("ACCEPT")}
                     >
                       <Check className="h-4 w-4 mr-1" />
                       승인
                     </Button>
                     <Button
                       size="sm"
-                      variant={decisionMap[valueTalkItem.id] === "REJECT" ? "default" : "secondary"}
+                      variant={valueTalkDecision === "REJECT" ? "default" : "secondary"}
                       className={cn(
-                        decisionMap[valueTalkItem.id] === "REJECT" && "bg-red-600 hover:bg-red-700"
+                        valueTalkDecision === "REJECT" && "bg-red-600 hover:bg-red-700"
                       )}
-                      onClick={() => handleDecision(valueTalkItem.id, "REJECT")}
+                      onClick={() => handleValueTalkDecision("REJECT")}
                     >
                       <X className="h-4 w-4 mr-1" />
                       반려
@@ -266,17 +249,17 @@ export function ReviewSessionDialog({
               </div>
             )}
           </div>
-        ) : null}
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             취소
           </Button>
           <Button
-            onClick={handleCommit}
-            disabled={isCommitting || !allDecided || !session}
+            onClick={handleSubmit}
+            disabled={isSubmitting || !allDecided || (!isInitial && pendingImages.length === 0)}
           >
-            {isCommitting ? (
+            {isSubmitting ? (
               <Loader className="h-4 w-4 animate-spin mr-2" />
             ) : null}
             최종 저장
@@ -288,7 +271,11 @@ export function ReviewSessionDialog({
 }
 
 // 가치관톡 뷰어 컴포넌트
-function ValueTalkViewer({ responses }: { responses?: { title: string; category: string; answer: string }[] }) {
+function ValueTalkViewer({
+  responses,
+}: {
+  responses?: { title: string; category: string; answer: string }[];
+}) {
   const [page, setPage] = useState(1);
   const totalPages = responses?.length ?? 0;
 
@@ -332,23 +319,23 @@ function ValueTalkViewer({ responses }: { responses?: { title: string; category:
   );
 }
 
-// 개별 항목 카드 컴포넌트
-function ReviewItemCard({
-  item,
+// 개별 이미지 카드 컴포넌트
+function ReviewImageCard({
+  image,
   decision,
   onDecision,
 }: {
-  item: ReviewSessionImage;
+  image: PendingImageInfo;
   decision: LocalDecision;
   onDecision: (decision: LocalDecision) => void;
 }) {
-  const typeLabel = item.itemType === "MAIN_IMAGE" ? "메인" : "추가";
+  const typeLabel = image.type === "MAIN" ? "메인" : "추가";
 
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="relative">
         <ProfileImage
-          src={item.imageUrl}
+          src={image.imageUrl}
           alt="프로필 이미지"
           width={100}
           height={100}

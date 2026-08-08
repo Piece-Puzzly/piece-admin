@@ -1,3 +1,11 @@
+// 심사 대기중인 PENDING 이미지 정보
+export interface PendingImageInfo {
+  profileImageId: number;
+  type: "MAIN" | "ADDITIONAL";
+  imageUrl: string;
+  displayOrder: number | null;
+}
+
 export type UserData = {
   user_id: bigint;
   profile_id: bigint | null;
@@ -18,11 +26,7 @@ export type UserData = {
     reason_description: boolean;
   }[];
   // 심사 대기중인 PENDING 이미지 목록
-  pendingImages?: {
-    profileImageId: number;
-    type: string;
-    imageUrl: string;
-  }[];
+  pendingImages?: PendingImageInfo[];
 };
 
 export type InitialData = {
@@ -31,33 +35,49 @@ export type InitialData = {
   totalPages: number;
   error?: string;
 };
+
 export type SortableKey = "user_id" | "nickname" | "birthdate" | "created_at";
 
 export type SortDirection = "asc" | "desc";
 
-// ReviewSession 관련 타입
-export type ReviewDecision = "PENDING" | "ACCEPT" | "REJECT";
-export type ReviewSessionType = "INITIAL" | "UPDATE";
-export type ReviewSessionStatus = "OPEN" | "COMMITTED";
-export type ReviewItemType = "MAIN_IMAGE" | "ADDITIONAL_IMAGE" | "VALUE_TALK";
+// ═══════════════════════════════════════════════════════════════════════════
+// 프로필 심사 API (단일 API)
+// ═══════════════════════════════════════════════════════════════════════════
 
-export interface ReviewSessionImage {
-  id: number;
-  itemType: ReviewItemType;
-  profileImageId: number | null;
-  imageUrl: string | null;
+// 심사 결정
+export type ReviewDecision = "ACCEPT" | "REJECT";
+
+// 심사 타입 (서버에서 user.role 기반으로 자동 판단)
+// - INITIAL: role=PENDING (신규 심사, 이미지 + 가치관톡)
+// - UPDATE: role=USER (사진 변경 심사, 이미지만)
+export type ReviewType = "INITIAL" | "UPDATE";
+
+// 이미지 심사 결정
+export interface ImageDecision {
+  profileImageId: number;
   decision: ReviewDecision;
-  decidedAt: string | null;
 }
 
-export interface ReviewSession {
-  sessionId: number;
+// 심사 요청
+export interface ProfileReviewRequest {
+  imageDecisions: ImageDecision[];
+  valueTalkDecision?: ReviewDecision; // INITIAL(role=PENDING)일 때만 필수
+}
+
+// 이미지 심사 결과
+export interface ImageResult {
+  profileImageId: number;
+  imageType: string;       // MAIN, ADDITIONAL
+  decision: string;        // ACCEPT, REJECT
+  resultStatus: string;    // ACCEPTED, REJECTED
+}
+
+// 심사 응답
+export interface ProfileReviewResponse {
   profileId: number;
   userId: number;
-  sessionType: ReviewSessionType;
-  status: ReviewSessionStatus;
-  items: ReviewSessionImage[];
-  readyToCommit: boolean;
-  createdAt: string;
-  committedAt: string | null;
+  reviewType: ReviewType;
+  resultStatus: string;    // APPROVED, REJECTED
+  imageResults: ImageResult[];
+  valueTalkResult: string | null; // ACCEPT, REJECT (INITIAL만)
 }

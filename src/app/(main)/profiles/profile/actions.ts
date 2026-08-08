@@ -1,6 +1,12 @@
 "use server";
 
-import { InitialData, UserData, ReviewSession, ReviewDecision } from "./types.d";
+import {
+  InitialData,
+  UserData,
+  PendingImageInfo,
+  ProfileReviewRequest,
+  ProfileReviewResponse,
+} from "./types.d";
 import { apiClient } from "@/lib/api-client";
 import { revalidatePath } from "next/cache";
 
@@ -23,6 +29,13 @@ interface ProfileListApiResponse {
     reasonDescription: boolean;
   };
   profileImageStatus: string | null;
+  // PENDING 이미지 목록 (심사 대상)
+  pendingImages: {
+    profileImageId: number;
+    type: "MAIN" | "ADDITIONAL";
+    imageUrl: string;
+    displayOrder: number | null;
+  }[];
 }
 
 interface PageApiResponse {
@@ -36,25 +49,42 @@ interface PageApiResponse {
 }
 
 function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): UserData {
+  // pendingImages 변환
+  const pendingImages: PendingImageInfo[] = (apiResponse.pendingImages ?? []).map((img) => ({
+    profileImageId: img.profileImageId,
+    type: img.type,
+    imageUrl: img.imageUrl,
+    displayOrder: img.displayOrder,
+  }));
+
   return {
     user_id: BigInt(apiResponse.userId),
     profile_id: apiResponse.profileId ? BigInt(apiResponse.profileId) : null,
     role: apiResponse.role,
     phone: apiResponse.phone,
     created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
-    profile: apiResponse.profileInfo ? {
-      nickname: apiResponse.profileInfo.nickname ?? "",
-      birthdate: apiResponse.profileInfo.birthdate ? new Date(apiResponse.profileInfo.birthdate) : null,
-      profile_status: apiResponse.profileInfo.profileStatus,
-      // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
-      image_url: apiResponse.profileInfo.imageUrl,
-      // 승인 일시. 미승인이면 null.
-      approved_at: apiResponse.profileInfo.approvedAt ? new Date(apiResponse.profileInfo.approvedAt) : null,
-    } : null,
-    user_reject_history: [{
-      reason_image: apiResponse.rejectHistory.reasonImage,
-      reason_description: apiResponse.rejectHistory.reasonDescription,
-    }],
+    profile: apiResponse.profileInfo
+      ? {
+          nickname: apiResponse.profileInfo.nickname ?? "",
+          birthdate: apiResponse.profileInfo.birthdate
+            ? new Date(apiResponse.profileInfo.birthdate)
+            : null,
+          profile_status: apiResponse.profileInfo.profileStatus,
+          // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
+          image_url: apiResponse.profileInfo.imageUrl,
+          // 승인 일시. 미승인이면 null.
+          approved_at: apiResponse.profileInfo.approvedAt
+            ? new Date(apiResponse.profileInfo.approvedAt)
+            : null,
+        }
+      : null,
+    user_reject_history: [
+      {
+        reason_image: apiResponse.rejectHistory.reasonImage,
+        reason_description: apiResponse.rejectHistory.reasonDescription,
+      },
+    ],
+    pendingImages,
   };
 }
 
@@ -164,58 +194,29 @@ export async function getProfileHistory(
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ReviewSession API
+// 프로필 심사 API (단일 API)
 // ═══════════════════════════════════════════════════════════════════════════
 
-// 심사 세션 생성 (세션 타입은 서버에서 자동 판단)
-export async function createReviewSession(profileId: number): Promise<ReviewSession> {
-  const response = await apiClient.post<ReviewSession>("/review-sessions", {
-    profileId,
-  });
-  return response;
-}
-
-// 프로필의 현재 열린 세션 조회
-export async function getOpenSession(profileId: number): Promise<ReviewSession | null> {
-  try {
-    const response = await apiClient.get<ReviewSession>(
-      `/review-sessions/profile/${profileId}`
-    );
-    return response;
-  } catch {
-    return null;
-  }
-}
-
-// 세션 조회
-export async function getReviewSession(sessionId: number): Promise<ReviewSession | null> {
-  try {
-    const response = await apiClient.get<ReviewSession>(
-      `/review-sessions/${sessionId}`
-    );
-    return response;
-  } catch {
-    return null;
-  }
-}
-
-// 항목 심사 (이미지 또는 가치관톡)
-export async function reviewItem(
-  sessionId: number,
-  sessionImageId: number,
-  decision: ReviewDecision
-): Promise<void> {
-  await apiClient.patch<void>(
-    `/review-sessions/${sessionId}/items/${sessionImageId}`,
-    { decision }
+/**
+ * 프로필 심사 수행
+ *
+ * - INITIAL (role=PENDING): 이미지 + 가치관톡 심사
+ * - UPDATE (role=USER): 이미지만 심사
+ *
+ * @param profileId 프로필 ID
+ * @param request 심사 요청 (이미지 결정 + 가치관톡 결정)
+ */
+export async function reviewProfile(
+  profileId: number,
+  request: ProfileReviewRequest
+): Promise<ProfileReviewResponse> {
+  const response = await apiClient.post<ProfileReviewResponse>(
+    `/profiles/${profileId}/review`,
+    request
   );
-}
 
-// 세션 커밋 (최종 저장)
-export async function commitReviewSession(sessionId: number): Promise<ReviewSession> {
-  const response = await apiClient.post<ReviewSession>(
-    `/review-sessions/${sessionId}/commit`
-  );
+  // 심사 완료 후 목록 갱신
   revalidatePath("/profiles/profile");
+
   return response;
 }
