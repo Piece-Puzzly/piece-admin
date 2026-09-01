@@ -34,15 +34,16 @@ export async function getFilteredProfile(
   });
 }
 
+/**
+ * 프로필 심사 (가치관Talk만 처리)
+ * 이미지 심사는 사진 심사 탭에서 UpdateProfileImageStatus로 별도 처리
+ */
 export async function updateProfileStatus(
   userId: number,
-  rejectImage: boolean,
   rejectDescription: boolean
 ) {
-
   const response = await apiClient.post<Profile>(`/users/${userId}/profile`, {
-    rejectImage: rejectImage,
-    rejectDescription: rejectDescription,
+    rejectDescription,
   });
   revalidatePath("/profiles/profile");
   return response;

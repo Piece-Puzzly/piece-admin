@@ -1,10 +1,18 @@
 "use server";
 
-import { InitialData, UserData } from "./types.d";
+import {
+  InitialData,
+  UserData,
+  PendingImageInfo,
+  ProfileReviewRequest,
+  ProfileReviewResponse,
+} from "./types.d";
 import { apiClient } from "@/lib/api-client";
+import { revalidatePath } from "next/cache";
 
 interface ProfileListApiResponse {
   userId: number;
+  profileId: number | null;
   role: string | null;
   phone: string | null;
   createdAt: string | null;
@@ -21,6 +29,13 @@ interface ProfileListApiResponse {
     reasonDescription: boolean;
   };
   profileImageStatus: string | null;
+  // PENDING 이미지 목록 (심사 대상)
+  pendingImages: {
+    profileImageId: number;
+    type: "MAIN" | "ADDITIONAL";
+    imageUrl: string;
+    displayOrder: number | null;
+  }[];
 }
 
 interface PageApiResponse {
@@ -34,24 +49,42 @@ interface PageApiResponse {
 }
 
 function convertApiResponseToUserData(apiResponse: ProfileListApiResponse): UserData {
+  // pendingImages 변환
+  const pendingImages: PendingImageInfo[] = (apiResponse.pendingImages ?? []).map((img) => ({
+    profileImageId: img.profileImageId,
+    type: img.type,
+    imageUrl: img.imageUrl,
+    displayOrder: img.displayOrder,
+  }));
+
   return {
     user_id: BigInt(apiResponse.userId),
+    profile_id: apiResponse.profileId ? BigInt(apiResponse.profileId) : null,
     role: apiResponse.role,
     phone: apiResponse.phone,
     created_at: apiResponse.createdAt ? new Date(apiResponse.createdAt) : null,
-    profile: apiResponse.profileInfo ? {
-      nickname: apiResponse.profileInfo.nickname ?? "",
-      birthdate: apiResponse.profileInfo.birthdate ? new Date(apiResponse.profileInfo.birthdate) : null,
-      profile_status: apiResponse.profileInfo.profileStatus,
-      // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
-      image_url: apiResponse.profileInfo.imageUrl,
-      // 승인 일시. 미승인이면 null.
-      approved_at: apiResponse.profileInfo.approvedAt ? new Date(apiResponse.profileInfo.approvedAt) : null,
-    } : null,
-    user_reject_history: [{
-      reason_image: apiResponse.rejectHistory.reasonImage,
-      reason_description: apiResponse.rejectHistory.reasonDescription,
-    }],
+    profile: apiResponse.profileInfo
+      ? {
+          nickname: apiResponse.profileInfo.nickname ?? "",
+          birthdate: apiResponse.profileInfo.birthdate
+            ? new Date(apiResponse.profileInfo.birthdate)
+            : null,
+          profile_status: apiResponse.profileInfo.profileStatus,
+          // 사진 보유 여부 판정용. null이면 사진 미제출 → 사진 심사 버튼 비활성
+          image_url: apiResponse.profileInfo.imageUrl,
+          // 승인 일시. 미승인이면 null.
+          approved_at: apiResponse.profileInfo.approvedAt
+            ? new Date(apiResponse.profileInfo.approvedAt)
+            : null,
+        }
+      : null,
+    user_reject_history: [
+      {
+        reason_image: apiResponse.rejectHistory.reasonImage,
+        reason_description: apiResponse.rejectHistory.reasonDescription,
+      },
+    ],
+    pendingImages,
   };
 }
 
@@ -62,9 +95,10 @@ interface GetPendingUsersParams {
   sortOrder?: "asc" | "desc";
 }
 
-// 심사 대기(role=PENDING) 프로필만 조회한다.
-// /profiles/pending 엔드포인트는 검색(userId/nickname)·상태 필터를 지원하지 않고
-// 페이지·정렬 파라미터만 받는다. 응답 형태는 /profiles와 동일하다.
+// 심사 대기 전체 조회 (신규 유저 + 기존 유저 사진 변경)
+// /profiles/needs-review 엔드포인트:
+// - role=PENDING 유저 (신규)
+// - role=USER이면서 PENDING 이미지가 있는 유저 (기존 유저 사진 변경)
 export async function getPendingUsers(
   params: GetPendingUsersParams
 ): Promise<InitialData> {
@@ -75,7 +109,7 @@ export async function getPendingUsers(
     sortOrder = "desc",
   } = params;
 
-  const pageData = await apiClient.get<PageApiResponse>("/profiles/pending", {
+  const pageData = await apiClient.get<PageApiResponse>("/profiles/needs-review", {
     page: page - 1, // API는 0-based
     size: pageSize,
     sortBy,
@@ -157,4 +191,32 @@ export async function getProfileHistory(
     totalCount: pageData.totalElements,
     totalPages: Math.max(1, pageData.totalPages),
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 프로필 심사 API (단일 API)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 프로필 심사 수행
+ *
+ * - INITIAL (role=PENDING): 이미지 + 가치관톡 심사
+ * - UPDATE (role=USER): 이미지만 심사
+ *
+ * @param profileId 프로필 ID
+ * @param request 심사 요청 (이미지 결정 + 가치관톡 결정)
+ */
+export async function reviewProfile(
+  profileId: number,
+  request: ProfileReviewRequest
+): Promise<ProfileReviewResponse> {
+  const response = await apiClient.post<ProfileReviewResponse>(
+    `/profiles/${profileId}/review`,
+    request
+  );
+
+  // 심사 완료 후 목록 갱신
+  revalidatePath("/profiles/profile");
+
+  return response;
 }

@@ -36,6 +36,11 @@ function isSortDirection(direction: string | null): direction is SortDirection {
 // 해당 API는 검색(userId/nickname)·상태 필터를 지원하지 않으므로 정렬·페이지네이션만 제공한다.
 export function UserTableClient({ initialData }: { initialData: InitialData }) {
   const { users, totalCount, error } = initialData;
+
+  // 반려(REJECTED) 상태인 프로필은 심사 탭에서 제외
+  const filteredUsers = users.filter(
+    (user) => user.profile?.profile_status !== "REJECTED"
+  );
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -141,22 +146,21 @@ export function UserTableClient({ initialData }: { initialData: InitialData }) {
             </TableHead>
             <TableHead>유저 상태</TableHead>
             <TableHead>프로필 상태</TableHead>
-            <TableHead>부적격</TableHead>
-            <TableHead>제출</TableHead>
+            <TableHead>심사</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {error ? (
             <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center text-red-500">
+              <TableCell colSpan={8} className="h-24 text-center text-red-500">
                 {error}
               </TableCell>
             </TableRow>
-          ) : users.length > 0 ? (
-            users.map((user) => <UserTableRow key={user.user_id} user={user} />)
+          ) : filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => <UserTableRow key={user.user_id} user={user} />)
           ) : (
             <TableRow>
-              <TableCell colSpan={9} className="h-24 text-center">
+              <TableCell colSpan={8} className="h-24 text-center">
                 결과가 없습니다.
               </TableCell>
             </TableRow>
